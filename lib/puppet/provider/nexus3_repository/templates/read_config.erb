@@ -1,0 +1,34 @@
+def repositories = repository.repositoryManager.browse()
+def infos = repositories.findResults { repository ->
+  def config = repository.getConfiguration()
+  def (provider_type, type) = config.recipeName.split('-')
+
+  if (type == 'group') {
+    return null
+  }
+
+  def storage = config.attributes('storage')
+  def proxy = config.attributes('proxy')
+  def group = config.attributes('group')
+  def maven = config.attributes('maven')
+  def httpclient = config.attributes('httpclient');
+  def authentication = httpclient.child('authentication');
+  [
+    name: config.repositoryName,
+    type: type,
+    provider_type: provider_type,
+    online: config.isOnline(),
+    write_policy: storage.get('writePolicy'),
+    blobstore_name: storage.get('blobStoreName'),
+    strict_content_type_validation: storage.get('strictContentTypeValidation'),
+    remote_url: proxy.get('remoteUrl'),
+    version_policy: maven.get('versionPolicy')?.toLowerCase(),
+    layout_policy: maven.get('layoutPolicy')?.toLowerCase(),
+    remote_auth_type: authentication.get('type') ? authentication.get('type') : 'none',
+    remote_user: authentication.get('username'),
+    remote_password: authentication.get('password'),
+    remote_ntlm_host: authentication.get('ntlmHost'),
+    remote_ntlm_domain: authentication.get('ntlmDomain'),
+  ]
+}
+return groovy.json.JsonOutput.toJson(infos)

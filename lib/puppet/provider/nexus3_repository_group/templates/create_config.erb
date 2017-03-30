@@ -1,0 +1,10 @@
+def config = new org.sonatype.nexus.repository.config.Configuration()
+config.repositoryName = '<%= resource[:name] %>'
+config.recipeName = '<%= resource[:provider_type] %>-group'
+config.online = <%= resource[:online] %>
+def group = config.attributes('group')
+group.set('memberNames', <%= resource[:repositories] %>)
+def storage = config.attributes('storage')
+storage.set('strictContentTypeValidation', <%= resource[:strict_content_type_validation] %>)
+storage.set('blobStoreName', '<%= resource[:blobstore_name] %>')
+repository.repositoryManager.create(config)

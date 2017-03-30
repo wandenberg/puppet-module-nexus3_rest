@@ -1,0 +1,7 @@
+def config = repository.repositoryManager.get('<%= resource[:name] %>').getConfiguration()
+config.online = <%= resource[:online] %>
+def group = config.attributes('group')
+group.set('memberNames', <%= resource[:repositories] %>)
+def storage = config.attributes('storage')
+storage.set('strictContentTypeValidation', <%= resource[:strict_content_type_validation] %>)
+repository.repositoryManager.update(config)

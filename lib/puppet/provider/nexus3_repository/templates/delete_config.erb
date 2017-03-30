@@ -1,0 +1,15 @@
+def repositories = repository.repositoryManager.browse()
+repositories.each { repo ->
+  def config = repo.getConfiguration()
+  def (provider_type, type) = config.recipeName.split('-')
+  if (type == 'group') {
+    def group = config.attributes('group')
+    def members = group.get('memberNames')
+    if (members.contains('<%= resource[:name] %>')) {
+      members.removeElement('<%= resource[:name] %>')
+      group.set('memberNames', members)
+      repository.repositoryManager.update(config)
+    }
+  }
+}
+repository.repositoryManager.delete('<%= resource[:name] %>')
