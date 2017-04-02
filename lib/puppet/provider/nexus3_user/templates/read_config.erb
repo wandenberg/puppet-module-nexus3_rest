@@ -1,0 +1,14 @@
+def userManager = container.lookup(org.sonatype.nexus.security.user.ConfiguredUsersUserManager.class.name)
+def users = userManager.listUsers()
+def infos = users.collect { user ->
+  [
+    name : user.getUserId(),
+    firstname : user.getFirstName(),
+    lastname : user.getLastName(),
+    email : user.getEmailAddress(),
+    roles : user.getRoles().collect { role -> role.getRoleId() },
+    read_only : user.isReadOnly(),
+    status : user.getStatus(),
+  ]
+}
+return groovy.json.JsonOutput.toJson(infos)
