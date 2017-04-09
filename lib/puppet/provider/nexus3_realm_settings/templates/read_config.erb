@@ -1,0 +1,5 @@
+def realmManager = container.lookup(org.sonatype.nexus.security.realm.RealmManager.class.name);
+def config = realmManager.getConfiguration()
+return groovy.json.JsonOutput.toJson([
+  names : config.getRealmNames(),
+]);

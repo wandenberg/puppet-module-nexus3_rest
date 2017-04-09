@@ -1,0 +1,4 @@
+def realmManager = container.lookup(org.sonatype.nexus.security.realm.RealmManager.class.name)
+def config = realmManager.getConfiguration()
+config.setRealmNames(<%= resource[:names] %>)
+realmManager.setConfiguration(config);
