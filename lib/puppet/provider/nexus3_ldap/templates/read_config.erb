@@ -1,0 +1,45 @@
+def ldapConfigurationManager = container.lookup(org.sonatype.nexus.ldap.persist.LdapConfigurationManager.class.name)
+def ldapConfigurations = ldapConfigurationManager.listLdapServerConfigurations()
+
+def infos = ldapConfigurations.collect { ldapConfiguration ->
+  def connection = ldapConfiguration.getConnection()
+  def host = connection.getHost()
+  def mapping = ldapConfiguration.getMapping()
+  [
+    name: ldapConfiguration.getName(),
+    id: ldapConfiguration.getId(),
+    order: ldapConfiguration.getOrder(),
+    protocol: host.getProtocol(),
+    hostname: host.getHostName(),
+    port: host.getPort(),
+    search_base: connection.getSearchBase(),
+    max_incidents_count: connection.getMaxIncidentsCount(),
+    connection_retry_delay: connection.getConnectionRetryDelay(),
+    connection_timeout: connection.getConnectionTimeout(),
+    sasl_realm: connection.getSaslRealm(),
+
+    authentication_scheme: connection.getAuthScheme(),
+    username: connection.getSystemUsername(),
+    password: connection.getSystemPassword(),
+
+    user_base_dn: mapping.getUserBaseDn(),
+    user_email_attribute: mapping.getEmailAddressAttribute(),
+    user_id_attribute: mapping.getUserIdAttribute(),
+    user_object_class: mapping.getUserObjectClass(),
+    user_password_attribute: mapping.getUserPasswordAttribute(),
+    user_real_name_attribute: mapping.getUserRealNameAttribute(),
+    user_subtree: mapping.isUserSubtree(),
+    user_member_of_attribute: mapping.getUserMemberOfAttribute(),
+
+    group_base_dn: mapping.getGroupBaseDn(),
+    group_id_attribute: mapping.getGroupIdAttribute(),
+    group_member_attribute: mapping.getGroupMemberAttribute(),
+    group_member_format: mapping.getGroupMemberFormat(),
+    group_object_class: mapping.getGroupObjectClass(),
+    group_subtree: mapping.isGroupSubtree(),
+
+    ldap_filter: mapping.getLdapFilter(),
+    ldap_groups_as_roles: mapping.isLdapGroupsAsRoles(),
+  ]
+}
+return groovy.json.JsonOutput.toJson(infos)
