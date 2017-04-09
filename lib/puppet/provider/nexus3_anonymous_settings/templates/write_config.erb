@@ -1,0 +1,6 @@
+def anonymousManager = container.lookup(org.sonatype.nexus.security.anonymous.AnonymousManager.class.name)
+def config = anonymousManager.getConfiguration()
+config.enabled = <%= resource[:enabled] %>
+config.userId = '<%= resource[:username] %>'
+config.realmName = '<%= resource[:realm] %>'
+anonymousManager.setConfiguration(config)

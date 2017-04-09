@@ -1,0 +1,7 @@
+def anonymousManager = container.lookup(org.sonatype.nexus.security.anonymous.AnonymousManager.class.name)
+def config = anonymousManager.getConfiguration()
+return groovy.json.JsonOutput.toJson([
+  enabled : config.enabled,
+  username : config.userId,
+  realm : config.realmName,
+])
