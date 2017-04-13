@@ -1,0 +1,19 @@
+{
+  "name": "wandenberg/nexus3_rest",
+  "version": "0.1.0",
+  "author": "Wandenberg Peixoto",
+  "summary": "Puppet directives to configure Nexus3 Repository Manager OSS",
+  "license": "MIT",
+  "source": "http://github.com/wandenberg/puppet-module-nexus3_rest",
+  "project_page": "https://github.com/wandenberg/puppet-module-nexus3_rest",
+  "issues_url": "https://github.com/wandenberg/puppet-module-nexus3_rest/issues",
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 3.2.0 < 5.0.0"}
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": "3.x"
+    }
+  ],  "data_provider": null
+}
