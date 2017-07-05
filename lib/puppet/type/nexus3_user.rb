@@ -52,6 +52,10 @@ Puppet::Type.newtype(:nexus3_user) do
     validate do |value|
       raise ArgumentError, 'roles must be provided in an array' if value.empty? || value.include?(',')
     end
+
+    def insync?(is)
+      is.sort == should.sort
+    end
   end
 
   validate do

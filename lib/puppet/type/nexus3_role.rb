@@ -34,6 +34,10 @@ Puppet::Type.newtype(:nexus3_role) do
     validate do |value|
       raise ArgumentError, "roles names must be provided in an array" if value.empty? || value.include?(',')
     end
+
+    def insync?(is)
+      is.sort == should.sort
+    end
   end
 
   newproperty(:privileges, array_matching: :all) do
@@ -41,6 +45,10 @@ Puppet::Type.newtype(:nexus3_role) do
     defaultto []
     validate do |value|
       raise ArgumentError, "privileges names must be provided in an array" if value.empty? || value.include?(',')
+    end
+
+    def insync?(is)
+      is.sort == should.sort
     end
   end
 
