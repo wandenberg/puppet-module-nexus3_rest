@@ -36,7 +36,7 @@ the default Ruby 2.1+ installation, like:
 
 ## Usage ##
 
-First of all you need to create a configuration file `$confdir/nexus_rest.conf` (whereas `$confdir` defaults to
+First of all you need to create a configuration file `$confdir/nexus3_rest.conf` (whereas `$confdir` defaults to
 `/etc/puppet`):
 
 ```
