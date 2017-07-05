@@ -24,7 +24,7 @@ module Nexus3
     # Notice: any provider should have a soft dependency on this file to make sure it is created before usage.
     #
     def self.file_path
-      @config_file_path ||= File.expand_path(File.join(Puppet.settings[:confdir], '/nexus_rest.conf'))
+      @config_file_path ||= File.expand_path(File.join(Puppet.settings[:confdir], '/nexus3_rest.conf'))
     end
 
     def self.can_delete_repositories
