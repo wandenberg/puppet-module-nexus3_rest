@@ -5,6 +5,7 @@ require 'yaml'
 module Nexus3
   class Config
     CONFIG_NEXUS_BASE_URL = :nexus_base_url
+    CONFIG_NEXUS_SCRIPT_API_PATH = :nexus_script_api_path
     CONFIG_ADMIN_USERNAME = :admin_username
     CONFIG_ADMIN_PASSWORD = :admin_password
     CONFIG_CONNECTION_TIMEOUT = :connection_timeout
@@ -58,6 +59,9 @@ module Nexus3
       if config[CONFIG_NEXUS_BASE_URL].nil?
         raise Puppet::ParseError, "Config file #{file_path} must contain a value for key '#{CONFIG_NEXUS_BASE_URL}'."
       end
+
+      config[CONFIG_NEXUS_SCRIPT_API_PATH] = '/service/rest/v1/script' if config[CONFIG_NEXUS_SCRIPT_API_PATH].to_s.empty?
+
       # TODO: add warning about insecure connection if protocol is http and host not localhost (credentials sent in plain text)
       if config[CONFIG_ADMIN_USERNAME].nil?
         raise Puppet::ParseError, "Config file #{file_path} must contain a value for key '#{CONFIG_ADMIN_USERNAME}'."
@@ -70,7 +74,8 @@ module Nexus3
       end
 
       {
-        CONFIG_NEXUS_BASE_URL => config[CONFIG_NEXUS_BASE_URL].chomp('/'),
+        CONFIG_NEXUS_BASE_URL          => config[CONFIG_NEXUS_BASE_URL].chomp('/'),
+        CONFIG_NEXUS_SCRIPT_API_PATH   => config[CONFIG_NEXUS_SCRIPT_API_PATH].chomp('/'),
         CONFIG_ADMIN_USERNAME          => config[CONFIG_ADMIN_USERNAME],
         CONFIG_ADMIN_PASSWORD          => config[CONFIG_ADMIN_PASSWORD],
         CONFIG_CONNECTION_TIMEOUT      => Integer(config.fetch(CONFIG_CONNECTION_TIMEOUT, 10)),

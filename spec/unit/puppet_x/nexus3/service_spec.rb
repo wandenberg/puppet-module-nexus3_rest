@@ -5,6 +5,7 @@ describe Nexus3::Service do
   let(:configuration) do
     {
       nexus_base_url: 'http://example.com',
+      nexus_script_api_path: '/service/rest/v1/script/',
       admin_username: 'foobar',
       admin_password: 'secret',
       health_check_retries: 3,
@@ -15,8 +16,8 @@ describe Nexus3::Service do
   describe 'Client.check_health' do
     let(:client) { Nexus3::Service::Client.new(configuration) }
 
-    specify 'should talk to /service/siesta/rest/v1/script' do
-      stub = stub_request(:any, /example.com\/service\/siesta\/rest\/v1\/script/).to_return(status: 403)
+    specify 'should talk to /service/rest/v1/script' do
+      stub = stub_request(:any, /example.com\/service\/rest\/v1\/script/).to_return(status: 403)
       client.check_health
       expect(stub).to have_been_requested
     end

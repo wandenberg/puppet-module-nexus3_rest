@@ -50,7 +50,7 @@ describe type_class.provider(:ruby) do
     before(:each) { stub_default_config_and_healthcheck }
 
     it 'should verify if the current password is the one set on password property' do
-      stub = stub_request(:get, 'http://example.com/service/siesta/rest/v1/script/').
+      stub = stub_request(:get, 'http://example.com/service/rest/v1/script/').
           with(headers: {'Accept'=>'application/json', 'Authorization'=>'Basic YWRtaW46bmV3X3ZhbHVl', 'Content-Type'=>'application/json'}).
           to_return(status: 200)
 
@@ -65,7 +65,7 @@ describe type_class.provider(:ruby) do
         stub_request(:post, /.*\/run/).to_return(status: 200, body: '{}')
         stub_request(:delete, /.*/).to_return(status: 204)
 
-        stub_request(:get, 'http://example.com/service/siesta/rest/v1/script/').
+        stub_request(:get, 'http://example.com/service/rest/v1/script/').
             with(headers: {'Accept'=>'application/json', 'Authorization'=>'Basic YWRtaW46bmV3X3ZhbHVl', 'Content-Type'=>'application/json'}).
             to_return(status: 403)
       end
@@ -112,7 +112,7 @@ describe type_class.provider(:ruby) do
       end
 
       it 'should not verify if the current password is the one set on password property' do
-        stub = stub_request(:get, 'http://example.com/service/siesta/rest/v1/script/')
+        stub = stub_request(:get, 'http://example.com/service/rest/v1/script/')
 
         instance.flush
 

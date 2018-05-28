@@ -49,6 +49,9 @@ admin_password: secret
 # the base url of the Nexus service to be managed
 nexus_base_url: http://localhost:8081/
 
+# the path for the script API
+# nexus_script_api_path: /service/rest/v1/script # default value
+
 # Certain operations may result in data loss. The following parameter(s) control if Puppet should perform those
 # changes or not. Set the parameter to `false` to prevent Puppet from enforcing the change and cause the Puppet run to
 # fail instead.

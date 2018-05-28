@@ -6,13 +6,13 @@ describe Nexus3::API do
     stub_default_config
 
     # health check always successful ...
-    @health_check_stub = stub_request(:get, 'http://example.com/service/siesta/rest/v1/script/').to_return(status: 200)
+    @health_check_stub = stub_request(:get, 'http://example.com/service/rest/v1/script/').to_return(status: 200)
   end
 
   describe :upload_script do
     specify 'should ensure service is running' do
       example_script = 'script'
-      stub_request(:post, 'http://example.com/service/siesta/rest/v1/script/').
+      stub_request(:post, 'http://example.com/service/rest/v1/script/').
           to_return(status: 204)
 
       Nexus3::API.upload_script(example_script)
@@ -23,7 +23,7 @@ describe Nexus3::API do
     specify 'should use a random hex code as command name on each call' do
       example_script = 'script'
 
-      stub_request(:post, 'http://example.com/service/siesta/rest/v1/script/').
+      stub_request(:post, 'http://example.com/service/rest/v1/script/').
           to_return(status: 204)
 
       command_name_1 = Nexus3::API.upload_script(example_script)
@@ -39,7 +39,7 @@ describe Nexus3::API do
       command_name = '79b317d1abf4f6334ce9cc801a3e9990'
 
       allow(SecureRandom).to receive(:hex).and_return(command_name)
-      stub = stub_request(:post, 'http://example.com/service/siesta/rest/v1/script/').
+      stub = stub_request(:post, 'http://example.com/service/rest/v1/script/').
           with(body: '{"name":"79b317d1abf4f6334ce9cc801a3e9990","type":"groovy","content":"\n        multiline\n        script\n      "}',
                headers: {'Accept'=>'application/json', 'Authorization'=>'Basic Zm9vYmFyOnNlY3JldA==', 'Content-Type'=>'application/json'}).
           to_return(status: 204)
@@ -80,7 +80,7 @@ describe Nexus3::API do
     specify 'should raise an error when is not possible to upload the script' do
       example_script = 'script'
 
-      stub_request(:post, 'http://example.com/service/siesta/rest/v1/script/').
+      stub_request(:post, 'http://example.com/service/rest/v1/script/').
           to_return(status: 403)
 
       expect{ Nexus3::API.upload_script(example_script) }.to raise_error(RuntimeError, /Could not upload the script due to '403'/)
@@ -90,7 +90,7 @@ describe Nexus3::API do
   describe :run_command do
     specify 'should ensure service is running' do
       command_name = '79b317d1abf4f6334ce9cc801a3e9990'
-      stub_request(:post, 'http://example.com/service/siesta/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990/run').
+      stub_request(:post, 'http://example.com/service/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990/run').
           to_return(status: 200, body: '{}')
 
       Nexus3::API.run_command(command_name)
@@ -101,7 +101,7 @@ describe Nexus3::API do
     specify 'should execute the command calling a POST on the command name' do
       command_name = '79b317d1abf4f6334ce9cc801a3e9990'
 
-      stub = stub_request(:post, 'http://example.com/service/siesta/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990/run').
+      stub = stub_request(:post, 'http://example.com/service/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990/run').
           with(headers: {'Accept'=>'application/json', 'Authorization'=>'Basic Zm9vYmFyOnNlY3JldA==', 'Content-Type'=>'text/plain'}).
           to_return(status: 200, body: '{}')
 
@@ -113,7 +113,7 @@ describe Nexus3::API do
     specify 'should return the content present on result key' do
       command_name = '79b317d1abf4f6334ce9cc801a3e9990'
 
-      stub_request(:post, 'http://example.com/service/siesta/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990/run').
+      stub_request(:post, 'http://example.com/service/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990/run').
           with(headers: {'Accept'=>'application/json', 'Authorization'=>'Basic Zm9vYmFyOnNlY3JldA==', 'Content-Type'=>'text/plain'}).
           to_return(status: 200, body: '{"result": "command output"}')
 
@@ -151,7 +151,7 @@ describe Nexus3::API do
     specify 'should raise an error when is not possible to execute the command' do
       command_name = '79b317d1abf4f6334ce9cc801a3e9990'
 
-      stub_request(:post, 'http://example.com/service/siesta/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990/run').
+      stub_request(:post, 'http://example.com/service/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990/run').
           to_return(status: 404)
 
       expect{ Nexus3::API.run_command(command_name) }.to raise_error(RuntimeError, /Could not run the command due to '404'/)
@@ -161,7 +161,7 @@ describe Nexus3::API do
   describe :delete_command do
     specify 'should ensure service is running' do
       command_name = '79b317d1abf4f6334ce9cc801a3e9990'
-      stub_request(:delete, 'http://example.com/service/siesta/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990').
+      stub_request(:delete, 'http://example.com/service/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990').
           to_return(status: 204)
 
       Nexus3::API.delete_command(command_name)
@@ -172,7 +172,7 @@ describe Nexus3::API do
     specify 'should delete the command calling a DELETE on the command name' do
       command_name = '79b317d1abf4f6334ce9cc801a3e9990'
 
-      stub = stub_request(:delete, 'http://example.com/service/siesta/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990').
+      stub = stub_request(:delete, 'http://example.com/service/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990').
           with(headers: {'Accept'=>'application/json', 'Authorization'=>'Basic Zm9vYmFyOnNlY3JldA==', 'Content-Type'=>'application/json'}).
           to_return(status: 204)
 
@@ -212,7 +212,7 @@ describe Nexus3::API do
     specify 'should raise an error when is not possible to delete the command' do
       command_name = '79b317d1abf4f6334ce9cc801a3e9990'
 
-      stub_request(:delete, 'http://example.com/service/siesta/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990').
+      stub_request(:delete, 'http://example.com/service/rest/v1/script/79b317d1abf4f6334ce9cc801a3e9990').
           to_return(status: 404)
 
       expect{ Nexus3::API.delete_command(command_name) }.to raise_error(RuntimeError, /Could not delete the command due to '404'/)

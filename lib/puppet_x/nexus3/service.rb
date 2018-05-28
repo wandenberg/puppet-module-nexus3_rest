@@ -90,7 +90,7 @@ module Nexus3
     class Client
       def initialize(configuration)
         @configuration = configuration
-        @script_base_path = URI.parse("#{configuration[:nexus_base_url].chomp('/')}/service/siesta/rest/v1/script/").request_uri
+        @script_base_path = URI.parse("#{configuration[:nexus_base_url].chomp('/')}#{configuration[:nexus_script_api_path].chomp('/')}/").request_uri
         uri = URI.parse(configuration[:nexus_base_url])
         @nexus = Net::HTTP.new(uri.host, uri.port)
         @nexus.open_timeout = configuration[:connection_open_timeout]

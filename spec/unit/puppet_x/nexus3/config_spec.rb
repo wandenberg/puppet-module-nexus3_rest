@@ -4,11 +4,13 @@ require 'puppet_x/nexus3/config'
 describe Nexus3::Config do
 
   let(:nexus_base_url) { 'http://example.com' }
+  let(:nexus_script_api_path) { 'path/for/rest/v1/script' }
   let(:admin_username) { 'foobar' }
   let(:admin_password) { 'secret' }
   let(:base_url_and_credentials) do
     {
       'nexus_base_url'          => nexus_base_url,
+      'nexus_script_api_path'   => nexus_script_api_path,
       'admin_username'          => admin_username,
       'admin_password'          => admin_password,
       'can_delete_repositories' => false,
@@ -54,6 +56,16 @@ describe Nexus3::Config do
     specify 'should read Nexus base url' do
       allow(YAML).to receive(:load_file).and_return(base_url_and_credentials)
       expect(Nexus3::Config.read_config[:nexus_base_url]).to eq(nexus_base_url)
+    end
+
+    specify 'should use default Nexus script api path' do
+      allow(YAML).to receive(:load_file).and_return(base_url_and_credentials.reject{|key,value| key == 'nexus_script_api_path'})
+      expect(Nexus3::Config.read_config[:nexus_script_api_path]).to eq('/service/rest/v1/script')
+    end
+
+    specify 'should read Nexus script api path' do
+      allow(YAML).to receive(:load_file).and_return(base_url_and_credentials)
+      expect(Nexus3::Config.read_config[:nexus_script_api_path]).to eq(nexus_script_api_path)
     end
 
     specify 'should read admin username' do
