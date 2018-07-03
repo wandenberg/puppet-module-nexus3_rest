@@ -16,7 +16,7 @@ Puppet::Type.newtype(:nexus3_repository) do
 
   newproperty(:provider_type) do
     desc 'The content provider of the repository'
-    newvalues(:bower, :docker, :gitlfs, :maven2, :npm, :nuget, :pypi, :raw, :rubygems)
+    newvalues(:bower, :docker, :gitlfs, :maven2, :npm, :nuget, :pypi, :raw, :rubygems, :yum)
   end
 
   newproperty(:online, parent: Puppet::Property::Boolean) do
@@ -54,6 +54,13 @@ Puppet::Type.newtype(:nexus3_repository) do
     newvalues(:true, :false)
     defaultto :true
     munge { |value| super(value).to_s.intern }
+  end
+
+  # yum-specific #
+  newproperty(:depth) do
+    desc 'Depth in directory tree where repodata structure is created.'
+    newvalues(0, 1, 2, 3, 4, 5)
+    defaultto(0)
   end
 
   # proxy-specific #

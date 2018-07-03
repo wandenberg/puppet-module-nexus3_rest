@@ -27,4 +27,8 @@ def maven = config.attributes('maven')
 maven.set('versionPolicy', '<%= resource[:version_policy].upcase %>')
 maven.set('layoutPolicy', '<%= resource[:layout_policy].upcase %>')
 <%- end -%>
+<%- if resource[:provider_type] == :yum -%>
+def yum = config.attributes('yum')
+yum.set('repodataDepth', <%= resource[:depth]  %>)
+<%- end -%>
 repository.repositoryManager.create(config)
