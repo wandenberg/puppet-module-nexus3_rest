@@ -31,4 +31,15 @@ maven.set('layoutPolicy', '<%= resource[:layout_policy].upcase %>')
 def yum = config.attributes('yum')
 yum.set('repodataDepth', <%= resource[:depth]  %>)
 <%- end -%>
+<%- if resource[:provider_type] == :docker -%>
+def docker = config.attributes('docker')
+<%- if defined? resource[:httpport] -%>
+docker.set('httpPort', '<%= resource[:httpport] %>')
+<%- end -%>
+<%- if defined? resource[:httpsport] -%>
+docker.set('httpsPort', '<%= resource[:httpsport] %>')
+<%- end -%>
+docker.set('v1Enabled', '<%= resource[:v1enabled] %>')
+docker.set('forceBasicAuth','<%= resource[:forcebasicauth] %>')
+<%- end -%>
 repository.repositoryManager.create(config)

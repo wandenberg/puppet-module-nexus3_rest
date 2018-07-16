@@ -12,6 +12,7 @@ def infos = repositories.findResults { repository ->
   def group = config.attributes('group')
   def maven = config.attributes('maven')
   def yum   = config.attributes('yum')
+  def docker= config.attributes('docker')
   def httpclient = config.attributes('httpclient');
   def authentication = httpclient.child('authentication');
   [
@@ -31,6 +32,10 @@ def infos = repositories.findResults { repository ->
     remote_ntlm_host: authentication.get('ntlmHost'),
     remote_ntlm_domain: authentication.get('ntlmDomain'),
     depth: yum.get('repodataDepth'),
+    httpport: docker.get('httpPort'),
+    httpsport: docker.get('httpsPort'),
+    v1enabled: docker.get('v1Enabled'),
+    forceBasicAuth: docker.get('forceBasicAuth'),
   ]
 }
 return groovy.json.JsonOutput.toJson(infos)
