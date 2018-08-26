@@ -233,7 +233,7 @@ The Nexus Repository settings can be configured using the `nexus3_repository` an
 #!puppet
 nexus3_repository { 'new-repository':
   type                           => 'hosted',             #valid values: 'hosted', 'proxy'
-  provider_type                  => 'maven2',             #valid values: 'bower', 'docker', 'gitlfs' (hosted), 'maven2', 'npm', 'nuget', 'pypi', 'raw', 'rubygems'
+  provider_type                  => 'maven2',             #valid values: 'bower', 'docker', 'gitlfs' (hosted), 'maven2', 'npm', 'nuget', 'pypi', 'raw', 'rubygems', 'yum'
   online                         => false,                #valid values: true (default), false
   blobstore_name                 => 'blob',               #optional, default is 'default'
   version_policy                 => 'snapshot',           #valid values: 'snapshot', 'release' (default for maven2), 'mixed'
@@ -248,6 +248,11 @@ nexus3_repository { 'new-repository':
   remote_password                => 'hunter2',            #optional, default is unspecified
   remote_ntlm_host               => 'nt_host',            #optional, default is unspecified
   remote_ntlm_domain             => 'nt_domain',          #optional, default is unspecified
+
+  #the following property may only be used when provider_type => 'yum'
+
+  depth                          => 3                     #optional, default is 0: depth where 'repodata' is created
+
 }
 ```
 

@@ -248,6 +248,38 @@ describe type_class.provider(:ruby) do
       end
     end
 
+    describe 'a yum repository' do
+      let(:resource_extra_attributes) do
+        { provider_type: :yum, depth: 1 }
+      end
+
+      it 'should execute a script to create the instance' do
+        script = <<~EOS
+          def config = new org.sonatype.nexus.repository.config.Configuration()
+          config.repositoryName = 'example'
+          config.recipeName = 'yum-proxy'
+          config.online = true
+          def storage = config.attributes('storage')
+          storage.set('blobStoreName', 'blob_store')
+          storage.set('strictContentTypeValidation', false)
+          def proxy = config.attributes('proxy')
+          proxy.set('remoteUrl', 'http://remote.server.com')
+          def httpclient = config.attributes('httpclient');
+          def authentication = httpclient.child('authentication');
+          authentication.set('type', 'ntlm');
+          authentication.set('username', 'user');
+          authentication.set('password', 'pass');
+          authentication.set('ntlmHost', 'ntlmhost');
+          authentication.set('ntlmDomain', 'ntlmdomain');
+          def yum = config.attributes('yum')
+          yum.set('repodataDepth', 1)
+          repository.repositoryManager.create(config)
+        EOS
+        expect(Nexus3::API).to receive(:execute_script).with(script)
+        instance.create
+      end
+    end
+
     describe 'a repository without authentication' do
       let(:resource_extra_attributes) do
         { remote_auth_type: :none }
@@ -351,6 +383,36 @@ describe type_class.provider(:ruby) do
           def maven = config.attributes('maven')
           maven.set('versionPolicy', 'MIXED')
           maven.set('layoutPolicy', 'PERMISSIVE')
+          repository.repositoryManager.update(config)
+        EOS
+        expect(Nexus3::API).to receive(:execute_script).with(script)
+        instance.mark_config_dirty
+        instance.flush
+      end
+    end
+
+    describe 'a yum repository' do
+      let(:resource_extra_attributes) do
+        { provider_type: :yum, depth: 3 }
+      end
+
+      it 'should execute a script to update the instance' do
+        script = <<~EOS
+          def config = repository.repositoryManager.get('example').getConfiguration()
+          config.online = true
+          def storage = config.attributes('storage')
+          storage.set('strictContentTypeValidation', false)
+          def proxy = config.attributes('proxy')
+          proxy.set('remoteUrl', 'http://remote.server.com')
+          def httpclient = config.attributes('httpclient');
+          def authentication = httpclient.child('authentication');
+          authentication.set('type', 'ntlm');
+          authentication.set('username', 'user');
+          authentication.set('password', 'pass');
+          authentication.set('ntlmHost', 'ntlmhost');
+          authentication.set('ntlmDomain', 'ntlmdomain');
+          def yum = config.attributes('yum')
+          yum.set('repodataDepth', 3)
           repository.repositoryManager.update(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
