@@ -31,6 +31,26 @@ Puppet::Type.newtype(:nexus3_repository) do
     defaultto 'default'
   end
 
+  newproperty(:httpport) do
+    desc 'Docker repositories have Repository Connectors for http and https.'
+  end
+
+  newproperty(:httpsport) do
+    desc 'Docker repositories have Repository Connectors for http and https.'
+  end
+
+  newproperty(:forcebasicauth) do
+    desc 'Disable to allow anonymous pull (Note: also requires Docker Bearer Token Realm to be activated)'
+    defaultto do @resource[:provider_type] == :docker ? :true : nil end
+    newvalues(:true, :false)
+  end
+
+  newproperty(:v1enabled) do
+    desc 'Allow clients to use the V1 API to interact with this Repository'
+    defaultto do @resource[:provider_type] == :docker ? :true : nil end
+    newvalues(:true, :false)
+  end
+
   newproperty(:version_policy) do
     desc 'Maven2 repositories can store release, snapshot or mixed artifacts.'
     defaultto do @resource[:provider_type] == :maven2 ? :release : nil end
