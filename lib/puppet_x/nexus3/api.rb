@@ -44,7 +44,7 @@ module Nexus3
         when Net::HTTPOK
           JSON.parse(response.body)['result']
         else
-          raise "Could not run the command due to '#{response.code}'"
+          raise "Could not run the command due to '#{response.code}' '#{response.body}'"
         end
       end
     end
