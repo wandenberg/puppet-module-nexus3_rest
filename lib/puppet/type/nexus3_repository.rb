@@ -76,6 +76,27 @@ Puppet::Type.newtype(:nexus3_repository) do
     munge { |value| super(value).to_s.intern }
   end
 
+  # docker-specific #
+  newproperty(:httpport) do
+    desc 'Docker repositories have Repository Connectors for http and https.'
+  end
+
+  newproperty(:httpsport) do
+    desc 'Docker repositories have Repository Connectors for http and https.'
+  end
+
+  newproperty(:forcebasicauth) do
+    desc 'Disable to allow anonymous pull (Note: also requires Docker Bearer Token Realm to be activated)'
+    defaultto do @resource[:provider_type] == :docker ? :true : nil end
+    newvalues(:true, :false)
+  end
+
+  newproperty(:v1enabled) do
+    desc 'Allow clients to use the V1 API to interact with this Repository'
+    defaultto do @resource[:provider_type] == :docker ? :true : nil end
+    newvalues(:true, :false)
+  end
+
   # yum-specific #
   newproperty(:depth) do
     desc 'Depth in directory tree where repodata structure is created.'
