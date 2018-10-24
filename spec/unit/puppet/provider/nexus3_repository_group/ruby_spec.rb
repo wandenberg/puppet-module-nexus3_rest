@@ -12,12 +12,19 @@ describe type_class.provider(:ruby) do
       online: true,
       repositories: %W(repo-a repo-b),
       strict_content_type_validation: false,
+      httpport: 8442,
+      httpsport: 8443,
+      v1enabled: true,
     }
   end
 
+  let(:resource_extra_attributes) do
+    {}
+  end
+
   let(:instance) do
-    resource = type_class.new(values.merge(name: 'example'))
-    instance = described_class.new(values.merge(name: 'example'))
+    resource = type_class.new(values.merge(name: 'example').merge(resource_extra_attributes))
+    instance = described_class.new(values.merge(name: 'example').merge(resource_extra_attributes))
     resource.provider = instance
     instance
   end
@@ -143,6 +150,81 @@ describe type_class.provider(:ruby) do
     end
   end
 
+
+  describe 'a maven2 repository group' do
+    let(:resource_extra_attributes) do
+      { provider_type: :maven2 }
+    end
+
+    it 'should execute a script to create the group' do
+      script = <<~EOS
+        def config = new org.sonatype.nexus.repository.config.Configuration()
+        config.repositoryName = 'example'
+        config.recipeName = 'maven2-group'
+        config.online = true
+        def group = config.attributes('group')
+        group.set('memberNames', ["repo-a", "repo-b"])
+        def storage = config.attributes('storage')
+        storage.set('strictContentTypeValidation', false)
+        storage.set('blobStoreName', 'blob_store')
+        repository.repositoryManager.create(config)
+      EOS
+      expect(Nexus3::API).to receive(:execute_script).with(script)
+      instance.create
+    end
+  end
+
+  describe 'a npm repository group' do
+    let(:resource_extra_attributes) do
+      { provider_type: :nuget }
+    end
+
+    it 'should execute a script to create the group' do
+      script = <<~EOS
+        def config = new org.sonatype.nexus.repository.config.Configuration()
+        config.repositoryName = 'example'
+        config.recipeName = 'nuget-group'
+        config.online = true
+        def group = config.attributes('group')
+        group.set('memberNames', ["repo-a", "repo-b"])
+        def storage = config.attributes('storage')
+        storage.set('strictContentTypeValidation', false)
+        storage.set('blobStoreName', 'blob_store')
+        repository.repositoryManager.create(config)
+        EOS
+      expect(Nexus3::API).to receive(:execute_script).with(script)
+      instance.create
+    end
+  end
+
+  describe 'a docker repository group' do
+    let(:resource_extra_attributes) do
+      { provider_type: :docker }
+    end
+
+    it 'should execute a script to create the group' do
+      script = <<~EOS
+        def config = new org.sonatype.nexus.repository.config.Configuration()
+        config.repositoryName = 'example'
+        config.recipeName = 'docker-group'
+        config.online = true
+        def group = config.attributes('group')
+        group.set('memberNames', ["repo-a", "repo-b"])
+        def storage = config.attributes('storage')
+        storage.set('strictContentTypeValidation', false)
+        storage.set('blobStoreName', 'blob_store')
+        def docker = config.attributes('docker')
+        docker.set('httpPort', '8442')
+        docker.set('httpsPort', '8443')
+        docker.set('v1Enabled', 'true')
+        docker.set('forceBasicAuth','true')
+        repository.repositoryManager.create(config)
+      EOS
+      expect(Nexus3::API).to receive(:execute_script).with(script)
+      instance.create
+    end
+  end
+
   describe 'flush' do
     it 'should execute a script to update the instance' do
       script = <<~EOS
@@ -157,6 +239,33 @@ describe type_class.provider(:ruby) do
       expect(Nexus3::API).to receive(:execute_script).with(script).and_return('{}')
       instance.mark_config_dirty
       instance.flush
+    end
+
+
+    describe 'a docker repository group update' do
+      let(:resource_extra_attributes) do
+        { provider_type: :docker }
+      end
+
+      it 'should execute a script to update the group' do
+        script = <<~EOS
+          def config = repository.repositoryManager.get('example').getConfiguration()
+          config.online = true
+          def group = config.attributes('group')
+          group.set('memberNames', ["repo-a", "repo-b"])
+          def storage = config.attributes('storage')
+          storage.set('strictContentTypeValidation', false)
+          def docker = config.attributes('docker')
+          docker.set('httpPort', '8442')
+          docker.set('httpsPort', '8443')
+          docker.set('v1Enabled', 'true')
+          docker.set('forceBasicAuth','true')
+          repository.repositoryManager.update(config)
+        EOS
+        expect(Nexus3::API).to receive(:execute_script).with(script).and_return('{}')
+        instance.mark_config_dirty
+        instance.flush
+      end
     end
 
     it 'should raise a human readable error message if the operation failed' do

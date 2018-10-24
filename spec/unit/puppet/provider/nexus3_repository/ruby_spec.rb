@@ -21,6 +21,11 @@ describe type_class.provider(:ruby) do
       remote_password: 'pass',
       remote_ntlm_host: 'ntlmhost',
       remote_ntlm_domain: 'ntlmdomain',
+      httpport: 8442,
+      httpsport: 8443,
+      v1enabled: true,
+      index_type: 'custom',
+      index_url: 'http://docker.proxy.index.com',
     }
   end
 
@@ -148,6 +153,8 @@ describe type_class.provider(:ruby) do
       expect(instances[0].remote_password).to eq('')
       expect(instances[0].remote_ntlm_host).to eq('')
       expect(instances[0].remote_ntlm_domain).to eq('')
+      expect(instances[0].index_type).to eq(:absent)
+      expect(instances[0].index_url).to eq('')
     end
 
     specify 'should map each returned values to the correspondent property' do
@@ -168,6 +175,9 @@ describe type_class.provider(:ruby) do
       expect(instances[0].remote_password).to eq('pass')
       expect(instances[0].remote_ntlm_host).to eq('ntlmhost')
       expect(instances[0].remote_ntlm_domain).to eq('ntlmdomain')
+      expect(instances[0].index_type).to eq(:absent)
+      expect(instances[0].index_url).to eq('http://docker.proxy.index.com')
+
     end
   end
 
@@ -283,6 +293,78 @@ describe type_class.provider(:ruby) do
           authentication.set('ntlmDomain', 'ntlmdomain');
           def yum = config.attributes('yum')
           yum.set('repodataDepth', 1)
+          repository.repositoryManager.create(config)
+        EOS
+        expect(Nexus3::API).to receive(:execute_script).with(script)
+        instance.create
+      end
+    end
+
+    describe 'a docker hosted repository' do
+      let(:resource_extra_attributes) do
+        { provider_type: :docker, type: :hosted }
+      end
+
+      it 'should execute a script to create the instance' do
+        script = <<~EOS
+          def config = new org.sonatype.nexus.repository.config.Configuration()
+          config.repositoryName = 'example'
+          config.recipeName = 'docker-hosted'
+          config.online = true
+          def storage = config.attributes('storage')
+          storage.set('blobStoreName', 'blob_store')
+          storage.set('strictContentTypeValidation', false)
+          storage.set('writePolicy', 'ALLOW')
+          def httpclient = config.attributes('httpclient');
+          def authentication = httpclient.child('authentication');
+          authentication.set('type', 'ntlm');
+          authentication.set('username', 'user');
+          authentication.set('password', 'pass');
+          authentication.set('ntlmHost', 'ntlmhost');
+          authentication.set('ntlmDomain', 'ntlmdomain');
+          def docker = config.attributes('docker')
+          docker.set('httpPort', '8442')
+          docker.set('httpsPort', '8443')
+          docker.set('v1Enabled', 'true')
+          docker.set('forceBasicAuth','true')
+          repository.repositoryManager.create(config)
+        EOS
+        expect(Nexus3::API).to receive(:execute_script).with(script)
+        instance.create
+      end
+    end
+
+    describe 'a docker proxy repository' do
+      let(:resource_extra_attributes) do
+        { provider_type: :docker, type: :proxy }
+      end
+
+      it 'should execute a script to create the instance' do
+        script = <<~EOS
+          def config = new org.sonatype.nexus.repository.config.Configuration()
+          config.repositoryName = 'example'
+          config.recipeName = 'docker-proxy'
+          config.online = true
+          def storage = config.attributes('storage')
+          storage.set('blobStoreName', 'blob_store')
+          storage.set('strictContentTypeValidation', false)
+          def proxy = config.attributes('proxy')
+          proxy.set('remoteUrl', 'http://remote.server.com')
+          def httpclient = config.attributes('httpclient');
+          def authentication = httpclient.child('authentication');
+          authentication.set('type', 'ntlm');
+          authentication.set('username', 'user');
+          authentication.set('password', 'pass');
+          authentication.set('ntlmHost', 'ntlmhost');
+          authentication.set('ntlmDomain', 'ntlmdomain');
+          def docker = config.attributes('docker')
+          def docker_proxy = config.attributes('dockerProxy')
+          docker_proxy.set('indexType', 'CUSTOM')
+          docker_proxy.set('indexUrl', 'http://docker.proxy.index.com')
+          docker.set('httpPort', '8442')
+          docker.set('httpsPort', '8443')
+          docker.set('v1Enabled', 'true')
+          docker.set('forceBasicAuth','true')
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
