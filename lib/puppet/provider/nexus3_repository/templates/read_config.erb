@@ -1,7 +1,7 @@
 def repositories = repository.repositoryManager.browse()
 def infos = repositories.findResults { repository ->
   def config = repository.getConfiguration()
-  def (provider_type, type) = config.recipeName.split('-')
+  def (providerType, type) = config.recipeName.split('-')
 
   if (type == 'group') {
     return null
@@ -13,12 +13,13 @@ def infos = repositories.findResults { repository ->
   def maven = config.attributes('maven')
   def yum   = config.attributes('yum')
   def docker= config.attributes('docker')
+  def dockerProxy = config.attributes('dockerProxy')
   def httpclient = config.attributes('httpclient');
   def authentication = httpclient.child('authentication');
   [
     name: config.repositoryName,
     type: type,
-    provider_type: provider_type,
+    provider_type: providerType,
     online: config.isOnline(),
     write_policy: storage.get('writePolicy'),
     blobstore_name: storage.get('blobStoreName'),
@@ -32,10 +33,12 @@ def infos = repositories.findResults { repository ->
     remote_ntlm_host: authentication.get('ntlmHost'),
     remote_ntlm_domain: authentication.get('ntlmDomain'),
     depth: yum.get('repodataDepth').toString(),
-    httpport: docker.get('httpPort'),
-    httpsport: docker.get('httpsPort'),
-    v1enabled: docker.get('v1Enabled'),
-    forceBasicAuth: docker.get('forceBasicAuth'),
+    http_port: docker.get('httpPort'),
+    https_port: docker.get('httpsPort'),
+    v1_enabled: docker.get('v1Enabled'),
+    force_basic_auth: docker.get('forceBasicAuth'),
+    index_type: dockerProxy.get('indexType'),
+    index_url: dockerProxy.get('indexUrl'),
   ]
 }
 return groovy.json.JsonOutput.toJson(infos)

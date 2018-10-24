@@ -5,9 +5,15 @@ Puppet::Type.type(:nexus3_repository).provide(:ruby, parent: Puppet::Provider::N
   desc 'Ruby-based management of the Nexus 3 repository.'
 
   WRITE_POLICY_MAPPING = {
-      read_only: 'DENY',
-      allow_write_once: 'ALLOW_ONCE',
-      allow_write: 'ALLOW'
+    read_only: 'DENY',
+    allow_write_once: 'ALLOW_ONCE',
+    allow_write: 'ALLOW'
+  }
+
+  DOCKER_PROXY_INDEX_TYPE = {
+    registry: 'REGISTRY',
+    hub: 'HUB',
+    custom: 'CUSTOM'
   }
 
   def self.templates_folder
@@ -25,6 +31,7 @@ Puppet::Type.type(:nexus3_repository).provide(:ruby, parent: Puppet::Provider::N
   def self.map_config_to_resource(config)
     resource_hash = super(config)
     resource_hash[:write_policy] = WRITE_POLICY_MAPPING.invert[resource_hash[:write_policy]]
+    resource_hash[:index_type] = DOCKER_PROXY_INDEX_TYPE.invert[resource_hash[:index_type]]
     resource_hash
   end
 

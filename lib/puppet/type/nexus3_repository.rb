@@ -56,25 +56,39 @@ Puppet::Type.newtype(:nexus3_repository) do
     munge { |value| super(value).to_s.intern }
   end
 
-  # docker-specific #
-  newproperty(:httpport) do
+  newproperty(:http_port) do
     desc 'Docker repositories have Repository Connectors for http and https.'
   end
 
-  newproperty(:httpsport) do
+  newproperty(:https_port) do
     desc 'Docker repositories have Repository Connectors for http and https.'
   end
 
-  newproperty(:forcebasicauth) do
+  newproperty(:force_basic_auth) do
     desc 'Disable to allow anonymous pull (Note: also requires Docker Bearer Token Realm to be activated)'
     defaultto do @resource[:provider_type] == :docker ? :true : nil end
     newvalues(:true, :false)
   end
 
-  newproperty(:v1enabled) do
+  newproperty(:v1_enabled) do
     desc 'Allow clients to use the V1 API to interact with this Repository'
     defaultto do @resource[:provider_type] == :docker ? :true : nil end
     newvalues(:true, :false)
+  end
+
+  # docker-proxy-specific #
+  newproperty(:index_type) do
+    desc 'Docker proxy index_type
+    * Use REGISTRY to use the proxy url for the index as well.
+    * Use HUB to use the index from DockerHub.
+    * Use CUSTOM in conjunction with the index_url param to
+    * specify a custom index location '
+    defaultto do ((@resource[:provider_type] == :docker) && (@resource[:type] == :proxy)) ? :registry : nil end
+    newvalues(:registry, :hub, :custom)
+  end
+
+  newproperty(:index_url) do
+    desc 'Docker proxy repository index_url param to specify a custom index location'
   end
 
   # yum-specific #

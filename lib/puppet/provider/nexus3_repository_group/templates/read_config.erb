@@ -11,6 +11,7 @@ def infos = repositories.findResults { repository ->
   def proxy = config.attributes('proxy')
   def group = config.attributes('group')
   def maven = config.attributes('maven')
+  def docker= config.attributes('docker')
   def httpclient = config.attributes('httpclient');
   def authentication = httpclient.child('authentication');
   [
@@ -20,6 +21,10 @@ def infos = repositories.findResults { repository ->
     blobstore_name: storage.get('blobStoreName'),
     repositories: group.get('memberNames'),
     strict_content_type_validation: storage.get('strictContentTypeValidation'),
+    http_port: docker.get('httpPort'),
+    https_port: docker.get('httpsPort'),
+    v1_enabled: docker.get('v1Enabled'),
+    force_basic_auth: docker.get('forceBasicAuth'),
   ]
 }
 return groovy.json.JsonOutput.toJson(infos)

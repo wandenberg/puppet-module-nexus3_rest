@@ -37,6 +37,26 @@ Puppet::Type.newtype(:nexus3_repository_group) do
     end
   end
 
+  newproperty(:http_port) do
+    desc 'Docker repositories have Repository Connectors for http and https.'
+  end
+
+  newproperty(:https_port) do
+    desc 'Docker repositories have Repository Connectors for http and https.'
+  end
+
+  newproperty(:force_basic_auth) do
+    desc 'Disable to allow anonymous pull (Note: also requires Docker Bearer Token Realm to be activated)'
+    defaultto do @resource[:provider_type] == :docker ? :true : nil end
+    newvalues(:true, :false)
+  end
+
+  newproperty(:v1_enabled) do
+    desc 'Allow clients to use the V1 API to interact with this Repository'
+    defaultto do @resource[:provider_type] == :docker ? :true : nil end
+    newvalues(:true, :false)
+  end
+
   newproperty(:strict_content_type_validation, parent: Puppet::Property::Boolean) do
     desc 'When should validate or not that all content uploaded to this repository is of a MIME type appropriate for the repository format.'
     newvalues(:true, :false)

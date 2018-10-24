@@ -30,13 +30,20 @@ yum.set('repodataDepth', <%= resource[:depth]  %>)
 <%- end -%>
 <%- if resource[:provider_type] == :docker -%>
 def docker = config.attributes('docker')
-<%- if defined? resource[:httpport] -%>
-docker.set('httpPort', '<%= resource[:httpport] %>')
+<%- if resource[:type] == :proxy -%>
+def dockerProxy = config.attributes('dockerProxy')
+dockerProxy.set('indexType', '<%= DOCKER_PROXY_INDEX_TYPE[resource[:index_type]] %>')
+<%- if resource[:index_type] == :custom -%>
+dockerProxy.set('indexUrl', '<%= resource[:index_url] %>')
 <%- end -%>
-<%- if defined? resource[:httpsport] -%>
-docker.set('httpsPort', '<%= resource[:httpsport] %>')
 <%- end -%>
-docker.set('v1Enabled', '<%= resource[:v1enabled] %>')
-docker.set('forceBasicAuth','<%= resource[:forcebasicauth] %>')
+<%- if defined? resource[:http_port] -%>
+docker.set('httpPort', '<%= resource[:http_port] %>')
+<%- end -%>
+<%- if defined? resource[:https_port] -%>
+docker.set('httpsPort', '<%= resource[:https_port] %>')
+<%- end -%>
+docker.set('v1Enabled', '<%= resource[:v1_enabled] %>')
+docker.set('forceBasicAuth','<%= resource[:force_basic_auth] %>')
 <%- end -%>
 repository.repositoryManager.update(config)
