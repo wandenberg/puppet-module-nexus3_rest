@@ -10,6 +10,12 @@ Puppet::Type.type(:nexus3_repository).provide(:ruby, parent: Puppet::Provider::N
       allow_write: 'ALLOW'
   }
 
+  DOCKER_PROXY_INDEX_TYPE = {
+      registry: 'REGISTRY',
+      hub: 'HUB',
+      custom: 'CUSTOM'
+  }
+
   def self.templates_folder
     File.join(File.dirname(__FILE__), 'templates')
   end
@@ -25,6 +31,7 @@ Puppet::Type.type(:nexus3_repository).provide(:ruby, parent: Puppet::Provider::N
   def self.map_config_to_resource(config)
     resource_hash = super(config)
     resource_hash[:write_policy] = WRITE_POLICY_MAPPING.invert[resource_hash[:write_policy]]
+    resource_hash[:docker_index_type] = DOCKER_PROXY_INDEX_TYPE.invert[resource_hash[:index_type]]
     resource_hash
   end
 

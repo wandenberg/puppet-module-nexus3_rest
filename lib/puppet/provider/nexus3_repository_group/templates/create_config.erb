@@ -7,4 +7,17 @@ group.set('memberNames', <%= resource[:repositories] %>)
 def storage = config.attributes('storage')
 storage.set('strictContentTypeValidation', <%= resource[:strict_content_type_validation] %>)
 storage.set('blobStoreName', '<%= resource[:blobstore_name] %>')
+<%#- Docker repository configuration -%>
+<%- if resource[:provider_type] == :docker -%>
+def docker = config.attributes('docker')
+<%- if defined? resource[:httpport] -%>
+docker.set('httpPort', '<%= resource[:httpport] %>')
+<%- end -%>
+<%- if defined? resource[:httpsport] -%>
+docker.set('httpsPort', '<%= resource[:httpsport] %>')
+<%- end -%>
+docker.set('v1Enabled', '<%= resource[:v1enabled] %>')
+docker.set('forceBasicAuth','<%= resource[:forcebasicauth] %>')
+<%- end -%>
+<%#- end docker config -%>
 repository.repositoryManager.create(config)

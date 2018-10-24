@@ -76,13 +76,27 @@ Puppet::Type.newtype(:nexus3_repository) do
     defaultto do @resource[:provider_type] == :docker ? :true : nil end
     newvalues(:true, :false)
   end
+ # docker-proxy specific
+  newproperty(:index_type) do
+    desc 'Docker proxy index_type
+    * Use REGISTRY to use the proxy url for the index as well.
+    * Use HUB to use the index from DockerHub.
+    * Use CUSTOM in conjunction with the index_url param to
+    * specify a custom index location '
+    defaultto :registry
+    newvalues(:registry, :hub, :custom)
+  end
+
+  newproperty(:index_url) do
+    desc 'Docker proxy repository index_url param to specify a custom index location'
+  end
 
   # yum-specific #
   newproperty(:depth) do
     desc 'Depth in directory tree where repodata structure is created.'
     newvalues(0, 1, 2, 3, 4, 5)
     defaultto do @resource[:provider_type] == :yum ? 0 : nil end
-    munge { |value| super(value).to_i }
+    munge { |value| super(value).to_s.to_i }
   end
 
   # proxy-specific #

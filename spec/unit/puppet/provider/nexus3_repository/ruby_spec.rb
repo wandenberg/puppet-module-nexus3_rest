@@ -84,7 +84,7 @@ describe type_class.provider(:ruby) do
         def repositories = repository.repositoryManager.browse()
         def infos = repositories.findResults { repository ->
           def config = repository.getConfiguration()
-          def (provider_type, type) = config.recipeName.split('-')
+          def (providerType, type) = config.recipeName.split('-')
 
           if (type == 'group') {
             return null
@@ -94,12 +94,15 @@ describe type_class.provider(:ruby) do
           def proxy = config.attributes('proxy')
           def group = config.attributes('group')
           def maven = config.attributes('maven')
+          def yum   = config.attributes('yum')
+          def docker= config.attributes('docker')
+          def dockerProxy = config.attributes('dockerProxy')
           def httpclient = config.attributes('httpclient');
           def authentication = httpclient.child('authentication');
           [
             name: config.repositoryName,
             type: type,
-            provider_type: provider_type,
+            provider_type: providerType,
             online: config.isOnline(),
             write_policy: storage.get('writePolicy'),
             blobstore_name: storage.get('blobStoreName'),
@@ -112,6 +115,13 @@ describe type_class.provider(:ruby) do
             remote_password: authentication.get('password'),
             remote_ntlm_host: authentication.get('ntlmHost'),
             remote_ntlm_domain: authentication.get('ntlmDomain'),
+            depth: yum.get('repodataDepth'),
+            httpport: docker.get('httpPort'),
+            httpsport: docker.get('httpsPort'),
+            v1enabled: docker.get('v1Enabled'),
+            forcebasicauth: docker.get('forceBasicAuth'),
+            index_type: dockerProxy.get('indexType'),
+            index_url: dockerProxy.get('indexUrl'),
           ]
         }
         return groovy.json.JsonOutput.toJson(infos)
