@@ -81,7 +81,8 @@ Puppet::Type.newtype(:nexus3_repository) do
   newproperty(:depth) do
     desc 'Depth in directory tree where repodata structure is created.'
     newvalues(0, 1, 2, 3, 4, 5)
-    defaultto(0)
+    defaultto do @resource[:provider_type] == :yum ? 0 : nil end
+    munge { |value| super(value).to_s }
   end
 
   # proxy-specific #
