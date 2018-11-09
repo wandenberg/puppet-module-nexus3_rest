@@ -21,6 +21,11 @@ describe type_class.provider(:ruby) do
       remote_password: 'pass',
       remote_ntlm_host: 'ntlmhost',
       remote_ntlm_domain: 'ntlmdomain',
+      distribution: 'trusty',
+      is_flat: true,
+      pgp_keypair: 'keypair',
+      pgp_keypair_passphrase: 'passphrase',
+      asset_history_limit: 100,
     }
   end
 
@@ -40,7 +45,7 @@ describe type_class.provider(:ruby) do
 
     [:type, :provider_type, :blobstore_name, :online, :version_policy, :layout_policy, :write_policy,
      :strict_content_type_validation, :remote_url, :remote_auth_type, :remote_user, :remote_password,
-     :remote_ntlm_host, :remote_ntlm_domain].each do |method|
+     :remote_ntlm_host, :remote_ntlm_domain, :distribution, :is_flat, :pgp_keypair, :pgp_keypair_passphrase].each do |method|
       specify { expect(instance.respond_to?(method)).to be_truthy }
       specify { expect(instance.respond_to?("#{method}=")).to be_truthy }
     end
@@ -94,6 +99,11 @@ describe type_class.provider(:ruby) do
           def proxy = config.attributes('proxy')
           def group = config.attributes('group')
           def maven = config.attributes('maven')
+          def yum = config.attributes('yum')
+          def docker = config.attributes('docker')
+          def apt = config.attributes('apt')
+          def aptSigning = config.attributes('aptSigning')
+          def aptHosted = config.attributes('aptHosted')
           def httpclient = config.attributes('httpclient');
           def authentication = httpclient.child('authentication');
           [
@@ -112,6 +122,16 @@ describe type_class.provider(:ruby) do
             remote_password: authentication.get('password'),
             remote_ntlm_host: authentication.get('ntlmHost'),
             remote_ntlm_domain: authentication.get('ntlmDomain'),
+            depth: yum.get('repodataDepth'),
+            httpport: docker.get('httpPort'),
+            httpsport: docker.get('httpsPort'),
+            v1enabled: docker.get('v1Enabled'),
+            forceBasicAuth: docker.get('forceBasicAuth'),
+            distribution: apt.get('distribution')
+            is_flat: apt.get('flat'),
+            pgp_keypair: aptSigning.get('keypair'),
+            pgp_keypair_passphrase: aptSigning.get('passphrase'),
+            asset_history_limit: aptHosted.get('assetHistoryLimit'),
           ]
         }
         return groovy.json.JsonOutput.toJson(infos)
@@ -138,6 +158,11 @@ describe type_class.provider(:ruby) do
       expect(instances[0].remote_password).to eq('')
       expect(instances[0].remote_ntlm_host).to eq('')
       expect(instances[0].remote_ntlm_domain).to eq('')
+      expect(instances[0].distribution).to eq('')
+      expect(instances[0].is_flat).to eq('')
+      expect(instances[0].pgp_keypair).to eq('')
+      expect(instances[0].pgp_keypair_passphrase).to eq('')
+      expect(instances[0].asset_history_limit).to eq('')
     end
 
     specify 'should map each returned values to the correspondent property' do
@@ -158,6 +183,11 @@ describe type_class.provider(:ruby) do
       expect(instances[0].remote_password).to eq('pass')
       expect(instances[0].remote_ntlm_host).to eq('ntlmhost')
       expect(instances[0].remote_ntlm_domain).to eq('ntlmdomain')
+      expect(instances[0].distribution).to eq('trusty')
+      expect(instances[0].is_flat).to eq :true
+      expect(instances[0].pgp_keypair).to eq('keypair')
+      expect(instances[0].pgp_keypair_passphrase).to eq('passphrase')
+      expect(instances[0].asset_history_limit).to eq(100)
     end
   end
 
@@ -208,6 +238,39 @@ describe type_class.provider(:ruby) do
           authentication.set('password', 'pass');
           authentication.set('ntlmHost', 'ntlmhost');
           authentication.set('ntlmDomain', 'ntlmdomain');
+          repository.repositoryManager.create(config)
+        EOS
+        expect(Nexus3::API).to receive(:execute_script).with(script)
+        instance.create
+      end
+    end
+
+    describe 'a apt repository' do
+      let(:resource_extra_attributes) do
+        { provider_type: :apt }
+      end
+
+      it 'should execute a script to create the instance' do
+        script = <<~EOS
+          def config = new org.sonatype.nexus.repository.config.Configuration()
+          config.repositoryName = 'example'
+          config.recipeName = 'apt-proxy'
+          config.online = true
+          def storage = config.attributes('storage')
+          storage.set('blobStoreName', 'blob_store')
+          storage.set('strictContentTypeValidation', false)
+          def proxy = config.attributes('proxy')
+          proxy.set('remoteUrl', 'http://remote.server.com')
+          def httpclient = config.attributes('httpclient');
+          def authentication = httpclient.child('authentication');
+          authentication.set('type', 'ntlm');
+          authentication.set('username', 'user');
+          authentication.set('password', 'pass');
+          authentication.set('ntlmHost', 'ntlmhost');
+          authentication.set('ntlmDomain', 'ntlmdomain');
+          def apt = config.attributes('apt')
+          apt.set('distribution', 'trusty')
+          apt.set('flat', true)
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -352,6 +415,37 @@ describe type_class.provider(:ruby) do
           authentication.set('password', 'pass');
           authentication.set('ntlmHost', 'ntlmhost');
           authentication.set('ntlmDomain', 'ntlmdomain');
+          repository.repositoryManager.update(config)
+        EOS
+        expect(Nexus3::API).to receive(:execute_script).with(script)
+        instance.mark_config_dirty
+        instance.flush
+      end
+    end
+
+    describe 'an apt repository' do
+      let(:resource_extra_attributes) do
+        { provider_type: :apt }
+      end
+
+      it 'should execute a script to update the instance' do
+        script = <<~EOS
+          def config = repository.repositoryManager.get('example').getConfiguration()
+          config.online = true
+          def storage = config.attributes('storage')
+          storage.set('strictContentTypeValidation', false)
+          def proxy = config.attributes('proxy')
+          proxy.set('remoteUrl', 'http://remote.server.com')
+          def httpclient = config.attributes('httpclient');
+          def authentication = httpclient.child('authentication');
+          authentication.set('type', 'ntlm');
+          authentication.set('username', 'user');
+          authentication.set('password', 'pass');
+          authentication.set('ntlmHost', 'ntlmhost');
+          authentication.set('ntlmDomain', 'ntlmdomain');
+          def apt = config.attributes('apt')
+          apt.set('distribution', 'trusty')
+          apt.set('flat', true)
           repository.repositoryManager.update(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
