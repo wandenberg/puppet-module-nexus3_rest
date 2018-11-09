@@ -127,7 +127,7 @@ describe type_class.provider(:ruby) do
             httpsport: docker.get('httpsPort'),
             v1enabled: docker.get('v1Enabled'),
             forceBasicAuth: docker.get('forceBasicAuth'),
-            distribution: apt.get('distribution')
+            distribution: apt.get('distribution'),
             is_flat: apt.get('flat'),
             pgp_keypair: aptSigning.get('keypair'),
             pgp_keypair_passphrase: aptSigning.get('passphrase'),
