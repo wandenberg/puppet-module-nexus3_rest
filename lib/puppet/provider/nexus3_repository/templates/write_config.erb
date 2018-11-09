@@ -19,6 +19,18 @@ authentication.set('password', '<%= resource[:remote_password] %>');
 authentication.set('ntlmHost', '<%= resource[:remote_ntlm_host] %>');
 authentication.set('ntlmDomain', '<%= resource[:remote_ntlm_domain] %>');
 <%- end -%>
+<%- if resource[:provider_type] == :apt -%>
+def apt = config.attributes('apt')
+apt.set('distribution', '<%= resource[:distribution] %>')
+apt.set('flat', <%= resource[:is_flat] %>)
+<%- if resource[:type] == :hosted -%>
+def aptSigning = config.attributes('aptSigning')
+aptSigning.set('keypair', '<%= resource[:pgp_keypair] %>')
+aptSigning.set('passphrase', '<%= resource[:pgp_keypair_passphrase] %>')
+def aptHosted = config.attributes('aptHosted')
+aptHosted.set('assetHistoryLimit', '<%= resource[:asset_history_limit] %>')
+<%- end -%>
+<%- end -%>
 <%- if resource[:provider_type] == :maven2 -%>
 def maven = config.attributes('maven')
 maven.set('versionPolicy', '<%= resource[:version_policy].upcase %>')

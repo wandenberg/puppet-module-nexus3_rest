@@ -16,7 +16,7 @@ Puppet::Type.newtype(:nexus3_repository) do
 
   newproperty(:provider_type) do
     desc 'The content provider of the repository'
-    newvalues(:bower, :docker, :gitlfs, :maven2, :npm, :nuget, :pypi, :raw, :rubygems, :yum)
+    newvalues(:apt, :bower, :composer, :docker, :gitlfs, :maven2, :npm, :nuget, :pypi, :raw, :rubygems, :yum)
   end
 
   newproperty(:online, parent: Puppet::Property::Boolean) do
@@ -56,6 +56,7 @@ Puppet::Type.newtype(:nexus3_repository) do
     munge { |value| super(value).to_s.intern }
   end
 
+  # docker-specific #
   newproperty(:http_port) do
     desc 'Docker repositories have Repository Connectors for http and https.'
   end
@@ -97,6 +98,30 @@ Puppet::Type.newtype(:nexus3_repository) do
     newvalues(0, 1, 2, 3, 4, 5)
     defaultto do @resource[:provider_type] == :yum ? 0 : nil end
     munge { |value| super(value).to_s }
+  end
+
+  # apt-specific #
+  newproperty(:distribution) do
+    desc 'Distribution to fetch, for example trusty.'
+  end
+
+  newproperty(:is_flat) do
+    desc 'Is this repository flat?'
+    newvalues(:true, :false)
+    defaultto do ((@resource[:provider_type] == :apt) && (@resource[:type] == :proxy)) ? :false : nil end
+    munge { |value| super(value).to_s.intern }
+  end
+
+  newproperty(:asset_history_limit) do
+    desc 'Number of versions of each package to keep. If empty all versions will be kept.'
+  end
+
+  newproperty(:pgp_keypair) do
+    desc 'PGP signing key pair.'
+  end
+
+  newproperty(:pgp_keypair_passphrase) do
+    desc 'Passphrase of the PGP signing key pair.'
   end
 
   # proxy-specific #

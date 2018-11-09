@@ -14,6 +14,9 @@ def infos = repositories.findResults { repository ->
   def yum   = config.attributes('yum')
   def docker= config.attributes('docker')
   def dockerProxy = config.attributes('dockerProxy')
+  def apt = config.attributes('apt')
+  def aptSigning = config.attributes('aptSigning')
+  def aptHosted = config.attributes('aptHosted')
   def httpclient = config.attributes('httpclient');
   def authentication = httpclient.child('authentication');
   [
@@ -39,6 +42,11 @@ def infos = repositories.findResults { repository ->
     force_basic_auth: docker.get('forceBasicAuth'),
     index_type: dockerProxy.get('indexType'),
     index_url: dockerProxy.get('indexUrl'),
+    distribution: apt.get('distribution'),
+    is_flat: apt.get('flat'),
+    pgp_keypair: aptSigning.get('keypair'),
+    pgp_keypair_passphrase: aptSigning.get('passphrase'),
+    asset_history_limit: aptHosted.get('assetHistoryLimit'),
   ]
 }
 return groovy.json.JsonOutput.toJson(infos)
