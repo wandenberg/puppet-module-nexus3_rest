@@ -64,6 +64,7 @@ Puppet::Type.newtype(:nexus3_repository) do
   newproperty(:is_flat) do
     desc 'Is this repository flat?'
     newvalues(:true, :false)
+    defaultto :false
     munge { |value| super(value).to_s.intern }
   end
 
