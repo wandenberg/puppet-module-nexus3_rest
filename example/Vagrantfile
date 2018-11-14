@@ -1,0 +1,29 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure('2') do |config|
+  config.vm.box = 'debian/contrib-stretch64'
+
+  config.vm.network 'forwarded_port', guest: 8081, host: 8081
+
+  config.librarian_puppet.placeholder_filename = '.keep'
+  config.librarian_puppet.destructive = false
+
+  config.trigger.before [:up, :provision] do |trigger|
+    trigger.info = 'Copy module nexus3_rest to modules path'
+    trigger.ruby do |env, machine|
+      module_path = File.expand_path(File.join('modules', 'nexus3_rest'), __dir__)
+      FileUtils.mkdir_p module_path
+      %w(../lib ../metadata.json).each {|src| FileUtils.cp_r src, module_path}
+    end
+  end
+
+  ####### Install Puppet Agent #######
+  config.vm.provision 'shell', path: './bootstrap.sh'
+
+  ####### Provision #######
+  config.vm.provision 'puppet' do |puppet|
+    puppet.options = '--verbose --debug'
+    puppet.module_path = %w(site modules)
+  end
+end
