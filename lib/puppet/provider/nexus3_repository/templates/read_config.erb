@@ -31,7 +31,7 @@ def infos = repositories.findResults { repository ->
     remote_password: authentication.get('password'),
     remote_ntlm_host: authentication.get('ntlmHost'),
     remote_ntlm_domain: authentication.get('ntlmDomain'),
-    depth: yum.get('repodataDepth'),
+    depth: yum.get('repodataDepth').empty? ? 0 : yum.get('repodataDepth'),
     httpport: docker.get('httpPort'),
     httpsport: docker.get('httpsPort'),
     v1enabled: docker.get('v1Enabled'),
