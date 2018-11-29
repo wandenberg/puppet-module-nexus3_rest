@@ -503,7 +503,7 @@ describe type_class.provider(:ruby) do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('db.backup')
-          config.setName('example db backup')
+          config.setName('example')
           config.setEnabled(true)
           config.setAlertEmail('foo@server.com')
           config.setString('location', 'location')
