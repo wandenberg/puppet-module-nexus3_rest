@@ -17,6 +17,7 @@ module Nexus3
       'repository.rebuild-index' => [Nexus3::TaskField.new('repository_name')],
       'script' => [Nexus3::TaskField.new('language'), Nexus3::TaskField.new('source')],
       'security.purge-api-keys' => [],
+      'db.backup' => [Nexus3::TaskField.new('location')],
     }
 
     def self.frequency_to_schedule(resource)

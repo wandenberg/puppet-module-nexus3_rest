@@ -29,6 +29,7 @@ describe type_class.provider(:ruby) do
       repository_name: 'repository_name',
       snapshot_retention_days: 15,
       source: 'source',
+      location: 'location',
     }
   end
 
@@ -58,7 +59,7 @@ describe type_class.provider(:ruby) do
 
     [:id, :type, :enabled, :alert_email, :frequency, :start_date, :start_time, :cron_expression, :recurring_day,
      :age, :artifact_id, :base_version, :blobstore_name, :grace_period_in_days, :group_id, :language, :last_used,
-     :minimum_retained, :remove_if_released, :repository_name, :snapshot_retention_days, :source].each do |method|
+     :minimum_retained, :remove_if_released, :repository_name, :snapshot_retention_days, :source, :location].each do |method|
       specify { expect(instance.respond_to?(method)).to be_truthy }
       specify { expect(instance.respond_to?("#{method}=")).to be_truthy }
     end
@@ -180,6 +181,10 @@ describe type_class.provider(:ruby) do
           if (config.getTypeId() == 'script') {
             info['language'] = config.getString('language')
             info['source'] = config.getString('source')
+          }
+
+          if (config.getTypeId() == 'db.backup') {
+            info['location'] = config.getString('location')
           }
         
           info
@@ -481,6 +486,27 @@ describe type_class.provider(:ruby) do
           config.setName('example')
           config.setEnabled(true)
           config.setAlertEmail('foo@server.com')
+          def schedule = new org.sonatype.nexus.scheduling.schedule.Weekly(java.util.Date.parse('yyyy-MM-dd HH:mm', '2017-12-21 23:59'), new HashSet(["SUN"].collect{ org.sonatype.nexus.scheduling.schedule.Weekly.Weekday.valueOf(it) }))
+          taskScheduler.scheduleTask(config, schedule);
+        EOS
+        expect(Nexus3::API).to receive(:execute_script).with(script).and_return('{}')
+        instance.create
+      end
+    end
+
+    describe 'for type db.backup' do
+      let(:resource_extra_attributes) do
+        { type: 'db.backup' }
+      end
+
+      it 'should execute a script to create the instance' do
+        script = <<~EOS
+          def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
+          def config = taskScheduler.createTaskConfigurationInstance('db.backup')
+          config.setName('example db backup')
+          config.setEnabled(true)
+          config.setAlertEmail('foo@server.com')
+          config.setString('location', 'location')
           def schedule = new org.sonatype.nexus.scheduling.schedule.Weekly(java.util.Date.parse('yyyy-MM-dd HH:mm', '2017-12-21 23:59'), new HashSet(["SUN"].collect{ org.sonatype.nexus.scheduling.schedule.Weekly.Weekday.valueOf(it) }))
           taskScheduler.scheduleTask(config, schedule);
         EOS
