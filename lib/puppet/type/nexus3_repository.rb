@@ -147,6 +147,7 @@ Puppet::Type.newtype(:nexus3_repository) do
     if self[:ensure] == :present
       raise ArgumentError, 'blobstore_name must be provided' if self[:blobstore_name].to_s.empty?
       raise ArgumentError, 'provider_type must be provided' if self[:provider_type].to_s.empty?
+      raise ArgumentError, 'type must be provided' if self[:type].to_s.empty?
     end
   end
 
