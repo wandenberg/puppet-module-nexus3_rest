@@ -1,8 +1,8 @@
 source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 
-ruby '2.3.0'
+ruby '2.5.3'
 
-gem 'rake', '~> 12.0.0'
+gem 'rake', '~> 12.3.1'
 
 group :development do
   puppetversion = ENV.key?('PUPPET_VERSION') ? ENV['PUPPET_VERSION'] : ['>= 3.7.3']
@@ -14,8 +14,8 @@ group :development do
 end
 
 group :test do
-  gem 'coco', '~> 0.14.0'
+  gem 'coco', '~> 0.15.0'
   gem 'rspec-puppet'
-  gem 'puppetlabs_spec_helper', '>= 1.0.0'
-  gem 'webmock', '~> 3.0.1'
+  gem 'puppetlabs_spec_helper', '>= 2.12.0'
+  gem 'webmock', '~> 3.4.2'
 end

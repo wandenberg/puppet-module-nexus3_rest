@@ -1,11 +1,11 @@
 require 'rspec-puppet'
-require 'puppetlabs_spec_helper/module_spec_helper'
 require 'webmock/rspec'
 require 'coco'
 
 RSpec.configure do |config|
   config.mock_with :rspec
 end
+require 'puppetlabs_spec_helper/module_spec_helper'
 
 def stub_default_config
   allow(Nexus3::Config).to receive(:read_config).and_return({
