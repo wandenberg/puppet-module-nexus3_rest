@@ -10,6 +10,17 @@ Puppet::Type.type(:nexus3_task).provide(:ruby, parent: Puppet::Provider::Nexus3B
 
   mk_resource_methods
 
+  def self.map_config_to_resource(config)
+    resource_hash = super(config)
+
+    Nexus3::Task::FIELDS.select { |field| field.type == 'boolean' }.each do |field|
+      key = field.key.to_sym
+      resource_hash[key] = resource_hash[key].to_s
+    end
+
+    resource_hash
+  end
+
   def id=(value)
     raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'id'
   end

@@ -1,5 +1,6 @@
 module Nexus3
   class TaskField
+    include Comparable
 
     attr_reader :key, :key_name, :type, :getter, :full_getter, :setter
 
@@ -27,7 +28,30 @@ module Nexus3
         when 'integer'
           value.to_i
         when 'boolean'
-          value
+          value.to_s == 'true'
+      end
+    end
+
+    def hash
+      "#{key}-#{type}".hash
+    end
+
+    def eql?(other)
+      self.hash == other.hash
+    end
+
+    def <=>(other)
+      return -1 if other.nil? || !other.is_a?(Nexus3::TaskField)
+
+      id = "#{self.key}-#{self.type}"
+      other_id = "#{other.key}-#{other.type}"
+
+      if id < other_id
+        -1
+      elsif id > other_id
+        1
+      else
+        0
       end
     end
 

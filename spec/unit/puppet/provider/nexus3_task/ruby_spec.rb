@@ -246,7 +246,7 @@ describe type_class.provider(:ruby) do
       expect(instances[0].language).to eq('language')
       expect(instances[0].last_used).to eq(35)
       expect(instances[0].minimum_retained).to eq(10)
-      expect(instances[0].remove_if_released).to eq(:true)
+      expect(instances[0].remove_if_released).to eq('true')
       expect(instances[0].repository_name).to eq('repository_name')
       expect(instances[0].snapshot_retention_days).to eq(15)
       expect(instances[0].source).to eq('source')

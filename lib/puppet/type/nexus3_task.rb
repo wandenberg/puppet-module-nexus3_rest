@@ -40,9 +40,10 @@ Puppet::Type.newtype(:nexus3_task) do
     munge { |value| value.intern == :absent ? value.intern : value }
   end
 
-  Nexus3::Task::FIELDS_BY_TYPE.values.flatten.map(&:key).sort.uniq.each do |field|
-    newproperty(field) do
-      desc "The '#{field}' for the task."
+  Nexus3::Task::FIELDS.each do |field|
+    newproperty(field.key) do
+      desc "The '#{field.key}' for the task."
+      newvalues(:true, :false) if field.type == 'boolean'
     end
   end
 

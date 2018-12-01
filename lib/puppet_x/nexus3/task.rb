@@ -20,6 +20,8 @@ module Nexus3
       'db.backup' => [Nexus3::TaskField.new('location')],
     }
 
+    FIELDS = FIELDS_BY_TYPE.values.flatten.sort.uniq
+
     def self.frequency_to_schedule(resource)
       case resource[:frequency]
       when :manual
