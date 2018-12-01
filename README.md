@@ -283,12 +283,16 @@ or manually configuring the Nexus 3 one first time and then running the `puppet 
 
 nexus3_task { 'Empty Trash':
   enabled         => true,                   # true (default) or false
-  type            => 'script',               # required, valid values: `blobstore.compact`, `repository.docker.upload-purge`, 
-                                             # `repository.maven.publish-dotindex`, `repository.maven.purge-unused-snapshots`, 
-                                             # `repository.maven.rebuild-metadata`, `repository.maven.remove-snapshots`, 
-                                             # `repository.maven.unpublish-dotindex`, `repository.purge-unused`, 
-                                             # `repository.rebuild-index`, `script`, `security.purge-api-keys`, 
-                                             # `db.backup`,
+  type            => 'script',               # required, valid values: `blobstore.compact`, `blobstore.rebuildComponentDB`,
+                                             # `create.browse.nodes`, `db.backup`, `rebuild.asset.uploadMetadata`,
+                                             # `repository.docker.gc`, `repository.docker.upload-purge`,
+                                             # `repository.maven.publish-dotindex`, `repository.maven.purge-unused-snapshots`,
+                                             # `repository.maven.rebuild-metadata`, `repository.maven.remove-snapshots`,
+                                             # `repository.maven.unpublish-dotindex`, `repository.npm.reindex`,
+                                             # `repository.purge-unused`, `repository.rebuild-index`,
+                                             # `repository.storage-facet-cleanup`, `repository.yum.rebuild.metadata`,
+                                             # `script`, `security.purge-api-keys`, `tasklog.cleanup`
+                                             #
   alert_email     => 'ops@example.com',      # optional; use `absent` (default) to disable the email notification
   frequency       => 'daily',                # one of `manual` (default), `once`, `daily`, `weekly`, `monthly` or `advanced`
   start_date      => '2014-05-31',

@@ -137,6 +137,26 @@ describe type_class.provider(:ruby) do
             info['blobstore_name'] = config.getString('blobstoreName')
           }
 
+          if (config.getTypeId() == 'blobstore.rebuildComponentDB') {
+            info['blobstore_name'] = config.getString('blobstoreName')
+            info['integrity_check'] = config.getBoolean('integrityCheck', false)
+            info['undelete_blobs'] = config.getBoolean('undeleteBlobs', false)
+            info['restore_blobs'] = config.getBoolean('restoreBlobs', false)
+            info['dry_run'] = config.getBoolean('dryRun', false)
+          }
+
+          if (config.getTypeId() == 'create.browse.nodes') {
+            info['repository_name'] = config.getString('repositoryName')
+          }
+
+          if (config.getTypeId() == 'db.backup') {
+            info['location'] = config.getString('location')
+          }
+
+          if (config.getTypeId() == 'repository.docker.gc') {
+            info['repository_name'] = config.getString('repositoryName')
+          }
+
           if (config.getTypeId() == 'repository.docker.upload-purge') {
             info['age'] = config.getInteger('age', 0)
           }
@@ -155,6 +175,7 @@ describe type_class.provider(:ruby) do
             info['base_version'] = config.getString('baseVersion')
             info['group_id'] = config.getString('groupId')
             info['repository_name'] = config.getString('repositoryName')
+            info['rebuild_checksums'] = config.getBoolean('rebuildChecksums', false)
           }
 
           if (config.getTypeId() == 'repository.maven.remove-snapshots') {
@@ -169,6 +190,10 @@ describe type_class.provider(:ruby) do
             info['repository_name'] = config.getString('repositoryName')
           }
 
+          if (config.getTypeId() == 'repository.npm.reindex') {
+            info['repository_name'] = config.getString('repositoryName')
+          }
+
           if (config.getTypeId() == 'repository.purge-unused') {
             info['last_used'] = config.getInteger('lastUsed', 0)
             info['repository_name'] = config.getString('repositoryName')
@@ -178,18 +203,19 @@ describe type_class.provider(:ruby) do
             info['repository_name'] = config.getString('repositoryName')
           }
 
+          if (config.getTypeId() == 'repository.yum.rebuild.metadata') {
+            info['repository_name'] = config.getString('repositoryName')
+            info['yum_metadata_caching'] = config.getBoolean('yumMetadataCaching', false)
+          }
+
           if (config.getTypeId() == 'script') {
             info['language'] = config.getString('language')
             info['source'] = config.getString('source')
           }
 
-          if (config.getTypeId() == 'db.backup') {
-            info['location'] = config.getString('location')
-          }
-        
           info
         }
-        
+
         return groovy.json.JsonOutput.toJson(infos)
       EOS
       expect(Nexus3::API).to receive(:execute_script).with(script).and_return('[{}]')
@@ -355,6 +381,7 @@ describe type_class.provider(:ruby) do
           config.setString('baseVersion', 'base_version')
           config.setString('groupId', 'group_id')
           config.setString('repositoryName', 'repository_name')
+          config.setBoolean('rebuildChecksums', false)
           def schedule = new org.sonatype.nexus.scheduling.schedule.Weekly(java.util.Date.parse('yyyy-MM-dd HH:mm', '2017-12-21 23:59'), new HashSet(["SUN"].collect{ org.sonatype.nexus.scheduling.schedule.Weekly.Weekday.valueOf(it) }))
           taskScheduler.scheduleTask(config, schedule);
         EOS
@@ -810,6 +837,7 @@ describe type_class.provider(:ruby) do
           config.setString('baseVersion', 'base_version')
           config.setString('groupId', 'group_id')
           config.setString('repositoryName', 'repository_name')
+          config.setBoolean('rebuildChecksums', false)
           def schedule = new org.sonatype.nexus.scheduling.schedule.Weekly(java.util.Date.parse('yyyy-MM-dd HH:mm', '2017-12-21 23:59'), new HashSet(["SUN"].collect{ org.sonatype.nexus.scheduling.schedule.Weekly.Weekday.valueOf(it) }))
           taskScheduler.scheduleTask(config, schedule);
         EOS

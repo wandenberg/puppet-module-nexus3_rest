@@ -4,20 +4,31 @@ module Nexus3
   class Task
     FIELDS_BY_TYPE = {
       'blobstore.compact' => [Nexus3::TaskField.new('blobstore_name')],
+      'blobstore.rebuildComponentDB' => [Nexus3::TaskField.new('blobstore_name'), Nexus3::TaskField.new('integrity_check', 'boolean'),
+                                         Nexus3::TaskField.new('undelete_blobs', 'boolean'), Nexus3::TaskField.new('restore_blobs', 'boolean'),
+                                         Nexus3::TaskField.new('dry_run', 'boolean')],
+      'create.browse.nodes' => [Nexus3::TaskField.new('repository_name')],
+      'db.backup' => [Nexus3::TaskField.new('location')],
+      'rebuild.asset.uploadMetadata' => [],
+      'repository.docker.gc' => [Nexus3::TaskField.new('repository_name')],
       'repository.docker.upload-purge' => [Nexus3::TaskField.new('age', 'integer')],
       'repository.maven.publish-dotindex' => [Nexus3::TaskField.new('repository_name')],
       'repository.maven.purge-unused-snapshots' => [Nexus3::TaskField.new('last_used', 'integer'), Nexus3::TaskField.new('repository_name')],
       'repository.maven.rebuild-metadata' => [Nexus3::TaskField.new('artifact_id'), Nexus3::TaskField.new('base_version'),
-                                              Nexus3::TaskField.new('group_id'), Nexus3::TaskField.new('repository_name')],
+                                              Nexus3::TaskField.new('group_id'), Nexus3::TaskField.new('repository_name'),
+                                              Nexus3::TaskField.new('rebuild_checksums', 'boolean')],
       'repository.maven.remove-snapshots' => [Nexus3::TaskField.new('grace_period_in_days', 'integer'), Nexus3::TaskField.new('minimum_retained', 'integer'),
                                               Nexus3::TaskField.new('remove_if_released', 'boolean'), Nexus3::TaskField.new('repository_name'),
                                               Nexus3::TaskField.new('snapshot_retention_days', 'integer')],
       'repository.maven.unpublish-dotindex' => [Nexus3::TaskField.new('repository_name')],
+      'repository.npm.reindex' => [Nexus3::TaskField.new('repository_name')],
       'repository.purge-unused' => [Nexus3::TaskField.new('last_used', 'integer'), Nexus3::TaskField.new('repository_name')],
       'repository.rebuild-index' => [Nexus3::TaskField.new('repository_name')],
+      'repository.storage-facet-cleanup' => [],
+      'repository.yum.rebuild.metadata' => [Nexus3::TaskField.new('repository_name'), Nexus3::TaskField.new('yum_metadata_caching', 'boolean')],
       'script' => [Nexus3::TaskField.new('language'), Nexus3::TaskField.new('source')],
       'security.purge-api-keys' => [],
-      'db.backup' => [Nexus3::TaskField.new('location')],
+      'tasklog.cleanup' => [],
     }
 
     FIELDS = FIELDS_BY_TYPE.values.flatten.sort.uniq
