@@ -1,0 +1,27 @@
+static String toSnakeCase( String text ) {
+  text.replaceAll( /([A-Z])/, /_$1/ ).toLowerCase().replaceAll( /^_/, '' )
+}
+
+def authorizationManager = container.lookup(org.sonatype.nexus.security.authz.AuthorizationManager.class.name)
+def privileges = authorizationManager.listPrivileges()
+
+def infos = privileges.collect { privilege ->
+  def info = [
+    name: privilege.getName(),
+    type: privilege.getType(),
+    description: privilege.getDescription(),
+  ]
+
+  privilege.properties.findAll { it.key != 'name' }.each { key, value ->
+    info[toSnakeCase(key)] = value
+  }
+
+  if (privilege.getType() == 'script') {
+    info.script_name = privilege.properties.name
+  }
+
+  info.repository_name = privilege.properties.repository
+
+  info
+}
+return groovy.json.JsonOutput.toJson(infos)

@@ -1,0 +1,10 @@
+def authorizationManager = container.lookup(org.sonatype.nexus.security.authz.AuthorizationManager.class.name)
+def privilege = new org.sonatype.nexus.security.privilege.Privilege()
+
+privilege.setId('<%= resource[:name] %>')
+
+<%- resource.to_hash.each_pair do |key, value| -%>
+<%= to_groovy_properties(key, value) %>
+<%- end -%>
+
+authorizationManager.addPrivilege(privilege)

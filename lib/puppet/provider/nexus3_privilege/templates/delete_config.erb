@@ -1,0 +1,2 @@
+def authorizationManager = container.lookup(org.sonatype.nexus.security.authz.AuthorizationManager.class.name)
+authorizationManager.deletePrivilege('<%= resource[:name] %>')

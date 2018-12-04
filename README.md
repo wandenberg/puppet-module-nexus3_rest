@@ -208,6 +208,22 @@ nexus3_user { 'anonymous':
 }
 ```
 
+### Privilege configuration ###
+
+The Nexus Privilege settings can be configured using the `nexus3_privilege` resource:
+
+```
+#!puppet
+nexus3_privilege { 'nx-repository-view-docker-*-browse':
+  ensure          => 'present',
+  actions         => 'browse',
+  description     => 'Browse privilege for all \'docker\'-format repository views',
+  format          => 'docker',
+  repository_name => '*',
+  type            => 'repository-view',
+}
+```
+
 ### Role configuration ###
 
 The Nexus Role settings can be configured using the `nexus3_role` resource:
