@@ -1,0 +1,279 @@
+#---
+#
+##custom::nexus::tasks:
+##  'maven-del-snap':
+##    ensure: 'present'
+##    alert_email: 'a@no-reply.com'
+##    enabled: 'true'
+##    frequency: 'manual'
+##    grace_period_in_days: 2
+##    minimum_retained: 1
+##    remove_if_released: true
+##    repository_name: 'maven-group'
+##    snapshot_retention_days: 30
+##    type: 'repository.maven.remove-snapshots'
+###
+###  'Storage facet cleanup':
+###    ensure          : 'present'
+###    cron_expression : '0 */10 * * * ?'
+###    enabled         : 'true'
+###    frequency       : 'advanced'
+###    type            : 'repository.storage-facet-cleanup'
+###  'Task log cleanup':
+###    ensure          : 'present'
+###    cron_expression : '0 0 0 * * ?'
+###    enabled         : 'true'
+###    frequency       : 'advanced'
+###    type            : 'tasklog.cleanup'
+###  'compact-blob':
+###    ensure         : 'present'
+###    alert_email    : 'a@no-reply.com'
+###    blobstore_name : 'default'
+###    enabled        : 'true'
+###    frequency      : 'manual'
+###    type           : 'blobstore.compact'
+###  'delete-orphans':
+###    ensure      : 'present'
+###    alert_email : 'b@no-reply.com'
+###    enabled     : 'true'
+###    frequency   : 'manual'
+###    type        : 'security.purge-api-keys'
+###  'docker-delete':
+###    ensure      : 'present'
+###    age         : 24
+###    alert_email : 'a@no-reply.com'
+###    enabled     : 'true'
+###    frequency   : 'manual'
+###    type        : 'repository.docker.upload-purge'
+###  'docker-delete-unused':
+###    ensure      : 'present'
+###    alert_email : 'a@no-reply.com'
+###    enabled     : 'true'
+###    frequency   : 'manual'
+###    repository_name: 'docker-hosted'
+###    type        : 'repository.docker.gc'
+###  'execute-script':
+###    ensure      : 'present'
+###    alert_email : 'c@no-reply.com'
+###    enabled     : 'true'
+###    frequency   : 'manual'
+###    language    : 'groovy'
+###    source      : "log.info(\'hello\')"
+###    type        : 'script'
+###  'export-db':
+###    ensure      : 'present'
+###    alert_email : 'a@no-reply.com'
+###    enabled     : 'true'
+###    frequency   : 'manual'
+###    location    : '/tmp/db.bkp'
+###    type        : 'db.backup'
+###  'maven-del-unused-snap':
+###    ensure          : 'present'
+###    alert_email     : 'a@no-reply.com'
+###    enabled         : 'true'
+###    frequency       : 'manual'
+###    last_used       : 1
+###    repository_name : 'maven-artifacts'
+###    type            : 'repository.maven.purge-unused-snapshots'
+###  'maven-publish':
+###    ensure          : 'present'
+###    alert_email     : 'a@no-reply.com'
+###    enabled         : 'true'
+###    frequency       : 'manual'
+###    repository_name : 'maven-artifacts'
+###    type            : 'repository.maven.publish-dotindex'
+###  'maven-unpublish':
+###    ensure          : 'present'
+###    alert_email     : 'a@no-reply.com'
+###    enabled         : 'true'
+###    frequency       : 'manual'
+###    repository_name : 'maven-artifacts'
+###    type            : 'repository.maven.unpublish-dotindex'
+###  'rep-del-une':
+###    ensure          : 'present'
+###    alert_email     : 'a@no-reply.com'
+###    enabled         : 'true'
+###    frequency       : 'manual'
+###    last_used       : 1
+###    repository_name : '*'
+###    type            : 'repository.purge-unused'
+###  'rep-reb-rep-search':
+###    ensure          : 'present'
+###    alert_email     : 'a@no-reply.com'
+###    enabled         : 'true'
+###    frequency       : 'manual'
+###    repository_name : 'docker-hosted'
+###    type            : 'repository.rebuild-index'
+###  'rep-reb-yum':
+###    ensure      : 'present'
+###    alert_email : 'a@no-reply.com'
+###    enabled     : 'true'
+###    frequency   : 'manual'
+###    type        : 'repository.yum.rebuild.metadata'
+###    yum_metadata_caching: true
+###  'rep-rebuild-maven':
+###    ensure          : 'present'
+###    alert_email     : 'a@no-reply.com'
+###    artifact_id     : '234'
+###    base_version    : '2134'
+###    enabled         : 'true'
+###    frequency       : 'manual'
+###    group_id        : '11'
+###    repository_name : 'maven-artifacts'
+###    type            : 'repository.maven.rebuild-metadata'
+###    rebuild_checksums: 'true'
+###
+###  'rep-rebuild-rep':
+###    ensure      : 'present'
+###    alert_email : 'a@no-reply.com'
+###    enabled     : 'true'
+###    frequency   : 'manual'
+###    type        : 'create.browse.nodes'
+###    repository_name: 'docker-proxy'
+###  'rep-rec--comp':
+###    ensure          : 'present'
+###    alert_email     : 'a@no-reply.com'
+###    blobstore_name  : 'default'
+###    dry_run         : 'true'
+###    enabled         : 'true'
+###    frequency       : 'manual'
+###    integrity_check : 'true'
+###    restore_blobs   : 'true'
+###    type            : 'blobstore.rebuildComponentDB'
+###    undelete_blobs  : 'true'
+###  'rep-rec-npm':
+###    ensure      : 'present'
+###    alert_email : 'a@no-reply.com'
+###    enabled     : 'true'
+###    frequency   : 'manual'
+###    type        : 'repository.npm.reindex'
+###    repository_name: '*'
+###  'rep-recon':
+###    ensure      : 'present'
+###    alert_email : 'a@no-reply.com'
+###    enabled     : 'true'
+###    frequency   : 'manual'
+###    type        : 'rebuild.asset.uploadMetadata'
+###
+#
+#
+#
+#
+#
+#custom::nexus::repositories:
+#  apt-hosted:
+#    provider_type: 'apt'
+#    type: 'hosted'
+#    distribution: 'stretch'
+#    asset_history_limit: 4
+#    pgp_keypair: 'keypair'
+#    pgp_keypair_passphrase: 'pass'
+#  apt-proxy:
+#    provider_type: 'apt'
+#    type: 'proxy'
+#    distribution: 'stretch'
+##    is_flat: true
+#    remote_url: https://google.com
+#  yum-hosted:
+#    ensure: 'present'
+#    blobstore_name: 'default'
+#    provider_type: 'yum'
+#    type: 'hosted'
+#    depth: 4
+#    remote_auth_type: 'none'
+#    strict_content_type_validation: true
+#    write_policy: 'allow_write'
+#
+##  docker-proxy:
+##    ensure                         : 'present'
+##    blobstore_name                 : 'default'
+##    online                         : true
+##    provider_type                  : 'docker'
+##    remote_auth_type               : 'none'
+##    remote_url                     : 'https://registry.hub.docker.com'
+##    strict_content_type_validation : true
+##    type                           : 'proxy'
+##    v1_enabled                     : true
+##    index_type: 'custom'
+##    index_url: 'https://google.com'
+###  docker-hosted:
+###    ensure                         : 'present'
+###    blobstore_name                 : 'default'
+###    http_port                      : '8442'
+###    online                         : true
+###    provider_type                  : 'docker'
+###    remote_auth_type               : 'none'
+###    strict_content_type_validation : true
+###    type                           : 'hosted'
+###    v1_enabled                      : true
+###    write_policy                   : 'allow_write'
+###  maven-artifacts:
+###    ensure                         : 'present'
+###    blobstore_name                 : 'default'
+###    layout_policy                  : 'strict'
+###    online                         : true
+###    provider_type                  : 'maven2'
+###    remote_auth_type               : 'none'
+###    strict_content_type_validation : 'false'
+###    type                           : 'hosted'
+###    version_policy                 : 'release'
+###    write_policy                   : 'allow_write'
+###  maven-proxy:
+###    ensure                         : 'present'
+###    blobstore_name                 : 'default'
+###    layout_policy                  : 'permissive'
+###    online                         : true
+###    provider_type                  : 'maven2'
+###    remote_auth_type               : 'none'
+###    remote_url                     : 'https://repo1.maven.org/maven2/'
+###    strict_content_type_validation : 'false'
+###    type                           : 'proxy'
+###    version_policy                 : 'release'
+###  ngent-nuget-artifacts:
+###    ensure           : 'present'
+###    blobstore_name   : 'default'
+###    online           : true
+###    provider_type    : 'nuget'
+###    remote_auth_type : 'none'
+###    type             : 'hosted'
+###    write_policy     : 'allow_write'
+###  nuget-proxy-v3:
+###    ensure           : 'present'
+###    blobstore_name   : 'default'
+###    online           : true
+###    provider_type    : 'nuget'
+###    remote_auth_type : 'none'
+###    remote_url       : 'https://api.nuget.org/v3/'
+###    type             : 'proxy'
+###
+###custom::nexus::repository_groups:
+###  docker-group:
+###    ensure                         : 'present'
+###    blobstore_name                 : 'default'
+###    online                         : true
+###    provider_type                  : 'docker'
+###    strict_content_type_validation : true
+###    http_port                       : '7442'
+####    https_port                       : '7443'
+###    v1_enabled                      : true
+###    repositories                   :
+###      - 'docker-hosted'
+###      - 'docker-proxy'
+###  maven-group:
+###    ensure                         : 'present'
+###    blobstore_name                 : 'default'
+###    online                         : true
+###    provider_type                  : 'maven2'
+###    strict_content_type_validation : true
+###    repositories                   :
+###      - 'maven-artifacts'
+###      - 'maven-proxy'
+###  nuget:
+###    ensure                         : 'present'
+###    blobstore_name                 : 'default'
+###    online                         : true
+###    provider_type                  : 'nuget'
+###    strict_content_type_validation : true
+###    repositories                   :
+###      - 'nuget-artifacts'
+###      - 'nuget-proxy-v3'

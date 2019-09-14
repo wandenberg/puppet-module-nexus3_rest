@@ -1,0 +1,112 @@
+void printAllMethods( obj ){
+    if( !obj ){
+        println( "Object is null\r\n" );
+        return;
+    }
+    if( !obj.metaClass && obj.getClass() ){
+        printAllMethods( obj.getClass() );
+        return;
+    }
+    def str = "class ${obj.getClass().name} functions:\r\n";
+    obj.metaClass.methods.name.unique().each{
+        str += it+"(); ";
+    }
+    log.info("${str}\r\n");
+}
+
+def authorizationManager = container.lookup(org.sonatype.nexus.security.authz.AuthorizationManager.class.name)
+log.info(authorizationManager.properties.collect{it}.join('\n'))
+
+printAllMethods( authorizationManager )
+
+
+def blobstoreManager = container.lookup(org.sonatype.nexus.blobstore.api.BlobStoreManager.class.name)
+log.info(blobstoreManager.properties.collect{it}.join('\n'))
+
+printAllMethods( blobstoreManager )
+
+
+
+
+//def authorizationManager = container.lookup(org.sonatype.nexus.security.authz.AuthorizationManager.class.name)
+//log.info(authorizationManager.properties.collect{it}.join('\n'))
+//void printAllMethods( obj ){
+//    if( !obj ){
+//        println( "Object is null\r\n" );
+//        return;
+//    }
+//    if( !obj.metaClass && obj.getClass() ){
+//        printAllMethods( obj.getClass() );
+//        return;
+//    }
+//    def str = "class ${obj.getClass().name} functions:\r\n";
+//    obj.metaClass.methods.name.unique().each{
+//        str += it+"(); ";
+//    }
+//    log.info("${str}\r\n");
+//}
+//printAllMethods( authorizationManager )
+//
+//def privileges = authorizationManager.listPrivileges()
+//
+//def infos = privileges.collect { privilege ->
+//    privilege.properties
+//}
+//log.info(groovy.json.JsonOutput.toJson(infos))
+//
+//log.info(authorizationManager.getPrivilege('nx-repository-view-yum-*-*').properties.collect{it}.join('\n'))
+//printAllMethods(authorizationManager.getPrivilege('nx-repository-view-yum-*-*'))
+//
+//// class=class org.sonatype.nexus.security.internal.AuthorizationManagerImpl
+////source=default
+//// class org.sonatype.nexus.security.internal.AuthorizationManagerImpl functions:
+////equals(); getClass(); hashCode(); notify(); notifyAll(); toString(); wait(); addPrivilege(); addRole(); deletePrivilege(); deleteRole(); getPrivilege(); getRole(); getSource(); listPrivileges(); listRoles(); supportsWrite(); updatePrivilege(); updateRole();
+////
+//// [{"actions":"*","domain":"capabilities"},{"format":"maven2","repository":"*","actions":"add"},{"actions":"read","domain":"bundles"},{"format":"rubygems","repository":"*","actions":"edit"},{"format":"docker","repository":"*","actions":"add"},{"actions":"*","domain":"ssl-truststore"},{"format":"bower","repository":"*","actions":"add"},{"format":"pypi","repository":"*","actions":"*"},{"format":"apt","repository":"apt-proxy","actions":"delete"},{"format":"apt","repository":"apt-hosted","actions":"read"},{"format":"*","repository":"*","actions":"delete"},{"format":"apt","repository":"apt-proxy","actions":"edit"},{"format":"*","repository":"*","actions":"edit"},{"actions":"read","domain":"search"},{"format":"rubygems","repository":"*","actions":"read"},{"actions":"read","domain":"ldap"},{"actions":"*","domain":"blobstores"},{"format":"bower","repository":"*","actions":"read"},{"format":"apt","repository":"apt-proxy","actions":"*"},{"pattern":"nexus:*"},{"format":"raw","repository":"*","actions":"*"},{"format":"yum","repository":"yum-hosted","actions":"*"},{"format":"yum","repository":"yum-hosted","actions":"delete"},{"actions":"*","domain":"atlas"},{"actions":"mark","domain":"logging"},{"format":"apt","repository":"*","actions":"add"},{"actions":"create","domain":"ldap"},{"actions":"*","domain":"analytics"},{"format":"yum","repository":"yum-hosted","actions":"edit"},{"format":"apt","repository":"apt-proxy","actions":"add"},{"actions":"create,read","domain":"roles"},{"format":"rubygems","repository":"*","actions":"add"},{"format":"rubygems","repository":"*","actions":"delete"},{"format":"bower","repository":"*","actions":"*"},{"format":"apt","repository":"apt-hosted","actions":"*"},{"format":"yum","repository":"yum-hosted","actions":"read"},{"format":"nuget","repository":"*","actions":"add"},{"format":"*","repository":"*","actions":"add"},{"actions":"delete,read","domain":"ldap"},{"format":"maven2","repository":"*","actions":"edit"},{"format":"bower","repository":"*","actions":"delete"},{"actions":"read","domain":"users"},{"format":"*","repository":"*","actions":"read"},{"format":"gitlfs","repository":"*","actions":"browse"},{"format":"docker","repository":"*","actions":"read"},{"format":"npm","repository":"*","actions":"edit"},{"format":"npm","repository":"*","actions":"delete"},{"actions":"read","domain":"iq-violation-summary"},{"actions":"*","domain":"metrics"},{"format":"*","repository":"*","actions":"browse"},{"actions":"update,read","domain":"ssl-truststore"},{"format":"maven2","repository":"*","actions":"*"},{"actions":"delete,read","domain":"capabilities"},{"format":"apt","repository":"apt-hosted","actions":"browse"},{"actions":"update,read","domain":"selectors"},{"actions":"*","domain":"privileges"},{"format":"apt","repository":"*","actions":"browse"},{"format":"apt","repository":"apt-proxy","actions":"browse"},{"format":"yum","repository":"yum-hosted","actions":"edit"},{"format":"yum","repository":"*","actions":"add"},{"format":"apt","repository":"apt-hosted","actions":"edit"},{"actions":"*","domain":"audit"},{"actions":"create,read","domain":"ssl-truststore"},{"actions":"create,read","domain":"blobstores"},{"format":"rubygems","repository":"*","actions":"*"},{"format":"*","repository":"*","actions":"edit"},{"format":"apt","repository":"*","actions":"edit"},{"format":"npm","repository":"*","actions":"browse"},{"actions":"delete,read","domain":"blobstores"},{"format":"maven2","repository":"*","actions":"delete"},{"format":"apt","repository":"apt-proxy","actions":"edit"},{"actions":"read","domain":"privileges"},{"format":"raw","repository":"*","actions":"add"},{"actions":"update,read","domain":"capabilities"},{"format":"pypi","repository":"*","actions":"browse"},{"format":"apt","repository":"apt-proxy","actions":"delete"},{"actions":"*","domain":"selectors"},{"format":"yum","repository":"yum-hosted","actions":"*"},{"format":"apt","repository":"apt-hosted","actions":"edit"},{"name":"*","actions":"add,read"},{"actions":"*","domain":"ldap"},{"actions":"delete,read","domain":"ssl-truststore"},{"actions":"delete,read","domain":"privileges"},{"format":"pypi","repository":"*","actions":"delete"},{"actions":"update,read","domain":"settings"},{"format":"apt","repository":"apt-hosted","actions":"delete"},{"actions":"read","domain":"tasks"},{"format":"apt","repository":"apt-hosted","actions":"browse"},{"format":"apt","repository":"apt-proxy","actions":"browse"},{"actions":"read","domain":"licensing"},{"name":"*","actions":"browse,read"},{"actions":"*","domain":"apikey"},{"actions":"read","domain":"ssl-truststore"},{"format":"raw","repository":"*","actions":"edit"},{"format":"yum","repository":"yum-hosted","actions":"delete"},{"actions":"create,read","domain":"licensing"},{"actions":"*","domain":"roles"},{"format":"nuget","repository":"*","actions":"delete"},{"format":"apt","repository":"apt-proxy","actions":"read"},{"format":"yum","repository":"yum-hosted","actions":"add"},{"format":"yum","repository":"*","actions":"delete"},{"format":"*","repository":"*","actions":"read"},{"format":"*","repository":"*","actions":"delete"},{"actions":"delete,read","domain":"users"},{"actions":"*","domain":"users"},{"format":"pypi","repository":"*","actions":"add"},{"format":"npm","repository":"*","actions":"add"},{"format":"yum","repository":"yum-hosted","actions":"read"},{"actions":"read","domain":"healthcheck"},{"format":"maven2","repository":"*","actions":"read"},{"format":"bower","repository":"*","actions":"edit"},{"actions":"update,read","domain":"privileges"},{"actions":"delete,read","domain":"roles"},{"actions":"start,stop","domain":"tasks"},{"format":"apt","repository":"apt-hosted","actions":"read"},{"actions":"read","domain":"logging"},{"format":"yum","repository":"yum-hosted","actions":"browse"},{"actions":"delete,read","domain":"tasks"},{"name":"*","actions":"run"},{"format":"docker","repository":"*","actions":"edit"},{"format":"nuget","repository":"*","actions":"*"},{"actions":"*","domain":"settings"},{"actions":"read","domain":"settings"},{"format":"apt","repository":"apt-proxy","actions":"read"},{"format":"yum","repository":"*","actions":"browse"},{"format":"docker","repository":"*","actions":"browse"},{"format":"*","repository":"*","actions":"*"},{"name":"*","actions":"*"},{"format":"docker","repository":"*","actions":"delete"},{"format":"gitlfs","repository":"*","actions":"edit"},{"name":"*","actions":"edit,read"},{"format":"raw","repository":"*","actions":"read"},{"format":"apt","repository":"apt-hosted","actions":"add"},{"format":"*","repository":"*","actions":"*"},{"format":"yum","repository":"*","actions":"read"},{"format":"apt","repository":"apt-proxy","actions":"*"},{"actions":"create,read","domain":"userschangepw"},{"actions":"read","domain":"selectors"},{"actions":"update,read","domain":"roles"},{"actions":"update","domain":"logging"},{"actions":"delete","domain":"licensing"},{"format":"raw","repository":"*","actions":"browse"},{"format":"apt","repository":"apt-hosted","actions":"delete"},{"actions":"add","domain":"component"},{"name":"*","actions":"read"},{"actions":"*","domain":"tasks"},{"format":"apt","repository":"*","actions":"*"},{"actions":"read","domain":"healthchecksummary"},{"format":"bower","repository":"*","actions":"browse"},{"name":"*","actions":"delete,read"},{"format":"maven2","repository":"*","actions":"browse"},{"format":"docker","repository":"*","actions":"*"},{"actions":"update","domain":"ldap"},{"actions":"update,read","domain":"users"},{"format":"raw","repository":"*","actions":"delete"},{"actions":"create,read","domain":"tasks"},{"actions":"create,read","domain":"users"},{"format":"gitlfs","repository":"*","actions":"add"},{"format":"*","repository":"*","actions":"browse"},{"actions":"create,read","domain":"privileges"},{"format":"yum","repository":"*","actions":"edit"},{"actions":"read","domain":"roles"},{"actions":"*","domain":"logging"},{"format":"apt","repository":"*","actions":"read"},{"actions":"read","domain":"blobstores"},{"format":"npm","repository":"*","actions":"read"},{"actions":"update,read","domain":"tasks"},{"format":"nuget","repository":"*","actions":"read"},{"format":"apt","repository":"apt-hosted","actions":"*"},{"actions":"create,read","domain":"capabilities"},{"format":"pypi","repository":"*","actions":"edit"},{"format":"nuget","repository":"*","actions":"edit"},{"format":"*","repository":"*","actions":"add"},{"format":"npm","repository":"*","actions":"*"},{"actions":"delete,read","domain":"selectors"},{"format":"yum","repository":"yum-hosted","actions":"browse"},{"format":"gitlfs","repository":"*","actions":"*"},{"actions":"*","domain":"licensing"},{"format":"rubygems","repository":"*","actions":"browse"},{"actions":"*","domain":"bundles"},{"actions":"update","domain":"healthcheck"},{"format":"pypi","repository":"*","actions":"read"},{"actions":"read","domain":"capabilities"},{"format":"apt","repository":"*","actions":"delete"},{"format":"nuget","repository":"*","actions":"browse"},{"actions":"*","domain":"wonderland"},{"format":"yum","repository":"*","actions":"*"},{"format":"gitlfs","repository":"*","actions":"delete"},{"actions":"create,read","domain":"selectors"},{"format":"gitlfs","repository":"*","actions":"read"}]
+//// format=yum
+////repository=*
+////actions=*
+//// class org.sonatype.nexus.security.privilege.Privilege functions:
+////equals(); getClass(); hashCode(); notify(); notifyAll(); toString(); wait(); addProperty(); getDescription(); getId();
+//// getName(); getPermission(); getPrivilegeProperty(); getProperties(); getType(); getVersion(); isReadOnly(); setDescription();
+//// setId(); setName(); setPermission(); setProperties(); setReadOnly(); setType(); setVersion();
+//
+//
+//// [{"actions":"*","domain":"capabilities"},{"format":"maven2","repository":"*","actions":"add"},{"actions":"read","domain":"bundles"},{"format":"rubygems","repository":"*","actions":"edit"},{"format":"docker","repository":"*","actions":"add"},{"actions":"*","domain":"ssl-truststore"},{"format":"bower","repository":"*","actions":"add"},{"format":"pypi","repository":"*","actions":"*"},{"format":"apt","repository":"apt-proxy","actions":"delete"},{"format":"apt","repository":"apt-hosted","actions":"read"},{"format":"*","repository":"*","actions":"delete"},{"format":"apt","repository":"apt-proxy","actions":"edit"},{"format":"*","repository":"*","actions":"edit"},{"actions":"read","domain":"search"},{"format":"rubygems","repository":"*","actions":"read"},{"actions":"read","domain":"ldap"},{"actions":"*","domain":"blobstores"},{"format":"bower","repository":"*","actions":"read"},{"format":"apt","repository":"apt-proxy","actions":"*"},{"pattern":"nexus:*"},{"format":"raw","repository":"*","actions":"*"},{"format":"yum","repository":"yum-hosted","actions":"*"},{"format":"yum","repository":"yum-hosted","actions":"delete"},{"actions":"*","domain":"atlas"},{"actions":"mark","domain":"logging"},{"format":"apt","repository":"*","actions":"add"},{"actions":"create","domain":"ldap"},{"actions":"*","domain":"analytics"},{"format":"yum","repository":"yum-hosted","actions":"edit"},{"format":"apt","repository":"apt-proxy","actions":"add"},{"actions":"create,read","domain":"roles"},{"format":"rubygems","repository":"*","actions":"add"},{"format":"rubygems","repository":"*","actions":"delete"},{"format":"bower","repository":"*","actions":"*"},{"format":"apt","repository":"apt-hosted","actions":"*"},{"format":"yum","repository":"yum-hosted","actions":"read"},{"format":"nuget","repository":"*","actions":"add"},{"format":"*","repository":"*","actions":"add"},{"actions":"delete,read","domain":"ldap"},{"format":"maven2","repository":"*","actions":"edit"},{"format":"bower","repository":"*","actions":"delete"},{"actions":"read","domain":"users"},{"format":"*","repository":"*","actions":"read"},{"format":"gitlfs","repository":"*","actions":"browse"},{"format":"docker","repository":"*","actions":"read"},{"format":"npm","repository":"*","actions":"edit"},{"format":"npm","repository":"*","actions":"delete"},{"actions":"read","domain":"iq-violation-summary"},{"actions":"*","domain":"metrics"},{"format":"*","repository":"*","actions":"browse"},{"actions":"update,read","domain":"ssl-truststore"},{"format":"maven2","repository":"*","actions":"*"},{"actions":"delete,read","domain":"capabilities"},{"format":"apt","repository":"apt-hosted","actions":"browse"},{"actions":"update,read","domain":"selectors"},{"actions":"*","domain":"privileges"},{"format":"apt","repository":"*","actions":"browse"},{"format":"apt","repository":"apt-proxy","actions":"browse"},{"format":"yum","repository":"yum-hosted","actions":"edit"},{"format":"yum","repository":"*","actions":"add"},{"format":"apt","repository":"apt-hosted","actions":"edit"},{"actions":"*","domain":"audit"},{"actions":"create,read","domain":"ssl-truststore"},{"actions":"create,read","domain":"blobstores"},{"format":"rubygems","repository":"*","actions":"*"},{"format":"*","repository":"*","actions":"edit"},{"format":"apt","repository":"*","actions":"edit"},{"format":"npm","repository":"*","actions":"browse"},{"actions":"delete,read","domain":"blobstores"},{"format":"maven2","repository":"*","actions":"delete"},{"format":"apt","repository":"apt-proxy","actions":"edit"},{"actions":"read","domain":"privileges"},{"format":"raw","repository":"*","actions":"add"},{"actions":"update,read","domain":"capabilities"},{"format":"pypi","repository":"*","actions":"browse"},{"format":"apt","repository":"apt-proxy","actions":"delete"},{"actions":"*","domain":"selectors"},{"format":"yum","repository":"yum-hosted","actions":"*"},{"format":"apt","repository":"apt-hosted","actions":"edit"},{"name":"*","actions":"add,read"},{"actions":"*","domain":"ldap"},{"actions":"delete,read","domain":"ssl-truststore"},{"actions":"delete,read","domain":"privileges"},{"format":"pypi","repository":"*","actions":"delete"},{"actions":"update,read","domain":"settings"},{"format":"apt","repository":"apt-hosted","actions":"delete"},{"actions":"read","domain":"tasks"},{"format":"apt","repository":"apt-hosted","actions":"browse"},{"format":"apt","repository":"apt-proxy","actions":"browse"},{"actions":"read","domain":"licensing"},{"name":"*","actions":"browse,read"},{"actions":"*","domain":"apikey"},{"actions":"read","domain":"ssl-truststore"},{"format":"raw","repository":"*","actions":"edit"},{"format":"yum","repository":"yum-hosted","actions":"delete"},{"actions":"create,read","domain":"licensing"},{"actions":"*","domain":"roles"},{"format":"nuget","repository":"*","actions":"delete"},{"format":"apt","repository":"apt-proxy","actions":"read"},{"format":"yum","repository":"yum-hosted","actions":"add"},{"format":"yum","repository":"*","actions":"delete"},{"format":"*","repository":"*","actions":"read"},{"format":"*","repository":"*","actions":"delete"},{"actions":"delete,read","domain":"users"},{"actions":"*","domain":"users"},{"format":"pypi","repository":"*","actions":"add"},{"format":"npm","repository":"*","actions":"add"},{"format":"yum","repository":"yum-hosted","actions":"read"},{"actions":"read","domain":"healthcheck"},{"format":"maven2","repository":"*","actions":"read"},{"format":"bower","repository":"*","actions":"edit"},{"actions":"update,read","domain":"privileges"},{"actions":"delete,read","domain":"roles"},{"actions":"start,stop","domain":"tasks"},{"format":"apt","repository":"apt-hosted","actions":"read"},{"actions":"read","domain":"logging"},{"format":"yum","repository":"yum-hosted","actions":"browse"},{"actions":"delete,read","domain":"tasks"},{"name":"*","actions":"run"},{"format":"docker","repository":"*","actions":"edit"},{"format":"nuget","repository":"*","actions":"*"},{"actions":"*","domain":"settings"},{"actions":"read","domain":"settings"},{"format":"apt","repository":"apt-proxy","actions":"read"},{"format":"yum","repository":"*","actions":"browse"},{"format":"docker","repository":"*","actions":"browse"},{"format":"*","repository":"*","actions":"*"},{"name":"*","actions":"*"},{"format":"docker","repository":"*","actions":"delete"},{"format":"gitlfs","repository":"*","actions":"edit"},{"name":"*","actions":"edit,read"},{"format":"raw","repository":"*","actions":"read"},{"format":"apt","repository":"apt-hosted","actions":"add"},{"format":"*","repository":"*","actions":"*"},{"format":"yum","repository":"*","actions":"read"},{"format":"apt","repository":"apt-proxy","actions":"*"},{"actions":"create,read","domain":"userschangepw"},{"actions":"read","domain":"selectors"},{"actions":"update,read","domain":"roles"},{"actions":"update","domain":"logging"},{"actions":"delete","domain":"licensing"},{"format":"raw","repository":"*","actions":"browse"},{"format":"apt","repository":"apt-hosted","actions":"delete"},{"actions":"add","domain":"component"},{"name":"*","actions":"read"},{"actions":"*","domain":"tasks"},{"format":"apt","repository":"*","actions":"*"},{"actions":"read","domain":"healthchecksummary"},{"format":"bower","repository":"*","actions":"browse"},{"name":"*","actions":"delete,read"},{"format":"maven2","repository":"*","actions":"browse"},{"format":"docker","repository":"*","actions":"*"},{"actions":"update","domain":"ldap"},{"actions":"update,read","domain":"users"},{"format":"raw","repository":"*","actions":"delete"},{"actions":"create,read","domain":"tasks"},{"actions":"create,read","domain":"users"},{"format":"gitlfs","repository":"*","actions":"add"},{"format":"*","repository":"*","actions":"browse"},{"actions":"create,read","domain":"privileges"},{"format":"yum","repository":"*","actions":"edit"},{"actions":"read","domain":"roles"},{"actions":"*","domain":"logging"},{"format":"apt","repository":"*","actions":"read"},{"actions":"read","domain":"blobstores"},{"format":"npm","repository":"*","actions":"read"},{"actions":"update,read","domain":"tasks"},{"format":"nuget","repository":"*","actions":"read"},{"format":"apt","repository":"apt-hosted","actions":"*"},{"actions":"create,read","domain":"capabilities"},{"format":"pypi","repository":"*","actions":"edit"},{"format":"nuget","repository":"*","actions":"edit"},{"format":"*","repository":"*","actions":"add"},{"format":"npm","repository":"*","actions":"*"},{"actions":"delete,read","domain":"selectors"},{"format":"yum","repository":"yum-hosted","actions":"browse"},{"format":"gitlfs","repository":"*","actions":"*"},{"actions":"*","domain":"licensing"},{"format":"rubygems","repository":"*","actions":"browse"},{"actions":"*","domain":"bundles"},{"actions":"update","domain":"healthcheck"},{"format":"pypi","repository":"*","actions":"read"},{"actions":"read","domain":"capabilities"},{"format":"apt","repository":"*","actions":"delete"},{"format":"nuget","repository":"*","actions":"browse"},{"actions":"*","domain":"wonderland"},{"format":"yum","repository":"*","actions":"*"},{"format":"gitlfs","repository":"*","actions":"delete"},{"actions":"create,read","domain":"selectors"},{"format":"gitlfs","repository":"*","actions":"read"}]
+//// format=yum
+////repository=*
+////actions=*
+//// class org.sonatype.nexus.security.privilege.Privilege functions:
+//// addProperty(); getDescription(); getId();
+//// getName(); getPermission(); getPrivilegeProperty();
+//// getProperties(); getType(); getVersion(); isReadOnly();
+//// setDescription();
+//// setId(); setName(); setPermission(); setProperties();
+//// setReadOnly(); setType(); setVersion();
+//
+////privilege.properties
+//
+//
+//// http://docs.groovy-lang.org/next/html/documentation/working-with-collections.html
+//static String toCamelCase( String text, boolean capitalized = false ) {
+//    text = text.replaceAll( "(_)([A-Za-z0-9])", { Object[] it -> it[2].toUpperCase() } )
+//    return capitalized ? capitalize(text) : text
+//}
+//
+//static String toSnakeCase( String text ) {
+//    text.replaceAll( /([A-Z])/, /_$1/ ).toLowerCase().replaceAll( /^_/, '' )
+//}
+//
+//
+//println toCamelCase("some_field_name")
+//println()
+//
+//println toSnakeCase("CamelCaseClass")
+//
+//
+////# nx-selectors-delete
+////# nx-repository-admin-apt-apt-hosted-edit
+////# nx-repository-view-yum-yum-hosted-edit
+////# nx-all
+////# nx-script-*-delete
+////# content-selector-example

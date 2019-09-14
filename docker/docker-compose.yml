@@ -1,0 +1,17 @@
+version: "3.3"
+services:
+  puppet:
+    image: puppet/puppet-agent:5.1.0
+    entrypoint: "/data/wandenberg-nexus3_rest/docker/run.sh"
+    command: [ "sleep", "36000"]
+    depends_on:
+      - nexus
+    links:
+      - nexus
+    volumes:
+       - ../:/data/wandenberg-nexus3_rest
+  nexus:
+    image: sonatype/nexus3:3.25.1
+#    image: nexus-repository-apt:3.16.1
+    ports:
+      - "8081:8081"
