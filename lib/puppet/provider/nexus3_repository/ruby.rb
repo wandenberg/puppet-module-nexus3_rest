@@ -54,8 +54,9 @@ Puppet::Type.type(:nexus3_repository).provide(:ruby, parent: Puppet::Provider::N
   end
 
   def write_policy=(value)
-    raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'write_policy' unless resource[:type] == :hosted
-    mark_config_dirty if @property_hash[:write_policy] != value
-    @property_hash[:write_policy] = value
+    if resource[:type] == :hosted
+      mark_config_dirty if @property_hash[:write_policy] != value
+      @property_hash[:write_policy] = value
+    end
   end
 end

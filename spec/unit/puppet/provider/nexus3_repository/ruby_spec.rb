@@ -651,6 +651,7 @@ describe type_class.provider(:ruby) do
 
         it 'should allow changes on write_policy' do
           expect { instance.write_policy = :read_only }.not_to raise_error
+          expect(instance.write_policy).to eql(:read_only)
         end
       end
 
@@ -660,7 +661,8 @@ describe type_class.provider(:ruby) do
         end
 
         it 'should not allow changes on version_policy' do
-          expect { instance.write_policy = :read_only }.to raise_error(Puppet::Error, /write_policy is write-once only and cannot be changed./)
+          expect { instance.write_policy = :read_only }.not_to raise_error
+          expect(instance.write_policy).not_to eql(:read_only)
         end
       end
     end
