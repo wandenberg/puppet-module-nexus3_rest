@@ -1,0 +1,38 @@
+def blobStoreManager = container.lookup(org.sonatype.nexus.blobstore.api.BlobStoreManager.class.name)
+def blobStores = blobStoreManager.browse()
+
+def infos = blobStores.findResults { blobStore ->
+  def config = blobStore.getBlobStoreConfiguration()
+  def quotaConfig = config.attributes.blobStoreQuotaConfig
+  def attributes = [
+    name: config.name,
+    type: config.type,
+    soft_quota_enabled: quotaConfig ? true : false,
+    quota_limit_bytes: quotaConfig ? quotaConfig.quotaLimitBytes / 1000000 : null,
+    quota_type: quotaConfig ? quotaConfig.quotaType : null,
+  ]
+
+  if (config.type == 'File') {
+    def blobDir = blobStore.relativeBlobDir
+	attributes.path = blobDir.isAbsolute() ? blobDir.toAbsolutePath().toString() : blobDir.getFileName().toString()
+  }
+
+  if (config.type == 'S3') {
+    def s3 = config.attributes.s3
+    attributes.bucket = s3.bucket
+    attributes.prefix = s3.prefix
+    attributes.access_key_id = s3.accessKeyId
+    attributes.secret_access_key = s3.secretAccessKey
+    attributes.session_token = s3.sessionToken
+    attributes.assume_role = s3.assumeRole
+    attributes.region = s3.region
+    attributes.endpoint = s3.endpoint
+    attributes.expiration = s3.expiration
+    attributes.signertype = s3.signertype
+    attributes.forcepathstyle = s3.forcepathstyle == 'true'
+  }
+
+  attributes
+}
+
+return groovy.json.JsonOutput.toJson(infos)

@@ -241,6 +241,22 @@ nexus3_role { 'nx-anonymous':
 
 ```
 
+### Blobstore configuration ###
+
+The Nexus Blobstore settings can be configured using the `nexus3_blobstore` resource:
+
+```
+#!puppet
+nexus3_blobstore { 'docker':
+  ensure             => 'present',
+  type               => 'File',
+  path               => '/mnt/nexus/docker-store',
+  quota_limit_bytes  => 35, # in MB
+  quota_type         => 'spaceRemainingQuota', # accept also spaceUsedQuota
+  soft_quota_enabled => 'true',
+}
+```
+
 ### Repository Configuration ###
 
 The Nexus Repository settings can be configured using the `nexus3_repository` and `nexus3_repository_group` resources:
