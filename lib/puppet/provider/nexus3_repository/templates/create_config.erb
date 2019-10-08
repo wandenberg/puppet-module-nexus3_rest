@@ -25,7 +25,7 @@ authentication.set('ntlmDomain', '<%= resource[:remote_ntlm_domain] %>');
 <%- if resource[:provider_type] == :apt -%>
 def apt = config.attributes('apt')
 apt.set('distribution', '<%= resource[:distribution] %>')
-apt.set('flat', <%= resource[:is_flat] %>)
+apt.set('flat', '<%= resource[:is_flat] %>')
 <%- if resource[:type] == :hosted -%>
 def aptSigning = config.attributes('aptSigning')
 aptSigning.set('keypair', '<%= resource[:pgp_keypair] %>')
