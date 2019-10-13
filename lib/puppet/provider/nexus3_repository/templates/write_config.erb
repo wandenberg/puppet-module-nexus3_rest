@@ -22,13 +22,14 @@ authentication.set('ntlmDomain', '<%= resource[:remote_ntlm_domain] %>');
 <%- if resource[:provider_type] == :apt -%>
 def apt = config.attributes('apt')
 apt.set('distribution', '<%= resource[:distribution] %>')
-apt.set('flat', <%= resource[:is_flat] %>)
 <%- if resource[:type] == :hosted -%>
 def aptSigning = config.attributes('aptSigning')
 aptSigning.set('keypair', '<%= resource[:pgp_keypair] %>')
 aptSigning.set('passphrase', '<%= resource[:pgp_keypair_passphrase] %>')
 def aptHosted = config.attributes('aptHosted')
 aptHosted.set('assetHistoryLimit', '<%= resource[:asset_history_limit] %>')
+<%- else -%>
+apt.set('flat', <%= resource[:is_flat] %>)
 <%- end -%>
 <%- end -%>
 <%- if resource[:provider_type] == :maven2 -%>
