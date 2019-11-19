@@ -123,6 +123,8 @@ describe type_class.provider(:ruby) do
             remote_url: proxy.get('remoteUrl'),
             version_policy: maven.get('versionPolicy')?.toLowerCase(),
             layout_policy: maven.get('layoutPolicy')?.toLowerCase(),
+            auto_block: httpclient.get('autoBlock'),
+            blocked: httpclient.get('blocked'),
             remote_auth_type: authentication.get('type') ? authentication.get('type') : 'none',
             remote_user: authentication.get('username'),
             remote_password: authentication.get('password'),
@@ -216,6 +218,8 @@ describe type_class.provider(:ruby) do
         def proxy = config.attributes('proxy')
         proxy.set('remoteUrl', 'http://remote.server.com')
         def httpclient = config.attributes('httpclient');
+        httpclient.set('blocked', 'false');
+        httpclient.set('autoBlock', 'true');
         def authentication = httpclient.child('authentication');
         authentication.set('type', 'ntlm');
         authentication.set('username', 'user');
@@ -243,13 +247,6 @@ describe type_class.provider(:ruby) do
           storage.set('blobStoreName', 'blob_store')
           storage.set('strictContentTypeValidation', false)
           storage.set('writePolicy', 'ALLOW')
-          def httpclient = config.attributes('httpclient');
-          def authentication = httpclient.child('authentication');
-          authentication.set('type', 'ntlm');
-          authentication.set('username', 'user');
-          authentication.set('password', 'pass');
-          authentication.set('ntlmHost', 'ntlmhost');
-          authentication.set('ntlmDomain', 'ntlmdomain');
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -274,6 +271,8 @@ describe type_class.provider(:ruby) do
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
+          httpclient.set('blocked', 'false');
+          httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
           authentication.set('username', 'user');
@@ -307,6 +306,8 @@ describe type_class.provider(:ruby) do
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
+          httpclient.set('blocked', 'false');
+          httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
           authentication.set('username', 'user');
@@ -340,6 +341,8 @@ describe type_class.provider(:ruby) do
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
+          httpclient.set('blocked', 'false');
+          httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
           authentication.set('username', 'user');
@@ -370,13 +373,6 @@ describe type_class.provider(:ruby) do
           storage.set('blobStoreName', 'blob_store')
           storage.set('strictContentTypeValidation', false)
           storage.set('writePolicy', 'ALLOW')
-          def httpclient = config.attributes('httpclient');
-          def authentication = httpclient.child('authentication');
-          authentication.set('type', 'ntlm');
-          authentication.set('username', 'user');
-          authentication.set('password', 'pass');
-          authentication.set('ntlmHost', 'ntlmhost');
-          authentication.set('ntlmDomain', 'ntlmdomain');
           def docker = config.attributes('docker')
           docker.set('httpPort', '8442')
           docker.set('httpsPort', '8443')
@@ -406,6 +402,8 @@ describe type_class.provider(:ruby) do
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
+          httpclient.set('blocked', 'false');
+          httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
           authentication.set('username', 'user');
@@ -443,7 +441,10 @@ describe type_class.provider(:ruby) do
           storage.set('strictContentTypeValidation', false)
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
-          config.getAttributes().remove('httpclient')
+          def httpclient = config.attributes('httpclient');
+          httpclient.set('blocked', 'false');
+          httpclient.set('autoBlock', 'true');
+          httpclient.remove('authentication')
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -467,6 +468,8 @@ describe type_class.provider(:ruby) do
         def proxy = config.attributes('proxy')
         proxy.set('remoteUrl', 'http://remote.server.com')
         def httpclient = config.attributes('httpclient');
+        httpclient.set('blocked', 'false');
+        httpclient.set('autoBlock', 'true');
         def authentication = httpclient.child('authentication');
         authentication.set('type', 'ntlm');
         authentication.set('username', 'user');
@@ -492,13 +495,6 @@ describe type_class.provider(:ruby) do
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
           storage.set('writePolicy', 'ALLOW')
-          def httpclient = config.attributes('httpclient');
-          def authentication = httpclient.child('authentication');
-          authentication.set('type', 'ntlm');
-          authentication.set('username', 'user');
-          authentication.set('password', 'pass');
-          authentication.set('ntlmHost', 'ntlmhost');
-          authentication.set('ntlmDomain', 'ntlmdomain');
           repository.repositoryManager.update(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -521,6 +517,8 @@ describe type_class.provider(:ruby) do
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
+          httpclient.set('blocked', 'false');
+          httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
           authentication.set('username', 'user');
@@ -552,6 +550,8 @@ describe type_class.provider(:ruby) do
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
+          httpclient.set('blocked', 'false');
+          httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
           authentication.set('username', 'user');
@@ -583,6 +583,8 @@ describe type_class.provider(:ruby) do
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
+          httpclient.set('blocked', 'false');
+          httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
           authentication.set('username', 'user');
@@ -612,7 +614,10 @@ describe type_class.provider(:ruby) do
           storage.set('strictContentTypeValidation', false)
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
-          config.getAttributes().remove('httpclient')
+          def httpclient = config.attributes('httpclient');
+          httpclient.set('blocked', 'false');
+          httpclient.set('autoBlock', 'true');
+          httpclient.remove('authentication')
           repository.repositoryManager.update(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)

@@ -125,6 +125,22 @@ Puppet::Type.newtype(:nexus3_repository) do
   end
 
   # proxy-specific #
+  newproperty(:auto_block, parent: Puppet::Property::Boolean) do
+    desc 'Whether to automatically block outbound connections to remote repository in case of unresponsiveness.' \
+         'Only useful for proxy-type repositories.'
+    newvalues(:true, :false)
+    defaultto do @resource[:type] == :proxy ? :true : nil end
+    munge { |value| super(value).to_s.intern }
+  end
+
+  newproperty(:blocked, parent: Puppet::Property::Boolean) do
+    desc 'Whether to block connection to remote repository.' \
+         'Only useful for proxy-type repositories.'
+    newvalues(:true, :false)
+    defaultto do @resource[:type] == :proxy ? :false : nil end
+    munge { |value| super(value).to_s.intern }
+  end
+
   newproperty(:remote_url) do
     desc 'This is the location of the remote repository being proxied. Only HTTP/HTTPs urls are currently supported. ' \
          'Only useful for proxy-type repositories.'

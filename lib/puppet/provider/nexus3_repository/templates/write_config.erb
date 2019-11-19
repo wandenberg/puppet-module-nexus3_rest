@@ -7,8 +7,9 @@ storage.set('writePolicy', '<%= WRITE_POLICY_MAPPING[resource[:write_policy]] %>
 <%- elsif resource[:type] == :proxy -%>
 def proxy = config.attributes('proxy')
 proxy.set('remoteUrl', '<%= resource[:remote_url] %>')
-<%- end -%>
 def httpclient = config.attributes('httpclient');
+httpclient.set('blocked', '<%= resource[:blocked] %>');
+httpclient.set('autoBlock', '<%= resource[:auto_block] %>');
 <%- if resource[:remote_auth_type] == :none -%>
 httpclient.remove('authentication')
 <%- else -%>
@@ -18,6 +19,7 @@ authentication.set('username', '<%= resource[:remote_user] %>');
 authentication.set('password', '<%= resource[:remote_password] %>');
 authentication.set('ntlmHost', '<%= resource[:remote_ntlm_host] %>');
 authentication.set('ntlmDomain', '<%= resource[:remote_ntlm_domain] %>');
+<%- end -%>
 <%- end -%>
 <%- if resource[:provider_type] == :apt -%>
 def apt = config.attributes('apt')
