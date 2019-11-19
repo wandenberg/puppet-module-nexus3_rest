@@ -11,10 +11,10 @@ storage.set('writePolicy', '<%= WRITE_POLICY_MAPPING[resource[:write_policy]] %>
 def proxy = config.attributes('proxy')
 proxy.set('remoteUrl', '<%= resource[:remote_url] %>')
 <%- end -%>
-<%- if resource[:remote_auth_type] == :none -%>
-config.getAttributes().remove('httpclient')
-<%- else -%>
 def httpclient = config.attributes('httpclient');
+<%- if resource[:remote_auth_type] == :none -%>
+httpclient.remove('authentication')
+<%- else -%>
 def authentication = httpclient.child('authentication');
 authentication.set('type', '<%= resource[:remote_auth_type] %>');
 authentication.set('username', '<%= resource[:remote_user] %>');
