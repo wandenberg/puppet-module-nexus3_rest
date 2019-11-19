@@ -30,6 +30,8 @@ def infos = repositories.findResults { repository ->
     remote_url: proxy.get('remoteUrl'),
     version_policy: maven.get('versionPolicy')?.toLowerCase(),
     layout_policy: maven.get('layoutPolicy')?.toLowerCase(),
+    auto_block: httpclient.get('autoBlock'),
+    blocked: httpclient.get('blocked'),
     remote_auth_type: authentication.get('type') ? authentication.get('type') : 'none',
     remote_user: authentication.get('username'),
     remote_password: authentication.get('password'),
