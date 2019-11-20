@@ -1,0 +1,4 @@
+def policyStorage = container.lookup(org.sonatype.nexus.cleanup.storage.CleanupPolicyStorage.class.name)
+if (policyStorage.exists('<%= resource[:name] %>')) {
+  policyStorage.remove(policyStorage.get('<%= resource[:name] %>'))
+}

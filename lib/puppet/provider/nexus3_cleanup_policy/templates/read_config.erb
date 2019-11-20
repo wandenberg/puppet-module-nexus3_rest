@@ -1,0 +1,20 @@
+def policyStorage = container.lookup(org.sonatype.nexus.cleanup.storage.CleanupPolicyStorage.class.name)
+def policies = policyStorage.getAll()
+
+def infos = []
+policies.each { policy ->
+  def attributes = [
+    name: policy.getName(),
+    notes: policy.getNotes(),
+    format: policy.getFormat(),
+  ]
+  def criteria = policy.getCriteria()
+  attributes.regex = (criteria.containsKey('regex') ? criteria['regex'] : null)
+  attributes.last_downloaded = (criteria.containsKey('lastDownloaded') ? criteria['lastDownloaded'].toInteger() / 60 / 60 / 24 : null)
+  attributes.last_blob_updated = (criteria.containsKey('lastBlobUpdated') ? criteria['lastBlobUpdated'].toInteger() / 60 / 60 / 24 : null)
+  attributes.is_prerelease = (criteria.containsKey('isPrerelease') ? criteria['isPrerelease'].toBoolean() : null)
+
+  infos << attributes
+}
+
+return groovy.json.JsonOutput.toJson(infos)
