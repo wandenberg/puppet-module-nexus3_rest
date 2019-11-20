@@ -6,8 +6,10 @@ policies.each { policy ->
   def attributes = [
     name: policy.getName(),
     notes: policy.getNotes(),
-    format: policy.getFormat(),
   ]
+  def format = policy.getFormat()
+  attributes.format = (format == 'ALL_FORMATS' ? 'all' : format)
+
   def criteria = policy.getCriteria()
   attributes.regex = (criteria.containsKey('regex') ? criteria['regex'] : null)
   attributes.last_downloaded = (criteria.containsKey('lastDownloaded') ? criteria['lastDownloaded'].toInteger() / 60 / 60 / 24 : null)

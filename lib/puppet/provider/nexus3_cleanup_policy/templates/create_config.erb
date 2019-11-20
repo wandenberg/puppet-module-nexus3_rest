@@ -2,21 +2,21 @@ def policyStorage = container.lookup(org.sonatype.nexus.cleanup.storage.CleanupP
 
 def criteria = [:]
 <%- unless resource[:is_prerelease].nil? -%>
-criteria.isPrerelease = <%= resource[:is_prerelease] =>
+criteria.isPrerelease = <%= resource[:is_prerelease] %>
 <%- end -%>
 <%- unless resource[:last_blob_updated].nil? -%>
-criteria.lastBlobUpdated = <%= resource[:last_blob_updated] * 60 * 60 * 24 =>
+criteria.lastBlobUpdated = <%= resource[:last_blob_updated] * 60 * 60 * 24 %>.toString()
 <%- end -%>
 <%- unless resource[:last_downloaded].nil? -%>
-criteria.lastDownloaded = <%= resource[:last_downloaded] * 60 * 60 * 24 =>
+criteria.lastDownloaded = <%= resource[:last_downloaded] * 60 * 60 * 24 %>.toString()
 <%- end -%>
 <%- unless resource[:regex].nil? -%>
-criteria.regex = <%= resource[:regex] =>
+criteria.regex = <%= resource[:regex] %>
 <%- end -%>
 
-def policy = org.sonatype.nexus.cleanup.storage.CleanupPolicy.new()
+def policy = new org.sonatype.nexus.cleanup.storage.CleanupPolicy()
 policy.setCriteria(criteria)
-policy.setFormat('<%= resource[:format] %>')
+policy.setFormat(('<%= resource[:format] %>' == 'all' ? 'ALL_FORMATS' : '<%= resource[:format] %>'))
 policy.setName('<%= resource[:name] %>')
 policy.setNotes('<%= resource[:notes] %>')
 policy.setMode('delete')
