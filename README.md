@@ -272,8 +272,10 @@ nexus3_repository { 'new-repository':
   write_policy                   => 'allow_write_once',   #valid values: 'read_only', 'allow_write_once (default for maven2)', 'allow_write'
   strict_content_type_validation => true,                 #valid values: true (default), false
 
-  #the following 'remote_' properties may only be used when type => 'proxy'
+  #the following 'remote_' and '*block*' properties may only be used when type => 'proxy'
 
+  auto_block                     => false,                #optional, default is true
+  blocked                        => false,                #optional, default is false
   remote_url                     => 'http://some-repo/',  #required
   remote_auth_type               => 'none',               #valid values: 'none' (default), 'username' (default for maven2), 'ntlm'
   remote_user                    => 'some_user',          #optional, default is unspecified
