@@ -5,6 +5,10 @@ config.online = <%= resource[:online] %>
 def storage = config.attributes('storage')
 storage.set('blobStoreName', '<%= resource[:blobstore_name] %>')
 storage.set('strictContentTypeValidation', <%= resource[:strict_content_type_validation] %>)
+<%- unless resource[:cleanup_policies].nil? -%>
+def cleanup = config.attributes('cleanup')
+cleanup.set('policyName', new HashSet(<%= resource[:cleanup_policies] %>))
+<%- end -%>
 <%- if resource[:type] == :hosted -%>
 storage.set('writePolicy', '<%= WRITE_POLICY_MAPPING[resource[:write_policy]] %>')
 <%- elsif resource[:type] == :proxy -%>

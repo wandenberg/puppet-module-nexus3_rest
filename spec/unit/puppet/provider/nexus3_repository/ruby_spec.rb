@@ -100,12 +100,13 @@ describe type_class.provider(:ruby) do
             return null
           }
 
+          def cleanup = config.attributes('cleanup')
           def storage = config.attributes('storage')
           def proxy = config.attributes('proxy')
           def group = config.attributes('group')
           def maven = config.attributes('maven')
           def yum   = config.attributes('yum')
-          def docker= config.attributes('docker')
+          def docker = config.attributes('docker')
           def dockerProxy = config.attributes('dockerProxy')
           def apt = config.attributes('apt')
           def aptSigning = config.attributes('aptSigning')
@@ -117,6 +118,7 @@ describe type_class.provider(:ruby) do
             type: type,
             provider_type: providerType,
             online: config.isOnline(),
+            cleanup_policies: cleanup.get('policyName'),
             write_policy: storage.get('writePolicy'),
             blobstore_name: storage.get('blobStoreName'),
             strict_content_type_validation: storage.get('strictContentTypeValidation'),
@@ -215,6 +217,8 @@ describe type_class.provider(:ruby) do
         def storage = config.attributes('storage')
         storage.set('blobStoreName', 'blob_store')
         storage.set('strictContentTypeValidation', false)
+        def cleanup = config.attributes('cleanup')
+        cleanup.set('policyName', new HashSet([]))
         def proxy = config.attributes('proxy')
         proxy.set('remoteUrl', 'http://remote.server.com')
         def httpclient = config.attributes('httpclient');
@@ -246,6 +250,8 @@ describe type_class.provider(:ruby) do
           def storage = config.attributes('storage')
           storage.set('blobStoreName', 'blob_store')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           storage.set('writePolicy', 'ALLOW')
           repository.repositoryManager.create(config)
         EOS
@@ -268,6 +274,8 @@ describe type_class.provider(:ruby) do
           def storage = config.attributes('storage')
           storage.set('blobStoreName', 'blob_store')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
@@ -303,6 +311,8 @@ describe type_class.provider(:ruby) do
           def storage = config.attributes('storage')
           storage.set('blobStoreName', 'blob_store')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
@@ -338,6 +348,8 @@ describe type_class.provider(:ruby) do
           def storage = config.attributes('storage')
           storage.set('blobStoreName', 'blob_store')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
@@ -372,6 +384,8 @@ describe type_class.provider(:ruby) do
           def storage = config.attributes('storage')
           storage.set('blobStoreName', 'blob_store')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           storage.set('writePolicy', 'ALLOW')
           def docker = config.attributes('docker')
           docker.set('httpPort', '8442')
@@ -399,6 +413,8 @@ describe type_class.provider(:ruby) do
           def storage = config.attributes('storage')
           storage.set('blobStoreName', 'blob_store')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
@@ -439,6 +455,8 @@ describe type_class.provider(:ruby) do
           def storage = config.attributes('storage')
           storage.set('blobStoreName', 'blob_store')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
@@ -465,6 +483,8 @@ describe type_class.provider(:ruby) do
         config.online = true
         def storage = config.attributes('storage')
         storage.set('strictContentTypeValidation', false)
+        def cleanup = config.attributes('cleanup')
+        cleanup.set('policyName', new HashSet([]))
         def proxy = config.attributes('proxy')
         proxy.set('remoteUrl', 'http://remote.server.com')
         def httpclient = config.attributes('httpclient');
@@ -494,6 +514,8 @@ describe type_class.provider(:ruby) do
           config.online = true
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           storage.set('writePolicy', 'ALLOW')
           repository.repositoryManager.update(config)
         EOS
@@ -514,6 +536,8 @@ describe type_class.provider(:ruby) do
           config.online = true
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
@@ -547,6 +571,8 @@ describe type_class.provider(:ruby) do
           config.online = true
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
@@ -580,6 +606,8 @@ describe type_class.provider(:ruby) do
           config.online = true
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
@@ -612,6 +640,8 @@ describe type_class.provider(:ruby) do
           config.online = true
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
+          def cleanup = config.attributes('cleanup')
+          cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
           def httpclient = config.attributes('httpclient');
