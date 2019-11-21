@@ -22,6 +22,16 @@ authentication.set('password', '<%= resource[:remote_password] %>');
 authentication.set('ntlmHost', '<%= resource[:remote_ntlm_host] %>');
 authentication.set('ntlmDomain', '<%= resource[:remote_ntlm_domain] %>');
 <%- end -%>
+<%- unless resource[:cleanup_policies].nil? -%>
+// This is really strange: It requires a java.util.Set when writing the list
+// of cleanup policies, but returns a java.util.ArrayList when reading it
+Set policies = []
+def cleanup = config.attributes('cleanup')
+<%- resource[:cleanup_policies].each do |policy| -%>
+policies << '<%= policy %>'
+cleanup.set('policyName', policies)
+<%- end -%>
+<%- end -%>
 <%- if resource[:provider_type] == :apt -%>
 def apt = config.attributes('apt')
 apt.set('distribution', '<%= resource[:distribution] %>')

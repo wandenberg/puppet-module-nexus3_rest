@@ -31,6 +31,13 @@ Puppet::Type.newtype(:nexus3_repository) do
     defaultto 'default'
   end
 
+  newproperty(:cleanup_policies, array_matching: :all) do
+    desc 'A list of cleanup policies to apply to this repository'
+    validate do |value|
+      raise ArgumentError, 'cleanup policies must be provided as array' if value.empty? || value.include?(',')
+    end
+  end
+
   newproperty(:version_policy) do
     desc 'Maven2 repositories can store release, snapshot or mixed artifacts.'
     defaultto do @resource[:provider_type] == :maven2 ? :release : nil end
