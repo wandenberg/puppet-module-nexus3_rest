@@ -15,6 +15,7 @@ describe Puppet::Type.type(:nexus3_repository) do
     let(:instance) { subject.new(required_values) }
 
     it { expect(instance[:blobstore_name]).to eq('default') }
+    it { expect(instance[:cleanup_policies]).to eq nil }
     it { expect(instance[:online]).to eq(:true) }
     it { expect(instance[:strict_content_type_validation]).to eq(:true) }
     it { expect(instance[:version_policy]).to eq nil }
@@ -150,6 +151,24 @@ describe Puppet::Type.type(:nexus3_repository) do
       expect {
         subject.new(required_values.merge(provider_type: ''))
       }.to raise_error(Puppet::ResourceError, /Parameter provider_type failed/)
+    end
+  end
+
+  describe :cleanup_policies do
+    specify 'should accept a valid array of cleanup_policies' do
+      expect { subject.new(required_values.merge(cleanup_policies: ['policy-1', 'policy-2'])) }.to_not raise_error
+    end
+
+    specify 'should not accept empty string' do
+      expect {
+        subject.new(required_values.merge(cleanup_policies: ''))
+      }.to raise_error(Puppet::ResourceError, /Parameter cleanup_policies failed/)
+    end
+
+    specify 'should not accept a string as array' do
+      expect {
+        subject.new(required_values.merge(cleanup_policies: 'name1,name2'))
+      }.to raise_error(Puppet::ResourceError, /Parameter cleanup_policies failed/)
     end
   end
 

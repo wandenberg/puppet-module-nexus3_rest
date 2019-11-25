@@ -24,7 +24,9 @@ Puppet::Type.newtype(:nexus3_cleanup_policy) do
     desc 'Restrict cleanup to components of release type "release" or "prerelease".' \
          'This is applicable to "maven2", "npm", or "yum" format repos only.'
     newvalues(:true, :false)
-    defaultto do [:maven2, :npm, :yum].include?(@resource[:format]) ? :false : nil end
+    defaultto do
+      :false if [:maven2, :npm, :yum].include?(@resource[:format])
+    end
     munge { |value| super(value).to_s.intern }
   end
 
