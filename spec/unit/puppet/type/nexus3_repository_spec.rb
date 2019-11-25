@@ -20,6 +20,8 @@ describe Puppet::Type.type(:nexus3_repository) do
     it { expect(instance[:version_policy]).to eq nil }
     it { expect(instance[:layout_policy]).to eq nil }
     it { expect(instance[:write_policy]).to eq nil }
+    it { expect(instance[:auto_block]).to eq(:true) }
+    it { expect(instance[:blocked]).to eq(:false) }
     it { expect(instance[:remote_url]).to eq nil }
     it { expect(instance[:remote_auth_type]).to eq(:none) }
     it { expect(instance[:remote_user]).to eq nil }
@@ -83,7 +85,7 @@ describe Puppet::Type.type(:nexus3_repository) do
   end
 
   describe :online do
-    specify 'should default to false' do
+    specify 'should default to true' do
       expect(subject.new(required_values)[:online]).to be :true
     end
 
@@ -92,7 +94,7 @@ describe Puppet::Type.type(:nexus3_repository) do
       expect(subject.new(required_values.merge(online: :true))[:online]).to be :true
     end
 
-    specify 'should accept "true' do
+    specify 'should accept "true"' do
       expect { subject.new(required_values.merge(online: 'true')) }.to_not raise_error
       expect(subject.new(required_values.merge(online: 'true'))[:online]).to be :true
     end
@@ -105,6 +107,32 @@ describe Puppet::Type.type(:nexus3_repository) do
     specify 'should accept "false"' do
       expect { subject.new(required_values.merge(online: 'false')) }.to_not raise_error
       expect(subject.new(required_values.merge(online: 'false'))[:online]).to be :false
+    end
+  end
+
+  describe :blocked do
+    specify 'should default to false' do
+      expect(subject.new(required_values)[:blocked]).to be :false
+    end
+
+    specify 'should accept :true' do
+      expect { subject.new(required_values.merge(blocked: :true)) }.to_not raise_error
+      expect(subject.new(required_values.merge(blocked: :true))[:blocked]).to be :true
+    end
+
+    specify 'should accept "true"' do
+      expect { subject.new(required_values.merge(blocked: 'true')) }.to_not raise_error
+      expect(subject.new(required_values.merge(blocked: 'true'))[:blocked]).to be :true
+    end
+
+    specify 'should accept :false' do
+      expect { subject.new(required_values.merge(blocked: :false)) }.to_not raise_error
+      expect(subject.new(required_values.merge(blocked: :false))[:blocked]).to be :false
+    end
+
+    specify 'should accept "false"' do
+      expect { subject.new(required_values.merge(blocked: 'false')) }.to_not raise_error
+      expect(subject.new(required_values.merge(blocked: 'false'))[:blocked]).to be :false
     end
   end
 
