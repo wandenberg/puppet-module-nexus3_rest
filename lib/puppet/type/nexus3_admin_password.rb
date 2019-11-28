@@ -7,6 +7,10 @@ Puppet::Type.newtype(:nexus3_admin_password) do
     desc 'Resource ID.'
   end
 
+  newparam(:admin_password_file) do
+    desc 'Use this admin.password file on a new setup.'
+  end
+
   newparam(:old_password) do
     desc 'The old password of the user.'
 
