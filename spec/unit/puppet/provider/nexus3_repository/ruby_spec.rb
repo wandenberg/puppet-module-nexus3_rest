@@ -118,7 +118,7 @@ describe type_class.provider(:ruby) do
             type: type,
             provider_type: providerType,
             online: config.isOnline(),
-            cleanup_policies: cleanup.get('policyName'),
+            cleanup_policies: cleanup.get('policyName') ? cleanup.get('policyName') : [],
             write_policy: storage.get('writePolicy'),
             blobstore_name: storage.get('blobStoreName'),
             strict_content_type_validation: storage.get('strictContentTypeValidation'),
