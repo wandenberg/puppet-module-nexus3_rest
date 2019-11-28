@@ -105,6 +105,18 @@ nexus3_admin_password { 'admin_password':
 }
 ```
 
+As of Nexus version 3.17.0 the initial admin password is randomly generated and stored in the admin.password file on the server.
+[Changelog - Repository Manager 3.17.0](https://help.sonatype.com/repomanager3/release-notes/2019-release-notes#id-2019ReleaseNotes-RepositoryManager3.17.0)
+To automatically use that file to set the new password use the `admin_password_file` parameter to point to it.
+
+```
+#!puppet
+nexus3_admin_password { 'admin_password':
+  admin_password_file => '/opt/sonatype-work/nexus3/admin.password',
+  password            => '123admin',
+}
+```
+
 ### Global Configuration ###
 
 The global configuration has been decomposed into different resources. The following examples show how to use them.

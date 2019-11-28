@@ -5,8 +5,8 @@ type_class = Puppet::Type.type(:nexus3_admin_password)
 describe type_class.provider(:ruby) do
   let(:values) do
     {
-        old_password: 'old_value',
-        password: 'new_value',
+      old_password: 'old_value',
+      password: 'new_value',
     }
   end
 
@@ -20,7 +20,7 @@ describe type_class.provider(:ruby) do
   describe 'define getters and setters to each type properties or params' do
     let(:instance) { described_class.new }
 
-    [:old_password, :password].each do |method|
+    [:old_password, :password, :admin_password_file].each do |method|
       specify { expect(instance.respond_to?(method)).to be_truthy }
       specify { expect(instance.respond_to?("#{method}=")).to be_truthy }
     end
@@ -46,7 +46,7 @@ describe type_class.provider(:ruby) do
     end
   end
 
-  describe 'flush' do
+  describe 'password' do
     before(:each) { stub_default_config_and_healthcheck }
 
     it 'should verify if the current password is the one set on password property' do
@@ -54,7 +54,7 @@ describe type_class.provider(:ruby) do
           with(headers: {'Accept'=>'application/json', 'Authorization'=>'Basic YWRtaW46bmV3X3ZhbHVl', 'Content-Type'=>'application/json'}).
           to_return(status: 200)
 
-      instance.flush
+      instance.password
 
       expect(stub).to have_been_requested
     end
@@ -71,21 +71,21 @@ describe type_class.provider(:ruby) do
       end
 
       it 'should upload the update script with the old password' do
-        expect(Nexus3::API).to receive(:upload_script).with("security.securitySystem.changePassword('admin','new_value')", 'admin', 'old_value').and_return('command_name')
+        expect(Nexus3::API).to receive(:upload_script).with("security.securitySystem.changePassword('admin', 'new_value')", 'admin', 'old_value').and_return('command_name')
 
-        instance.flush
+        instance.password = 'new_value'
       end
 
       it 'should run the update script with the old password' do
         expect(Nexus3::API).to receive(:run_command).with(anything(), 'admin', 'old_value')
 
-        instance.flush
+        instance.password = 'new_value'
       end
 
       it 'should delete the update script with the new password' do
         expect(Nexus3::API).to receive(:delete_command).with(anything(), 'admin', 'new_value')
 
-        instance.flush
+        instance.password = 'new_value'
       end
 
       it 'should try to delete the update script with the old password in case the execute command failed' do
@@ -93,13 +93,13 @@ describe type_class.provider(:ruby) do
 
         expect(Nexus3::API).to receive(:delete_command).with(anything(), 'admin', 'old_value')
 
-        instance.flush
+        instance.password = 'new_value'
       end
 
       it 'should force clear config after change password' do
         expect(Nexus3::Config).to receive(:reset)
 
-        instance.flush
+        instance.password = 'new_value'
       end
     end
 
@@ -114,7 +114,7 @@ describe type_class.provider(:ruby) do
       it 'should not verify if the current password is the one set on password property' do
         stub = stub_request(:get, 'http://example.com/service/rest/v1/script/')
 
-        instance.flush
+        instance.password
 
         expect(stub).not_to have_been_requested
       end
