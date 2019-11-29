@@ -1,3 +1,6 @@
+## 0.3.1
+- Add `admin_password_file` parameter to `nexus3_admin_password` Type & Provider
+
 ## 0.3.0
 - Add support to apt, composer and yum repository types
 - Add support to docker specific attributes

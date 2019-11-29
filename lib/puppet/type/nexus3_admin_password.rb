@@ -33,6 +33,10 @@ Puppet::Type.newtype(:nexus3_admin_password) do
       '[check if the correct password is assigned]'
     end
 
+    def insync?(is)
+      is == 'ok'
+    end
+
     validate do |value|
       raise ArgumentError, 'password must be provided.' if value.empty?
     end

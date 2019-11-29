@@ -100,8 +100,20 @@ It will take care of check if the password needs to be changed and do the proper
 ```
 #!puppet
 nexus3_admin_password { 'admin_password':
-  old_password => 'admin123',
-  password     => '123admin',
+  old_password        => 'admin123',
+  password            => '123admin',
+}
+```
+
+As of Nexus version 3.17.0 the admin password now is randomly generated and put in the admin.password file on the server.
+[Changelog - Repository Manager 3.17.0](https://help.sonatype.com/repomanager3/release-notes/2019-release-notes#id-2019ReleaseNotes-RepositoryManager3.17.0)
+To automatically use that file to set your new password you can provide the `admin_password_file` parameter to point at that file for your install.
+
+```
+#!puppet
+nexus3_admin_password { 'admin_password':
+  admin_password_file => '/opt/sonatype-work/nexus3/admin.password',
+  password            => '123admin',
 }
 ```
 
