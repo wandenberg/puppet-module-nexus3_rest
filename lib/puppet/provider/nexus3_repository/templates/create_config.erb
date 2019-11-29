@@ -33,7 +33,7 @@ def apt = config.attributes('apt')
 apt.set('distribution', '<%= resource[:distribution] %>')
 <%- if resource[:type] == :hosted -%>
 def aptSigning = config.attributes('aptSigning')
-aptSigning.set('keypair', '<%= resource[:pgp_keypair] %>')
+aptSigning.set('keypair', """<%= resource[:pgp_keypair] %>""")
 aptSigning.set('passphrase', '<%= resource[:pgp_keypair_passphrase] %>')
 def aptHosted = config.attributes('aptHosted')
 aptHosted.set('assetHistoryLimit', '<%= resource[:asset_history_limit] %>')
