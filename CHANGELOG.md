@@ -1,3 +1,9 @@
+## 0.4.0
+- Change the configuration file name to nexus3_rest.conf
+- Add support to manage cleanup policies
+- Improve configurations for repositories
+- Fix differences by array elements order
+
 ## 0.3.0
 - Add support to apt, composer and yum repository types
 - Add support to docker specific attributes
