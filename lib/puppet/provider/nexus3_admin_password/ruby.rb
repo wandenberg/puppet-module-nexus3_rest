@@ -39,5 +39,6 @@ Puppet::Type.type(:nexus3_admin_password).provide(:ruby, parent: Puppet::Provide
     end
     Nexus3::API.delete_command(command_name, 'admin', old_password)
     Nexus3::Config.reset
+    File.rename(resource[:admin_password_file], "#{resource[:admin_password_file]}.set") if resource[:admin_password_file] && File.exist?(resource[:admin_password_file])
   end
 end
