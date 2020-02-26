@@ -11,7 +11,7 @@ Puppet::Type.newtype(:nexus3_repository_group) do
 
   newproperty(:provider_type) do
     desc 'The content provider of the repository'
-    newvalues(:bower, :composer, :docker, :maven2, :npm, :nuget, :pypi, :raw, :rubygems)
+    newvalues(:bower, :composer, :docker, :maven2, :npm, :nuget, :pypi, :raw, :rubygems, :yum)
     validate do |value|
       super(value)
       raise ArgumentError, 'provider_type must be provided' if value.empty?

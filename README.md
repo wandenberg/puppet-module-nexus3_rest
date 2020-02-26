@@ -325,7 +325,7 @@ nexus3_repository { 'new-repository':
 ```
 #!puppet
 nexus3_repository_group { 'example-repo-group':
-  provider_type                  => 'maven2',             #valid values: 'bower', 'docker', 'gitlfs' (hosted), 'maven2', 'npm', 'nuget', 'pypi', 'raw', 'rubygems'
+  provider_type                  => 'maven2',             #valid values: 'bower', 'docker', 'gitlfs' (hosted), 'maven2', 'npm', 'nuget', 'pypi', 'raw', 'rubygems', 'yum'
   online                         => true,                 #valid values: true (default), false
   blobstore_name                 => 'blob',               #optional, default is 'default'
   strict_content_type_validation => true,                 #valid values: true (default), false
