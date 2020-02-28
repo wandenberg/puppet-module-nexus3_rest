@@ -2,7 +2,7 @@ source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 
 ruby '2.5.3'
 
-gem 'rake', '~> 12.3.1'
+gem 'rake', '~> 12.3.3'
 
 group :development do
   puppetversion = ENV.key?('PUPPET_VERSION') ? ENV['PUPPET_VERSION'] : ['>= 3.7.3']
