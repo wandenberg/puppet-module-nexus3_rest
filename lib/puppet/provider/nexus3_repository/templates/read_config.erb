@@ -33,6 +33,8 @@ def infos = repositories.findResults { repository ->
     blobstore_name: storage.get('blobStoreName'),
     strict_content_type_validation: storage.get('strictContentTypeValidation'),
     remote_url: proxy.get('remoteUrl'),
+    content_max_age: proxy.get('contentMaxAge'),
+    metadata_max_age: proxy.get('metadataMaxAge'),
     version_policy: maven.get('versionPolicy')?.toLowerCase(),
     layout_policy: maven.get('layoutPolicy')?.toLowerCase(),
     auto_block: httpclient.get('autoBlock'),
