@@ -13,6 +13,8 @@ config.attributes('httpclient').remove('authentication')
 <%- elsif resource[:type] == :proxy -%>
 def proxy = config.attributes('proxy')
 proxy.set('remoteUrl', '<%= resource[:remote_url] %>')
+proxy.set('contentMaxAge', '<%= resource[:content_max_age] %>')
+proxy.set('metadataMaxAge', '<%= resource[:metadata_max_age] %>')
 def httpclient = config.attributes('httpclient');
 httpclient.set('blocked', '<%= resource[:blocked] %>');
 httpclient.set('autoBlock', '<%= resource[:auto_block] %>');

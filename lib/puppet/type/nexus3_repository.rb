@@ -158,6 +158,22 @@ Puppet::Type.newtype(:nexus3_repository) do
          'Only useful for proxy-type repositories.'
   end
 
+  newproperty(:content_max_age) do
+    desc 'How long (in minutes) to cache artifacts before rechecking the remote repository. Release repositories should use -1. ' \
+         'Only useful for proxy-type repositories.'
+    defaultto do
+      if @resource[:type] == :proxy
+        @resource[:version_policy] == :release ? -1 : 1440
+      end
+    end
+  end
+
+  newproperty(:metadata_max_age) do
+    desc 'How long (in minutes) to cache metadata before rechecking the remote repository. ' \
+         'Only useful for proxy-type repositories.'
+    defaultto do @resource[:type] == :proxy ? 1440 : nil end
+  end
+
   newproperty(:remote_auth_type) do
     desc 'Define the type of authentication to be used to the remote repository.'
     defaultto do @resource[:provider_type] == :maven2 ? :username : :none end
