@@ -1,6 +1,7 @@
-def ldapConfigurationManager = container.lookup(org.sonatype.nexus.ldap.persist.LdapConfigurationManager.class.name)
+import org.sonatype.nexus.ldap.persist.LdapConfigurationManager
+def ldapConfigurationManager = container.lookup(LdapConfigurationManager.class.getName())
 
-def ldapConfiguration = new org.sonatype.nexus.ldap.persist.entity.LdapConfiguration()
+def ldapConfiguration = ldapConfigurationManager.newConfiguration()
 ldapConfiguration.setName('<%= resource[:name] %>')
 <%- if resource[:order] -%>
 ldapConfiguration.setOrder(<%= resource[:order] %>)
