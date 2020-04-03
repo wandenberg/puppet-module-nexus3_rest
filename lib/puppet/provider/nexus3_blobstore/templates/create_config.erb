@@ -1,9 +1,25 @@
+import org.sonatype.nexus.blobstore.api.BlobStoreConfiguration
+
 def blobStoreManager = container.lookup(org.sonatype.nexus.blobstore.api.BlobStoreManager.class.name)
-def config = new org.sonatype.nexus.blobstore.api.BlobStoreConfiguration([
-  name: '<%= resource[:name] %>',
-  type: '<%= resource[:type] %>',
-  attributes: [:],
-])
+
+// -----
+// Important: BlobStoreConfiguration was a class in <= 3.19 and became
+// an interface in >= 3.20.  Code cannot be (easily) made backwards
+// compatible.
+// -----
+
+// Compatible with <= 3.19
+//config = new BlobStoreConfiguration([
+//  name: '<%= resource[:name] %>',
+//  type: '<%= resource[:type] %>',
+//  attributes: [:],
+//])
+
+// Compatible with >= 3.20
+BlobStoreConfiguration config = blobStoreManager.newConfiguration()
+config.setName('<%= resource[:name] %>')
+config.setType('<%= resource[:type] %>')
+config.setAttributes([:])
 
 <%- if resource[:soft_quota_enabled] == :true -%>
 config.attributes.blobStoreQuotaConfig = [
