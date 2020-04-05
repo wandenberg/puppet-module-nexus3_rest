@@ -1,9 +1,14 @@
 def blobStoreManager = container.lookup(org.sonatype.nexus.blobstore.api.BlobStoreManager.class.name)
-def config = new org.sonatype.nexus.blobstore.api.BlobStoreConfiguration([
-  name: '<%= resource[:name] %>',
-  type: '<%= resource[:type] %>',
-  attributes: [:],
-])
+
+<%- if Nexus3::API.until_version('3.20') -%>
+def config = new org.sonatype.nexus.blobstore.api.BlobStoreConfiguration()
+<%- else -%>
+def config = blobStoreManager.newConfiguration()
+<%- end -%>
+
+config.setName('<%= resource[:name] %>')
+config.setType('<%= resource[:type] %>')
+config.setAttributes([:])
 
 <%- if resource[:soft_quota_enabled] == :true -%>
 config.attributes.blobStoreQuotaConfig = [

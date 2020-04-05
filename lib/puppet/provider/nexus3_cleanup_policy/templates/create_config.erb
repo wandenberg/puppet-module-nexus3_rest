@@ -14,7 +14,12 @@ criteria.lastDownloaded = <%= resource[:last_downloaded] * 60 * 60 * 24 %>.toStr
 criteria.regex = '<%= resource[:regex] %>'
 <%- end -%>
 
+<%- if Nexus3::API.until_version('3.20') -%>
 def policy = new org.sonatype.nexus.cleanup.storage.CleanupPolicy()
+<%- else -%>
+def policy = policyStorage.newCleanupPolicy()
+<%- end -%>
+
 policy.setCriteria(criteria)
 policy.setFormat(('<%= resource[:format] %>' == 'all' ? 'ALL_FORMATS' : '<%= resource[:format] %>'))
 policy.setName('<%= resource[:name] %>')

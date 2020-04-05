@@ -34,6 +34,10 @@ the default Ruby 2.1+ installation, like:
 * json
 * erb
 
+### Enable Script API for Nexus 3.21.2+
+
+Starting on version 3.21.2 of Nexus, the scripting API is disabled by default, check this [reference](https://issues.sonatype.org/browse/NEXUS-23205) on how to enable it before be able to use this module.
+
 ## Usage ##
 
 First of all you need to create a configuration file `$confdir/nexus3_rest.conf` (whereas `$confdir` defaults to

@@ -32,7 +32,7 @@ module Nexus3
         when Net::HTTPNoContent
           command_name
         else
-          raise "Could not upload the script due to '#{response.code}'"
+          raise "Could not upload the script due to '#{response.code}' '#{response.body}'"
         end
       end
     end
@@ -56,6 +56,17 @@ module Nexus3
       end
     end
 
+    def self.until_version(ver)
+      case ver
+      when '3.20'
+        version == '< 3.20'
+      when '3.21'
+        version == '< 3.21'
+      else
+        true
+      end
+    end
+
     private
 
     def self.service
@@ -67,6 +78,20 @@ module Nexus3
         client = Nexus3::Service::Client.new(options)
         service = Nexus3::Service.new(client, options)
         Nexus3::CachingService.new(service)
+      end
+    end
+
+    def self.version
+      @version ||= begin
+        result = execute_script("!!container.lookup(org.sonatype.nexus.blobstore.api.BlobStoreManager.class.name).metaClass.getMetaMethod('newConfiguration')")
+        return '< 3.20' unless result == 'true'
+
+        result = execute_script("!!repository.repositoryManager.metaClass.getMetaMethod('newConfiguration')")
+        return '< 3.21' unless result == 'true'
+
+        '>= 3.21'
+      rescue
+        '< 3.20'
       end
     end
   end

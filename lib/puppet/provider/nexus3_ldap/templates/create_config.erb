@@ -1,6 +1,11 @@
 def ldapConfigurationManager = container.lookup(org.sonatype.nexus.ldap.persist.LdapConfigurationManager.class.name)
 
+<%- if Nexus3::API.until_version('3.20') -%>
 def ldapConfiguration = new org.sonatype.nexus.ldap.persist.entity.LdapConfiguration()
+<%- else -%>
+def ldapConfiguration = ldapConfigurationManager.newConfiguration()
+<%- end -%>
+
 ldapConfiguration.setName('<%= resource[:name] %>')
 <%- if resource[:order] -%>
 ldapConfiguration.setOrder(<%= resource[:order] %>)

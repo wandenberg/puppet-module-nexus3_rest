@@ -1,4 +1,9 @@
+<%- if Nexus3::API.until_version('3.21') -%>
 def config = new org.sonatype.nexus.repository.config.Configuration()
+<%- else -%>
+def config = repository.repositoryManager.newConfiguration()
+<%- end -%>
+
 config.repositoryName = '<%= resource[:name] %>'
 config.recipeName = '<%= resource[:provider_type] %>-<%= resource[:type] %>'
 config.online = <%= resource[:online] %>
