@@ -42,7 +42,7 @@ describe type_class.provider(:ruby) do
 
   describe 'instances' do
     specify 'should not define instances method' do
-      expect { described_class.instances }.to raise_error(Puppet::DevError, /Provider ruby has not defined the 'instances' class method/)
+      expect { described_class.instances }.to raise_error(Puppet::DevError, /(Provider ruby has not defined the 'instances' class method|provider needs to implement an 'instances' class method)/)
     end
   end
 
