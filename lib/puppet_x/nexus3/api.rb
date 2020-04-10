@@ -61,7 +61,7 @@ module Nexus3
       when '3.20'
         version == '< 3.20'
       when '3.21'
-        version == '< 3.21'
+        version == '< 3.21' || version == '< 3.20'
       else
         true
       end
