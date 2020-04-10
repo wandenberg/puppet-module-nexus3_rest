@@ -9,6 +9,7 @@ cleanup.set('policyName', new HashSet(<%= resource[:cleanup_policies] %>))
 <%- end -%>
 <%- if resource[:type] == :hosted -%>
 storage.set('writePolicy', '<%= WRITE_POLICY_MAPPING[resource[:write_policy]] %>')
+config.attributes('httpclient').remove('authentication')
 <%- elsif resource[:type] == :proxy -%>
 def proxy = config.attributes('proxy')
 proxy.set('remoteUrl', '<%= resource[:remote_url] %>')
