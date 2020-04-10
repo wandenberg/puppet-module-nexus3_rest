@@ -1,3 +1,8 @@
+## 0.4.1
+- Extend support to Nexus 3.20+
+- Add support to manage routing rules
+- Improve configurations for repositories
+
 ## 0.4.0
 - Change the configuration file name to nexus3_rest.conf
 - Add support to manage cleanup policies
