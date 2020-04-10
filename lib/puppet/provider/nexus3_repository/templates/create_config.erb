@@ -1,3 +1,4 @@
+def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
 <%- if Nexus3::API.until_version('3.21') -%>
 def config = new org.sonatype.nexus.repository.config.Configuration()
 <%- else -%>
@@ -72,5 +73,10 @@ docker.set('httpsPort', '<%= resource[:https_port] %>')
 <%- end -%>
 docker.set('v1Enabled', '<%= resource[:v1_enabled] %>')
 docker.set('forceBasicAuth','<%= resource[:force_basic_auth] %>')
+<%- end -%>
+config.routingRuleId = null
+<%- if resource[:routing_rule] -%>
+def rule = routingRuleStore.getByName('<%= resource[:routing_rule] %>')
+config.routingRuleId = org.sonatype.nexus.common.entity.EntityHelper.id(rule)
 <%- end -%>
 repository.repositoryManager.create(config)

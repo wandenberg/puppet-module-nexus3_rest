@@ -323,6 +323,7 @@ nexus3_repository { 'new-repository':
 
   depth                          => 3                     #optional, default is 0: depth where 'repodata' is created
 
+  routing_rule                   => 'images'              #optional, default is empty: routing rule to be applied to a proxy repository
 }
 ```
 
@@ -338,6 +339,20 @@ nexus3_repository_group { 'example-repo-group':
                                       'other-repository',
                                       'repository-3'
                                     ]
+}
+```
+
+### Routing Rule configuration ###
+
+The Nexus Routing Rule settings can be configured using the `nexus3_routing_rule` resource:
+
+```
+#!puppet
+nexus3_routing_rule { 'images':
+  description => 'Block all images',
+  ensure      => 'present',
+  mode        => 'BLOCK',
+  matchers    => ['/.*.jpg', '/.*.svg', '/.*.gif'],
 }
 ```
 

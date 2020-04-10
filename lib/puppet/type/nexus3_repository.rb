@@ -196,6 +196,10 @@ Puppet::Type.newtype(:nexus3_repository) do
          'Only useful for proxy-type repositories.'
   end
 
+  newproperty(:routing_rule) do
+      desc 'The routing rule to be used while sending requests to proxied server'
+  end
+
   validate do
     if self[:ensure] == :present
       raise ArgumentError, 'blobstore_name must be provided' if self[:blobstore_name].to_s.empty?

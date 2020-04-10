@@ -1,4 +1,5 @@
 def config = repository.repositoryManager.get('<%= resource[:name] %>').getConfiguration()
+def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
 config.online = <%= resource[:online] %>
 def storage = config.attributes('storage')
 storage.set('strictContentTypeValidation', <%= resource[:strict_content_type_validation] %>)
@@ -64,5 +65,10 @@ docker.set('httpsPort', '<%= resource[:https_port] %>')
 <%- end -%>
 docker.set('v1Enabled', '<%= resource[:v1_enabled] %>')
 docker.set('forceBasicAuth','<%= resource[:force_basic_auth] %>')
+<%- end -%>
+config.routingRuleId = null
+<%- if resource[:routing_rule] -%>
+def rule = routingRuleStore.getByName('<%= resource[:routing_rule] %>')
+config.routingRuleId = org.sonatype.nexus.common.entity.EntityHelper.id(rule)
 <%- end -%>
 repository.repositoryManager.update(config)

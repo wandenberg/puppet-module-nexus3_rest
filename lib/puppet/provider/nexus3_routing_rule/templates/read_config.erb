@@ -1,0 +1,11 @@
+def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
+def rules = routingRuleStore.list()
+def infos = rules.collect { rule ->
+  [
+    name: rule.name,
+    description: rule.description,
+    mode: rule.mode,
+    matchers: rule.matchers,
+  ]
+}
+return groovy.json.JsonOutput.toJson(infos)

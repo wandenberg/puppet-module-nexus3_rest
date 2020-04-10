@@ -1,4 +1,5 @@
 def repositories = repository.repositoryManager.browse()
+def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
 def infos = repositories.findResults { repository ->
   def config = repository.getConfiguration()
   def (providerType, type) = config.recipeName.split('-')
@@ -20,6 +21,8 @@ def infos = repositories.findResults { repository ->
   def aptHosted = config.attributes('aptHosted')
   def httpclient = config.attributes('httpclient');
   def authentication = httpclient.child('authentication');
+  def rule = config.routingRuleId ? routingRuleStore.getById(config.routingRuleId.value) : null
+
   [
     name: config.repositoryName,
     type: type,
@@ -51,6 +54,7 @@ def infos = repositories.findResults { repository ->
     pgp_keypair: aptSigning.get('keypair'),
     pgp_keypair_passphrase: aptSigning.get('passphrase'),
     asset_history_limit: aptHosted.get('assetHistoryLimit'),
+    routing_rule: rule ? rule.name : '',
   ]
 }
 return groovy.json.JsonOutput.toJson(infos)

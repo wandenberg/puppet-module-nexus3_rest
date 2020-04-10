@@ -1,0 +1,3 @@
+def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
+def rule = routingRuleStore.getByName('<%= resource[:name] %>')
+routingRuleStore.delete(rule)
