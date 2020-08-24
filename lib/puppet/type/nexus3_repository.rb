@@ -16,7 +16,7 @@ Puppet::Type.newtype(:nexus3_repository) do
 
   newproperty(:provider_type) do
     desc 'The content provider of the repository'
-    newvalues(:apt, :bower, :composer, :docker, :gitlfs, :maven2, :npm, :nuget, :pypi, :raw, :rubygems, :yum)
+    newvalues(:apt, :bower, :composer, :docker, :gitlfs, :helm, :maven2, :npm, :nuget, :pypi, :raw, :rubygems, :yum)
   end
 
   newproperty(:online, parent: Puppet::Property::Boolean) do
