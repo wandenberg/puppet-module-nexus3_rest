@@ -5,7 +5,7 @@
 Puppet Module for Sonatype Nexus 3 aims to offer native configuration of Nexus
 instances in Puppet. The module uses Nexus REST interface to manage configuration.
 
-Nexus 3 does not have the XML configuration files in the `sonatype-work/nexus/conf` directory as the previous versions. 
+Nexus 3 does not have the XML configuration files in the `sonatype-work/nexus/conf` directory as the previous versions.
 It uses a binary local database to save its configurations.
 The only current supported way to automate configurations is to use the REST API, uploading and executing groovy code.
 
@@ -28,7 +28,7 @@ Puppet Module for Sonatype Nexus 3 allows configuration like this:
 
 ## Requirements ##
 
-The module doesn't have any dependencies on other Puppet modules. It is using Ruby libraries that are contained in 
+The module doesn't have any dependencies on other Puppet modules. It is using Ruby libraries that are contained in
 the default Ruby 2.1+ installation, like:
 
 * json
@@ -280,7 +280,7 @@ Cleanup policies can be set up using the `nexus3_cleanup_policy` resource:
 ```
 #!puppet
 nexus3_cleanup_policy { 'new_cleanup_policy':
-  format            => 'apt',               #Repository format this policy applies to. Valid values: 'all', 'apt', 'bower', 'docker', 'gitlfs' (hosted), 'maven2', 'npm', 'nuget', 'pypi', 'raw', 'rubygems', 'yum'
+  format            => 'apt',               #Repository format this policy applies to. Valid values: 'all', 'apt', 'bower', 'docker', 'gitlfs' (hosted), 'helm', 'maven2', 'npm', 'nuget', 'pypi', 'raw', 'rubygems', 'yum'
   notes             => 'Short description', #Optional: default is ''
   is_prerelease     => true,                #Whether the policy should apply to "release" or "prerelease" type repos. Valid values: true, false (default). Only applies to 'maven2', 'npm' or 'yum' repos
   last_blob_updated => 7,                   #Whether the policy should consider time (in days) of a components last update
@@ -297,7 +297,7 @@ The Nexus Repository settings can be configured using the `nexus3_repository` an
 #!puppet
 nexus3_repository { 'new-repository':
   type                           => 'hosted',             #valid values: 'hosted', 'proxy'
-  provider_type                  => 'maven2',             #valid values: 'apt', 'bower', 'docker', 'gitlfs' (hosted), 'maven2', 'npm', 'nuget', 'pypi', 'raw', 'rubygems', 'yum'
+  provider_type                  => 'maven2',             #valid values: 'apt', 'bower', 'docker', 'gitlfs' (hosted), 'helm', 'maven2', 'npm', 'nuget', 'pypi', 'raw', 'rubygems', 'yum'
   online                         => false,                #valid values: true (default), false
   blobstore_name                 => 'blob',               #optional, default is 'default'
   cleanup_policies               => [                     #names of existing cleanup policies

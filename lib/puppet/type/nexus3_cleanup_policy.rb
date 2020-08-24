@@ -11,7 +11,7 @@ Puppet::Type.newtype(:nexus3_cleanup_policy) do
 
   newproperty(:format) do
     desc 'The repository format the policy should apply to (can also be "all").'
-    newvalues(:all, :apt, :bower, :composer, :docker, :gitlfs, :maven2, :npm, :nuget, :pypi, :raw, :rubygems, :yum)
+    newvalues(:all, :apt, :bower, :composer, :docker, :gitlfs, :helm, :maven2, :npm, :nuget, :pypi, :raw, :rubygems, :yum)
     defaultto :all
   end
 
