@@ -1,3 +1,8 @@
+## 0.4.2
+- Add support for Helm repository type
+- Add support to configure the Negative Cache in proxied repositories
+- Add support to configure http authentication as Preemptive Bearer Token
+
 ## 0.4.1
 - Extend support to Nexus 3.20+
 - Add support to manage routing rules
