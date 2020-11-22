@@ -33,6 +33,7 @@ httpclient.remove('authentication')
 <%- else -%>
 def authentication = httpclient.child('authentication');
 authentication.set('type', '<%= resource[:remote_auth_type] %>');
+authentication.set('bearerToken', '<%= resource[:remote_bearer_token] %>');
 authentication.set('username', '<%= resource[:remote_user] %>');
 authentication.set('password', '<%= resource[:remote_password] %>');
 authentication.set('ntlmHost', '<%= resource[:remote_ntlm_host] %>');

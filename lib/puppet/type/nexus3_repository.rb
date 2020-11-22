@@ -191,7 +191,12 @@ Puppet::Type.newtype(:nexus3_repository) do
   newproperty(:remote_auth_type) do
     desc 'Define the type of authentication to be used to the remote repository.'
     defaultto do @resource[:provider_type] == :maven2 ? :username : :none end
-    newvalues(:none, :username, :ntlm)
+    newvalues(:none, :username, :ntlm, :bearerToken)
+  end
+
+  newproperty(:remote_bearer_token) do
+    desc 'The token used for authentication to the NPM remote repository. ' \
+         'Only useful for proxy-type repositories.'
   end
 
   newproperty(:remote_user) do

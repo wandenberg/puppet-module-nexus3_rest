@@ -41,6 +41,7 @@ def infos = repositories.findResults { repository ->
     auto_block: httpclient.get('autoBlock'),
     blocked: httpclient.get('blocked'),
     remote_auth_type: authentication.get('type') ? authentication.get('type') : 'none',
+    remote_bearer_token: authentication.get('bearerToken'),
     remote_user: authentication.get('username'),
     remote_password: authentication.get('password'),
     remote_ntlm_host: authentication.get('ntlmHost'),
