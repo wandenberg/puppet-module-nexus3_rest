@@ -153,6 +153,20 @@ Puppet::Type.newtype(:nexus3_repository) do
     munge { |value| super(value).to_s.intern }
   end
 
+  newproperty(:negative_cache_enabled, parent: Puppet::Property::Boolean) do
+    desc 'Whether to cache responses for content not present in the proxied repository.' \
+         'Only useful for proxy-type repositories.'
+    newvalues(:true, :false)
+    defaultto do @resource[:type] == :proxy ? :true : nil end
+    munge { |value| super(value).to_s.intern }
+  end
+
+  newproperty(:negative_cache_ttl) do
+    desc 'How long to cache the fact that a file was not found in the repository (in minutes).' \
+         'Only useful for proxy-type repositories.'
+    defaultto do @resource[:type] == :proxy ? 1440 : nil end
+  end
+
   newproperty(:remote_url) do
     desc 'This is the location of the remote repository being proxied. Only HTTP/HTTPs urls are currently supported. ' \
          'Only useful for proxy-type repositories.'

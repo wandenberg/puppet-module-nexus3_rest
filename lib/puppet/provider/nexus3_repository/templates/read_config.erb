@@ -22,6 +22,7 @@ def infos = repositories.findResults { repository ->
   def httpclient = config.attributes('httpclient');
   def authentication = httpclient.child('authentication');
   def rule = config.routingRuleId ? routingRuleStore.getById(config.routingRuleId.value) : null
+  def negativeCache = config.attributes('negativeCache')
 
   [
     name: config.repositoryName,
@@ -57,6 +58,8 @@ def infos = repositories.findResults { repository ->
     pgp_keypair_passphrase: aptSigning.get('passphrase'),
     asset_history_limit: aptHosted.get('assetHistoryLimit'),
     routing_rule: rule ? rule.name : '',
+    negative_cache_enabled: negativeCache.get('enabled'),
+    negative_cache_ttl: negativeCache.get('timeToLive'),
   ]
 }
 return groovy.json.JsonOutput.toJson(infos)
