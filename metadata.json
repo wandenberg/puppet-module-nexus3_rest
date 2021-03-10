@@ -1,5 +1,5 @@
 {
-  "name": "wandenberg/nexus3_rest",
+  "name": "wandenberg-nexus3_rest",
   "version": "0.4.2",
   "author": "Wandenberg Peixoto",
   "summary": "Puppet directives to configure Nexus3 Repository Manager OSS",
@@ -8,12 +8,63 @@
   "project_page": "https://github.com/wandenberg/puppet-module-nexus3_rest",
   "issues_url": "https://github.com/wandenberg/puppet-module-nexus3_rest/issues",
   "dependencies": [
-    {"name":"puppetlabs-stdlib","version_requirement":">= 3.2.0 < 7.0.0"}
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 3.2.0 < 7.0.0"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "OracleLinux",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "8"
+      ]
+    },
+    {
+      "operatingsystem": "Scientific",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "10"
+      ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "18.04"
+      ]
+    },
+    {
+      "operatingsystem": "windows",
+      "operatingsystemrelease": [
+        "2019",
+        "10"
+      ]
+    }
   ],
   "requirements": [
     {
       "name": "puppet",
       "version_requirement": "3.x"
     }
-  ],  "data_provider": null
+  ],
+  "pdk-version": "2.0.0",
+  "template-url": "https://github.com/puppetlabs/pdk-templates#2.0.0",
+  "template-ref": "tags/2.0.0-0-ge838f1d"
 }
