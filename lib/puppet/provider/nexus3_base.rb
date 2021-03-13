@@ -1,9 +1,10 @@
 require File.join(File.dirname(__FILE__), '..', '..', 'puppet_x', 'nexus3', 'api')
 
+# Base class to manage Nexus3 resources on Puppet
 class Puppet::Provider::Nexus3Base < Puppet::Provider
   desc 'Manage Nexus3 configuration.'
 
-  WRITE_ONCE_ERROR_MESSAGE = "%s is write-once only and cannot be changed."
+  WRITE_ONCE_ERROR_MESSAGE = '%s is write-once only and cannot be changed.'.freeze
 
   def initialize(value = {})
     super(value)
@@ -31,15 +32,16 @@ class Puppet::Provider::Nexus3Base < Puppet::Provider
   # `puppet apply`.
   #
   def self.prefetch(resources)
-    raise Puppet::Error, "There are more then #{max_instances_allowed} instance(s) of '#{resources.values[0].class.name}': #{resources.keys.join(', ')}" if max_instances_allowed > 0 && resources.size > max_instances_allowed
+    if max_instances_allowed > 0 && resources.size > max_instances_allowed
+      raise Puppet::Error, "There are more then #{max_instances_allowed} instance(s) of '#{resources.values[0].class.name}': #{resources.keys.join(', ')}"
+    end
     settings = instances
     if max_instances_allowed == 1
       resources.values[0].provider = settings[0]
     else
       resources.each do |name, resource|
-        if provider = settings.find { |setting| setting.name.to_s == name.to_s }
-          resource.provider = provider
-        end
+        provider = settings.find { |setting| setting.name.to_s == name.to_s }
+        resource.provider = provider if provider
       end
     end
   end
@@ -47,36 +49,30 @@ class Puppet::Provider::Nexus3Base < Puppet::Provider
   # Update the configuration referenced by the current resource (e.g. just the SMTP settings).
   #
   def flush
-    if @update_required
-      update_config
-      @property_hash = resource.to_hash
-    end
+    return unless @update_required
+    update_config
+    @property_hash = resource.to_hash
   end
 
   def create
-    begin
-      script = create_config_script
-      Puppet.debug("CREATE SCRIPT:\n#{script}")
-      Nexus3::API.execute_script(script)
-    rescue Exception => e
-      raise Puppet::Error, "Error while creating #{resource.class.name} #{resource[:name]}: #{e}"
-    end
+    script = create_config_script
+    Puppet.debug("CREATE SCRIPT:\n#{script}")
+    Nexus3::API.execute_script(script)
+  rescue => e
+    raise Puppet::Error, "Error while creating #{resource.class.name} #{resource[:name]}: #{e}"
   end
 
   def destroy
-    begin
-      script = delete_config_script
-      Puppet.debug("DESTROY SCRIPT:\n#{script}")
-      Nexus3::API.execute_script(script)
-    rescue Exception => e
-      raise Puppet::Error, "Error while deleting #{resource.class.name} #{resource[:name]}: #{e}"
-    end
+    script = delete_config_script
+    Puppet.debug("DESTROY SCRIPT:\n#{script}")
+    Nexus3::API.execute_script(script)
+  rescue => e
+    raise Puppet::Error, "Error while deleting #{resource.class.name} #{resource[:name]}: #{e}"
   end
 
   def exists?
     @property_hash[:ensure] == :present
   end
-
 
   # Update the configuration. Intended to be used when updating multiple things with one flush invocation.
   #
@@ -84,7 +80,7 @@ class Puppet::Provider::Nexus3Base < Puppet::Provider
     script = write_config_script
     Puppet.debug("UPDATE SCRIPT:\n#{script}")
     Nexus3::API.execute_script(script)
-  rescue Exception => e
+  rescue => e
     raise Puppet::Error, "Error while updating #{resource.class.name} #{resource[:name]}: #{e}"
   end
 
@@ -96,7 +92,7 @@ class Puppet::Provider::Nexus3Base < Puppet::Provider
 
   def self.mk_resource_methods
     [resource_type.validproperties, resource_type.parameters].flatten.each do |attr|
-      attr = attr.intern
+      attr = attr.to_sym
       next if attr == :name
       define_method(attr) do
         if @property_hash[attr].nil?
@@ -157,30 +153,26 @@ class Puppet::Provider::Nexus3Base < Puppet::Provider
   end
 
   def self.map_config_to_resource(config)
-    [resource_type.validproperties, resource_type.parameters].flatten.inject({}) do |entries, attr|
-      attribute = attr.intern
+    [resource_type.validproperties, resource_type.parameters].flatten.each_with_object({}) do |attr, entries|
+      attribute = attr.to_sym
       current_value = config[attribute.to_s]
-      value = case current_value
-        when false, 'false'
-          :false
-        when true, 'true'
-          :true
-        else
-          attribute == :ensure ? :present : (current_value || '')
-        end
-      entries[attribute] = value
-      entries
+      case current_value
+      when false, 'false'
+        entries[attribute] = :false
+      when true, 'true'
+        entries[attribute] = :true
+      else
+        entries[attribute] = attribute == :ensure ? :present : (current_value || '')
+      end
     end
   end
-
-  private
 
   def self.templates_folder
     raise Puppet::Error, "Method 'templates_folder' must be implemented on #{resource.class.name}"
   end
 
   def self.template(template_name)
-    template_file = File.join(self.templates_folder, template_name)
-    return ERB.new(File.read(template_file), nil, '-') if File.exists?(template_file)
+    template_file = File.join(templates_folder, template_name)
+    return ERB.new(File.read(template_file), nil, '-') if File.exist?(template_file)
   end
 end

@@ -23,7 +23,7 @@ Puppet::Type.type(:nexus3_privilege).provide(:ruby, parent: Puppet::Provider::Ne
     when :repository_name
       "privilege.properties.repository = '#{value}'"
     else
-      "privilege.properties['#{key.to_s.split('_').each_with_index.map{|item, index| index > 0 ? item.capitalize : item}.join}'] = '#{value}'"
+      "privilege.properties['#{key.to_s.split('_').each_with_index.map { |item, index| index > 0 ? item.capitalize : item }.join}'] = '#{value}'"
     end
   end
 

@@ -13,11 +13,11 @@ Puppet::Type.type(:nexus3_repository_group).provide(:ruby, parent: Puppet::Provi
 
   mk_resource_methods
 
-  def provider_type=(value)
+  def provider_type=(_value)
     raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'provider_type'
   end
 
-  def blobstore_name=(value)
+  def blobstore_name=(_value)
     raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'blobstore_name'
   end
 end

@@ -23,19 +23,16 @@ Puppet::Type.type(:nexus3_admin_password).provide(:ruby, parent: Puppet::Provide
     end
   end
 
-  def password=(value)
+  def password=(_value)
     Puppet.debug('Admin password is with an incorrect value. Trying to set the correct one.')
-    if resource[:admin_password_file] && File.exist?(resource[:admin_password_file])
-      old_password = File.read(resource[:admin_password_file])
-    else
-      old_password = resource[:old_password]
-    end
+    old_password = resource[:admin_password_file] && File.exist?(resource[:admin_password_file]) ? File.read(resource[:admin_password_file]) : resource[:old_password]
     Nexus3::API.service.ensure_running
-    command_name = Nexus3::API.upload_script("security.securitySystem.changePassword('admin', '#{ resource[:password] }')", 'admin', old_password)
+    command_name = Nexus3::API.upload_script("security.securitySystem.changePassword('admin', '#{resource[:password]}')", 'admin', old_password)
     begin
       Nexus3::API.run_command(command_name, 'admin', old_password)
       old_password = resource[:password]
     rescue
+      # Ignored
     end
     Nexus3::API.delete_command(command_name, 'admin', old_password)
     Nexus3::Config.reset

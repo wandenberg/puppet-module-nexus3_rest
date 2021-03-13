@@ -3,6 +3,7 @@ require 'puppet'
 require 'yaml'
 
 module Nexus3
+  # Class that wraps the configurations to access the Nexus3 Script API
   class Config
     CONFIG_NEXUS_BASE_URL = :nexus_base_url
     CONFIG_NEXUS_SCRIPT_API_PATH = :nexus_script_api_path
@@ -51,7 +52,7 @@ module Nexus3
         Puppet.debug("Parsing configuration file #{file_path}")
         # each loop used to convert hash keys from String to Symbol; each doesn't return the modified hash ... ugly, I know
         config = {}
-        YAML.load_file(file_path).each { |key, value| config[key.intern] = value }
+        YAML.load_file(file_path).each { |key, value| config[key.to_sym] = value }
       rescue => e
         raise Puppet::ParseError, "Could not parse YAML configuration file '#{file_path}': #{e}"
       end

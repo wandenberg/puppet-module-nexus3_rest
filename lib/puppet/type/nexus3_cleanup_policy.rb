@@ -24,7 +24,7 @@ Puppet::Type.newtype(:nexus3_cleanup_policy) do
     desc 'Restrict cleanup to components of release type "release" or "prerelease".' \
          'This is applicable to "maven2", "npm", or "yum" format repos only.'
     newvalues(:true, :false)
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:last_blob_updated) do
@@ -51,6 +51,6 @@ Puppet::Type.newtype(:nexus3_cleanup_policy) do
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

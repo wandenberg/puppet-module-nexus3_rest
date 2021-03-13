@@ -4,7 +4,6 @@ require 'forwardable'
 
 module Nexus3
   # Ensures the referenced Nexus instance is up and running. It does the health check only once and caches the result.
-  #
   class CachingService
     extend Forwardable
 
@@ -19,23 +18,21 @@ module Nexus3
     # See Nexus::Service.ensure_running.
     #
     def ensure_running
-      if @last_result == :not_running
-        raise('Nexus service failed a previous health check.')
-      else
-        begin
-          # FIXME: checking all the times
-          @delegatee.ensure_running
-          @last_result = :running
-        rescue => e
-          @last_result = :not_running
-          raise e
-        end
+      raise('Nexus service failed a previous health check.') if @last_result == :not_running
+
+      begin
+        # FIXME: checking all the times
+        @delegatee.ensure_running
+        @last_result = :running
+      rescue => e
+        @last_result = :not_running
+        raise e
       end
     end
   end
 
+  # Class that wraps the interactions with the Nexus3 instance
   class Service
-
     attr_reader :client
 
     def initialize(client, configuration)
@@ -66,6 +63,7 @@ module Nexus3
                'time.')
     end
 
+    # Class to wrap the status of a Nexus3 instance
     class Status
       attr_reader :status, :log_message
 
@@ -87,6 +85,7 @@ module Nexus3
       end
     end
 
+    # Class to verify the connection to Nexus3 instance
     class Client
       def initialize(configuration)
         @configuration = configuration
@@ -95,7 +94,6 @@ module Nexus3
         @nexus = Net::HTTP.new(uri.host, uri.port)
         @nexus.open_timeout = configuration[:connection_open_timeout]
         @nexus.read_timeout = configuration[:connection_timeout]
-        @nexus
       end
 
       def check_health

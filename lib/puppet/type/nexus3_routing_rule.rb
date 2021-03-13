@@ -21,7 +21,7 @@ Puppet::Type.newtype(:nexus3_routing_rule) do
     desc 'A list of matchers'
     defaultto []
     validate do |value|
-      raise ArgumentError, "matcher expressions must be provided in an array" if value.empty? || value.include?(',')
+      raise ArgumentError, 'matcher expressions must be provided in an array' if value.empty? || value.include?(',')
     end
 
     def insync?(is)
@@ -30,6 +30,6 @@ Puppet::Type.newtype(:nexus3_routing_rule) do
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

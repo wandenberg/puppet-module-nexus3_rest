@@ -27,32 +27,32 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'prefetch' do
-    it 'should raise error if more than one resource of this type is configured' do
+    it 'raise error if more than one resource of this type is configured' do
       expect {
-        described_class.prefetch({example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2'))})
-      }.to raise_error(Puppet::Error, /There are more then 1 instance of 'nexus3_admin_password': example1, example2/)
+        described_class.prefetch({ example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2')) })
+      }.to raise_error(Puppet::Error, %r{There are more then 1 instance of 'nexus3_admin_password': example1, example2})
     end
 
-    it 'should not raise error if just one resource of this type is configured' do
+    it 'not raise error if just one resource of this type is configured' do
       expect {
-        described_class.prefetch({example1: type_class.new(values.merge(name: 'example1'))})
+        described_class.prefetch({ example1: type_class.new(values.merge(name: 'example1')) })
       }.not_to raise_error
     end
   end
 
   describe 'instances' do
     specify 'should not define instances method' do
-      expect { described_class.instances }.to raise_error(Puppet::DevError, /(Provider ruby has not defined the 'instances' class method|provider needs to implement an 'instances' class method)/)
+      expect { described_class.instances }.to raise_error(Puppet::DevError, %r{(Provider ruby has not defined the 'instances' class method|provider needs to implement an 'instances' class method)})
     end
   end
 
   describe 'password' do
     before(:each) { stub_default_config_and_healthcheck }
 
-    it 'should verify if the current password is the one set on password property' do
-      stub = stub_request(:get, 'http://example.com/service/rest/v1/script/').
-          with(headers: {'Accept'=>'application/json', 'Authorization'=>'Basic YWRtaW46bmV3X3ZhbHVl', 'Content-Type'=>'application/json'}).
-          to_return(status: 200)
+    it 'verify if the current password is the one set on password property' do
+      stub = stub_request(:get, 'http://example.com/service/rest/v1/script/')
+               .with(headers: { 'Accept' => 'application/json', 'Authorization' => 'Basic YWRtaW46bmV3X3ZhbHVl', 'Content-Type' => 'application/json' })
+               .to_return(status: 200)
 
       instance.password
 
@@ -61,42 +61,42 @@ describe type_class.provider(:ruby) do
 
     describe 'when need to change password' do
       before(:each) do
-        stub_request(:post, /.*/).to_return(status: 204)
-        stub_request(:post, /.*\/run/).to_return(status: 200, body: '{}')
-        stub_request(:delete, /.*/).to_return(status: 204)
+        stub_request(:post, %r{.*}).to_return(status: 204)
+        stub_request(:post, %r{.*/run}).to_return(status: 200, body: '{}')
+        stub_request(:delete, %r{.*}).to_return(status: 204)
 
-        stub_request(:get, 'http://example.com/service/rest/v1/script/').
-            with(headers: {'Accept'=>'application/json', 'Authorization'=>'Basic YWRtaW46bmV3X3ZhbHVl', 'Content-Type'=>'application/json'}).
-            to_return(status: 403)
+        stub_request(:get, 'http://example.com/service/rest/v1/script/')
+          .with(headers: { 'Accept' => 'application/json', 'Authorization' => 'Basic YWRtaW46bmV3X3ZhbHVl', 'Content-Type' => 'application/json' })
+          .to_return(status: 403)
       end
 
-      it 'should upload the update script with the old password' do
+      it 'upload the update script with the old password' do
         expect(Nexus3::API).to receive(:upload_script).with("security.securitySystem.changePassword('admin', 'new_value')", 'admin', 'old_value').and_return('command_name')
 
         instance.password = 'new_value'
       end
 
-      it 'should run the update script with the old password' do
-        expect(Nexus3::API).to receive(:run_command).with(anything(), 'admin', 'old_value')
+      it 'run the update script with the old password' do
+        expect(Nexus3::API).to receive(:run_command).with(anything, 'admin', 'old_value')
 
         instance.password = 'new_value'
       end
 
-      it 'should delete the update script with the new password' do
-        expect(Nexus3::API).to receive(:delete_command).with(anything(), 'admin', 'new_value')
+      it 'delete the update script with the new password' do
+        expect(Nexus3::API).to receive(:delete_command).with(anything, 'admin', 'new_value')
 
         instance.password = 'new_value'
       end
 
-      it 'should try to delete the update script with the old password in case the execute command failed' do
+      it 'try to delete the update script with the old password in case the execute command failed' do
         allow(Nexus3::API).to receive(:run_command).and_raise('stupid error')
 
-        expect(Nexus3::API).to receive(:delete_command).with(anything(), 'admin', 'old_value')
+        expect(Nexus3::API).to receive(:delete_command).with(anything, 'admin', 'old_value')
 
         instance.password = 'new_value'
       end
 
-      it 'should force clear config after change password' do
+      it 'force clear config after change password' do
         expect(Nexus3::Config).to receive(:reset)
 
         instance.password = 'new_value'
@@ -111,7 +111,7 @@ describe type_class.provider(:ruby) do
         instance
       end
 
-      it 'should not verify if the current password is the one set on password property' do
+      it 'not verify if the current password is the one set on password property' do
         stub = stub_request(:get, 'http://example.com/service/rest/v1/script/')
 
         instance.password

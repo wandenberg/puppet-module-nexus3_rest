@@ -57,19 +57,19 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'prefetch' do
-    it 'should not raise error if more than one resource of this type is configured' do
+    it 'not raise error if more than one resource of this type is configured' do
       allow(Nexus3::API).to receive(:execute_script).and_return('[]')
 
       expect {
-        described_class.prefetch({example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2'))})
+        described_class.prefetch({ example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2')) })
       }.not_to raise_error
     end
 
     describe 'found instance' do
-      before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return([{name: 'example1', remote_user: 'from_service'}].to_json) }
+      before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return([{ name: 'example1', remote_user: 'from_service' }].to_json) }
 
-      it 'should not set the provider' do
-        resources = {example1: type_class.new(values.merge(name: 'example1'))}
+      it 'not set the provider' do
+        resources = { example1: type_class.new(values.merge(name: 'example1')) }
         described_class.prefetch(resources)
         expect(resources[:example1].provider.remote_user).to eq('from_service')
         expect(resources[:example1][:remote_user]).to eq 'user'
@@ -79,8 +79,8 @@ describe type_class.provider(:ruby) do
     describe 'not found instance' do
       before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return('[]') }
 
-      it 'should not set the provider' do
-        resources = {example1: type_class.new(values.merge(name: 'example1'))}
+      it 'not set the provider' do
+        resources = { example1: type_class.new(values.merge(name: 'example1')) }
         described_class.prefetch(resources)
         expect(resources[:example1].provider.remote_user).to eq(:absent)
         expect(resources[:example1][:remote_user]).to eq 'user'
@@ -92,6 +92,7 @@ describe type_class.provider(:ruby) do
     specify 'should execute a script to get repositories settings' do
       script = <<~EOS
         def repositories = repository.repositoryManager.browse()
+        def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
         def infos = repositories.findResults { repository ->
           def config = repository.getConfiguration()
           def (providerType, type) = config.recipeName.split('-')
@@ -113,6 +114,9 @@ describe type_class.provider(:ruby) do
           def aptHosted = config.attributes('aptHosted')
           def httpclient = config.attributes('httpclient');
           def authentication = httpclient.child('authentication');
+          def rule = config.routingRuleId ? routingRuleStore.getById(config.routingRuleId.value) : null
+          def negativeCache = config.attributes('negativeCache')
+
           [
             name: config.repositoryName,
             type: type,
@@ -123,11 +127,14 @@ describe type_class.provider(:ruby) do
             blobstore_name: storage.get('blobStoreName'),
             strict_content_type_validation: storage.get('strictContentTypeValidation'),
             remote_url: proxy.get('remoteUrl'),
+            content_max_age: proxy.get('contentMaxAge'),
+            metadata_max_age: proxy.get('metadataMaxAge'),
             version_policy: maven.get('versionPolicy')?.toLowerCase(),
             layout_policy: maven.get('layoutPolicy')?.toLowerCase(),
             auto_block: httpclient.get('autoBlock'),
             blocked: httpclient.get('blocked'),
             remote_auth_type: authentication.get('type') ? authentication.get('type') : 'none',
+            remote_bearer_token: authentication.get('bearerToken'),
             remote_user: authentication.get('username'),
             remote_password: authentication.get('password'),
             remote_ntlm_host: authentication.get('ntlmHost'),
@@ -144,6 +151,9 @@ describe type_class.provider(:ruby) do
             pgp_keypair: aptSigning.get('keypair'),
             pgp_keypair_passphrase: aptSigning.get('passphrase'),
             asset_history_limit: aptHosted.get('assetHistoryLimit'),
+            routing_rule: rule ? rule.name : '',
+            negative_cache_enabled: negativeCache.get('enabled'),
+            negative_cache_ttl: negativeCache.get('timeToLive'),
           ]
         }
         return groovy.json.JsonOutput.toJson(infos)
@@ -208,9 +218,11 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'create' do
-    it 'should execute a script to create the instance' do
+    it 'execute a script to create the instance' do
       script = <<~EOS
+        def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
         def config = new org.sonatype.nexus.repository.config.Configuration()
+
         config.repositoryName = 'example'
         config.recipeName = 'npm-proxy'
         config.online = true
@@ -221,15 +233,22 @@ describe type_class.provider(:ruby) do
         cleanup.set('policyName', new HashSet([]))
         def proxy = config.attributes('proxy')
         proxy.set('remoteUrl', 'http://remote.server.com')
+        proxy.set('contentMaxAge', '1440')
+        proxy.set('metadataMaxAge', '1440')
+        def negativeCache = config.attributes('negativeCache')
+        negativeCache.set('enabled', 'true')
+        negativeCache.set('timeToLive', '1440')
         def httpclient = config.attributes('httpclient');
         httpclient.set('blocked', 'false');
         httpclient.set('autoBlock', 'true');
         def authentication = httpclient.child('authentication');
         authentication.set('type', 'ntlm');
+        authentication.set('bearerToken', '');
         authentication.set('username', 'user');
         authentication.set('password', 'pass');
         authentication.set('ntlmHost', 'ntlmhost');
         authentication.set('ntlmDomain', 'ntlmdomain');
+        config.routingRuleId = null
         repository.repositoryManager.create(config)
       EOS
       expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -241,9 +260,11 @@ describe type_class.provider(:ruby) do
         { type: :hosted }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           def config = new org.sonatype.nexus.repository.config.Configuration()
+
           config.repositoryName = 'example'
           config.recipeName = 'npm-hosted'
           config.online = true
@@ -253,6 +274,7 @@ describe type_class.provider(:ruby) do
           def cleanup = config.attributes('cleanup')
           cleanup.set('policyName', new HashSet([]))
           storage.set('writePolicy', 'ALLOW')
+          config.routingRuleId = null
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -265,9 +287,11 @@ describe type_class.provider(:ruby) do
         { provider_type: :apt }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           def config = new org.sonatype.nexus.repository.config.Configuration()
+
           config.repositoryName = 'example'
           config.recipeName = 'apt-proxy'
           config.online = true
@@ -278,11 +302,17 @@ describe type_class.provider(:ruby) do
           cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
+          proxy.set('contentMaxAge', '1440')
+          proxy.set('metadataMaxAge', '1440')
+          def negativeCache = config.attributes('negativeCache')
+          negativeCache.set('enabled', 'true')
+          negativeCache.set('timeToLive', '1440')
           def httpclient = config.attributes('httpclient');
           httpclient.set('blocked', 'false');
           httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
+          authentication.set('bearerToken', '');
           authentication.set('username', 'user');
           authentication.set('password', 'pass');
           authentication.set('ntlmHost', 'ntlmhost');
@@ -290,6 +320,7 @@ describe type_class.provider(:ruby) do
           def apt = config.attributes('apt')
           apt.set('distribution', 'trusty')
           apt.set('flat', true)
+          config.routingRuleId = null
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -302,9 +333,11 @@ describe type_class.provider(:ruby) do
         { provider_type: :maven2 }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           def config = new org.sonatype.nexus.repository.config.Configuration()
+
           config.repositoryName = 'example'
           config.recipeName = 'maven2-proxy'
           config.online = true
@@ -315,11 +348,17 @@ describe type_class.provider(:ruby) do
           cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
+          proxy.set('contentMaxAge', '1440')
+          proxy.set('metadataMaxAge', '1440')
+          def negativeCache = config.attributes('negativeCache')
+          negativeCache.set('enabled', 'true')
+          negativeCache.set('timeToLive', '1440')
           def httpclient = config.attributes('httpclient');
           httpclient.set('blocked', 'false');
           httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
+          authentication.set('bearerToken', '');
           authentication.set('username', 'user');
           authentication.set('password', 'pass');
           authentication.set('ntlmHost', 'ntlmhost');
@@ -327,6 +366,7 @@ describe type_class.provider(:ruby) do
           def maven = config.attributes('maven')
           maven.set('versionPolicy', 'MIXED')
           maven.set('layoutPolicy', 'PERMISSIVE')
+          config.routingRuleId = null
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -339,9 +379,11 @@ describe type_class.provider(:ruby) do
         { provider_type: :yum, depth: 1 }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           def config = new org.sonatype.nexus.repository.config.Configuration()
+
           config.repositoryName = 'example'
           config.recipeName = 'yum-proxy'
           config.online = true
@@ -352,17 +394,24 @@ describe type_class.provider(:ruby) do
           cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
+          proxy.set('contentMaxAge', '1440')
+          proxy.set('metadataMaxAge', '1440')
+          def negativeCache = config.attributes('negativeCache')
+          negativeCache.set('enabled', 'true')
+          negativeCache.set('timeToLive', '1440')
           def httpclient = config.attributes('httpclient');
           httpclient.set('blocked', 'false');
           httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
+          authentication.set('bearerToken', '');
           authentication.set('username', 'user');
           authentication.set('password', 'pass');
           authentication.set('ntlmHost', 'ntlmhost');
           authentication.set('ntlmDomain', 'ntlmdomain');
           def yum = config.attributes('yum')
           yum.set('repodataDepth', 1)
+          config.routingRuleId = null
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -375,9 +424,11 @@ describe type_class.provider(:ruby) do
         { provider_type: :docker, type: :hosted }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           def config = new org.sonatype.nexus.repository.config.Configuration()
+
           config.repositoryName = 'example'
           config.recipeName = 'docker-hosted'
           config.online = true
@@ -392,6 +443,7 @@ describe type_class.provider(:ruby) do
           docker.set('httpsPort', '8443')
           docker.set('v1Enabled', 'true')
           docker.set('forceBasicAuth','true')
+          config.routingRuleId = null
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -404,9 +456,11 @@ describe type_class.provider(:ruby) do
         { provider_type: :docker, type: :proxy }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           def config = new org.sonatype.nexus.repository.config.Configuration()
+
           config.repositoryName = 'example'
           config.recipeName = 'docker-proxy'
           config.online = true
@@ -417,11 +471,17 @@ describe type_class.provider(:ruby) do
           cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
+          proxy.set('contentMaxAge', '1440')
+          proxy.set('metadataMaxAge', '1440')
+          def negativeCache = config.attributes('negativeCache')
+          negativeCache.set('enabled', 'true')
+          negativeCache.set('timeToLive', '1440')
           def httpclient = config.attributes('httpclient');
           httpclient.set('blocked', 'false');
           httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
+          authentication.set('bearerToken', '');
           authentication.set('username', 'user');
           authentication.set('password', 'pass');
           authentication.set('ntlmHost', 'ntlmhost');
@@ -434,6 +494,7 @@ describe type_class.provider(:ruby) do
           docker.set('httpsPort', '8443')
           docker.set('v1Enabled', 'true')
           docker.set('forceBasicAuth','true')
+          config.routingRuleId = null
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -446,9 +507,11 @@ describe type_class.provider(:ruby) do
         { remote_auth_type: :none }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           def config = new org.sonatype.nexus.repository.config.Configuration()
+
           config.repositoryName = 'example'
           config.recipeName = 'npm-proxy'
           config.online = true
@@ -459,10 +522,16 @@ describe type_class.provider(:ruby) do
           cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
+          proxy.set('contentMaxAge', '1440')
+          proxy.set('metadataMaxAge', '1440')
+          def negativeCache = config.attributes('negativeCache')
+          negativeCache.set('enabled', 'true')
+          negativeCache.set('timeToLive', '1440')
           def httpclient = config.attributes('httpclient');
           httpclient.set('blocked', 'false');
           httpclient.set('autoBlock', 'true');
           httpclient.remove('authentication')
+          config.routingRuleId = null
           repository.repositoryManager.create(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -470,16 +539,17 @@ describe type_class.provider(:ruby) do
       end
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
-      expect { instance.create }.to raise_error(Puppet::Error, /Error while creating nexus3_repository example/)
+      expect { instance.create }.to raise_error(Puppet::Error, %r{Error while creating nexus3_repository example})
     end
   end
 
   describe 'flush' do
-    it 'should execute a script to update the instance' do
+    it 'execute a script to update the instance' do
       script = <<~EOS
         def config = repository.repositoryManager.get('example').getConfiguration()
+        def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
         config.online = true
         def storage = config.attributes('storage')
         storage.set('strictContentTypeValidation', false)
@@ -487,15 +557,22 @@ describe type_class.provider(:ruby) do
         cleanup.set('policyName', new HashSet([]))
         def proxy = config.attributes('proxy')
         proxy.set('remoteUrl', 'http://remote.server.com')
+        proxy.set('contentMaxAge', '1440')
+        proxy.set('metadataMaxAge', '1440')
+        def negativeCache = config.attributes('negativeCache')
+        negativeCache.set('enabled', 'true')
+        negativeCache.set('timeToLive', '1440')
         def httpclient = config.attributes('httpclient');
         httpclient.set('blocked', 'false');
         httpclient.set('autoBlock', 'true');
         def authentication = httpclient.child('authentication');
         authentication.set('type', 'ntlm');
+        authentication.set('bearerToken', '');
         authentication.set('username', 'user');
         authentication.set('password', 'pass');
         authentication.set('ntlmHost', 'ntlmhost');
         authentication.set('ntlmDomain', 'ntlmdomain');
+        config.routingRuleId = null
         repository.repositoryManager.update(config)
       EOS
       expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -508,15 +585,18 @@ describe type_class.provider(:ruby) do
         { type: :hosted }
       end
 
-      it 'should execute a script to update the instance' do
+      it 'execute a script to update the instance' do
         script = <<~EOS
           def config = repository.repositoryManager.get('example').getConfiguration()
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           config.online = true
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
           def cleanup = config.attributes('cleanup')
           cleanup.set('policyName', new HashSet([]))
           storage.set('writePolicy', 'ALLOW')
+          config.attributes('httpclient').remove('authentication')
+          config.routingRuleId = null
           repository.repositoryManager.update(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -530,9 +610,10 @@ describe type_class.provider(:ruby) do
         { provider_type: :apt }
       end
 
-      it 'should execute a script to update the instance' do
+      it 'execute a script to update the instance' do
         script = <<~EOS
           def config = repository.repositoryManager.get('example').getConfiguration()
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           config.online = true
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
@@ -540,11 +621,17 @@ describe type_class.provider(:ruby) do
           cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
+          proxy.set('contentMaxAge', '1440')
+          proxy.set('metadataMaxAge', '1440')
+          def negativeCache = config.attributes('negativeCache')
+          negativeCache.set('enabled', 'true')
+          negativeCache.set('timeToLive', '1440')
           def httpclient = config.attributes('httpclient');
           httpclient.set('blocked', 'false');
           httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
+          authentication.set('bearerToken', '');
           authentication.set('username', 'user');
           authentication.set('password', 'pass');
           authentication.set('ntlmHost', 'ntlmhost');
@@ -552,6 +639,7 @@ describe type_class.provider(:ruby) do
           def apt = config.attributes('apt')
           apt.set('distribution', 'trusty')
           apt.set('flat', true)
+          config.routingRuleId = null
           repository.repositoryManager.update(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -565,9 +653,10 @@ describe type_class.provider(:ruby) do
         { provider_type: :maven2 }
       end
 
-      it 'should execute a script to update the instance' do
+      it 'execute a script to update the instance' do
         script = <<~EOS
           def config = repository.repositoryManager.get('example').getConfiguration()
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           config.online = true
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
@@ -575,11 +664,17 @@ describe type_class.provider(:ruby) do
           cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
+          proxy.set('contentMaxAge', '1440')
+          proxy.set('metadataMaxAge', '1440')
+          def negativeCache = config.attributes('negativeCache')
+          negativeCache.set('enabled', 'true')
+          negativeCache.set('timeToLive', '1440')
           def httpclient = config.attributes('httpclient');
           httpclient.set('blocked', 'false');
           httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
+          authentication.set('bearerToken', '');
           authentication.set('username', 'user');
           authentication.set('password', 'pass');
           authentication.set('ntlmHost', 'ntlmhost');
@@ -587,6 +682,7 @@ describe type_class.provider(:ruby) do
           def maven = config.attributes('maven')
           maven.set('versionPolicy', 'MIXED')
           maven.set('layoutPolicy', 'PERMISSIVE')
+          config.routingRuleId = null
           repository.repositoryManager.update(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -600,9 +696,10 @@ describe type_class.provider(:ruby) do
         { provider_type: :yum, depth: 3 }
       end
 
-      it 'should execute a script to update the instance' do
+      it 'execute a script to update the instance' do
         script = <<~EOS
           def config = repository.repositoryManager.get('example').getConfiguration()
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           config.online = true
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
@@ -610,17 +707,24 @@ describe type_class.provider(:ruby) do
           cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
+          proxy.set('contentMaxAge', '1440')
+          proxy.set('metadataMaxAge', '1440')
+          def negativeCache = config.attributes('negativeCache')
+          negativeCache.set('enabled', 'true')
+          negativeCache.set('timeToLive', '1440')
           def httpclient = config.attributes('httpclient');
           httpclient.set('blocked', 'false');
           httpclient.set('autoBlock', 'true');
           def authentication = httpclient.child('authentication');
           authentication.set('type', 'ntlm');
+          authentication.set('bearerToken', '');
           authentication.set('username', 'user');
           authentication.set('password', 'pass');
           authentication.set('ntlmHost', 'ntlmhost');
           authentication.set('ntlmDomain', 'ntlmdomain');
           def yum = config.attributes('yum')
           yum.set('repodataDepth', 3)
+          config.routingRuleId = null
           repository.repositoryManager.update(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -634,9 +738,10 @@ describe type_class.provider(:ruby) do
         { remote_auth_type: :none }
       end
 
-      it 'should execute a script to update the instance' do
+      it 'execute a script to update the instance' do
         script = <<~EOS
           def config = repository.repositoryManager.get('example').getConfiguration()
+          def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
           config.online = true
           def storage = config.attributes('storage')
           storage.set('strictContentTypeValidation', false)
@@ -644,10 +749,16 @@ describe type_class.provider(:ruby) do
           cleanup.set('policyName', new HashSet([]))
           def proxy = config.attributes('proxy')
           proxy.set('remoteUrl', 'http://remote.server.com')
+          proxy.set('contentMaxAge', '1440')
+          proxy.set('metadataMaxAge', '1440')
+          def negativeCache = config.attributes('negativeCache')
+          negativeCache.set('enabled', 'true')
+          negativeCache.set('timeToLive', '1440')
           def httpclient = config.attributes('httpclient');
           httpclient.set('blocked', 'false');
           httpclient.set('autoBlock', 'true');
           httpclient.remove('authentication')
+          config.routingRuleId = null
           repository.repositoryManager.update(config)
         EOS
         expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -656,26 +767,26 @@ describe type_class.provider(:ruby) do
       end
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
       instance.mark_config_dirty
-      expect { instance.flush }.to raise_error(Puppet::Error, /Error while updating nexus3_repository example/)
+      expect { instance.flush }.to raise_error(Puppet::Error, %r{Error while updating nexus3_repository example})
     end
 
-    it 'should not allow changes on type' do
-      expect { instance.type = :proxy }.to raise_error(Puppet::Error, /type is write-once only and cannot be changed./)
+    it 'not allow changes on type' do
+      expect { instance.type = :proxy }.to raise_error(Puppet::Error, %r{type is write-once only and cannot be changed.})
     end
 
-    it 'should not allow changes on provider_type' do
-      expect { instance.provider_type = :maven }.to raise_error(Puppet::Error, /provider_type is write-once only and cannot be changed./)
+    it 'not allow changes on provider_type' do
+      expect { instance.provider_type = :maven }.to raise_error(Puppet::Error, %r{provider_type is write-once only and cannot be changed.})
     end
 
-    it 'should not allow changes on blobstore_name' do
-      expect { instance.blobstore_name = 'new_blob_store' }.to raise_error(Puppet::Error, /blobstore_name is write-once only and cannot be changed./)
+    it 'not allow changes on blobstore_name' do
+      expect { instance.blobstore_name = 'new_blob_store' }.to raise_error(Puppet::Error, %r{blobstore_name is write-once only and cannot be changed.})
     end
 
-    it 'should not allow changes on version_policy' do
-      expect { instance.version_policy = :snapshot }.to raise_error(Puppet::Error, /version_policy is write-once only and cannot be changed./)
+    it 'not allow changes on version_policy' do
+      expect { instance.version_policy = :snapshot }.to raise_error(Puppet::Error, %r{version_policy is write-once only and cannot be changed.})
     end
 
     describe 'changing write_policy' do
@@ -684,9 +795,9 @@ describe type_class.provider(:ruby) do
           { type: :hosted }
         end
 
-        it 'should allow changes on write_policy' do
+        it 'allow changes on write_policy' do
           expect { instance.write_policy = :read_only }.not_to raise_error
-          expect(instance.write_policy).to eql(:read_only)
+          expect(instance.write_policy).to be(:read_only)
         end
       end
 
@@ -695,9 +806,9 @@ describe type_class.provider(:ruby) do
           { type: :proxy }
         end
 
-        it 'should not allow changes on version_policy' do
+        it 'not allow changes on version_policy' do
           expect { instance.write_policy = :read_only }.not_to raise_error
-          expect(instance.write_policy).not_to eql(:read_only)
+          expect(instance.write_policy).not_to be(:read_only)
         end
       end
     end
@@ -710,7 +821,7 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'destroy' do
-    it 'should execute a script to destroy the instance' do
+    it 'execute a script to destroy the instance' do
       script = <<~EOS
         def repositories = repository.repositoryManager.browse()
         repositories.each { repo ->
@@ -732,13 +843,13 @@ describe type_class.provider(:ruby) do
       instance.destroy
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
-      expect { instance.destroy }.to raise_error(Puppet::Error, /Error while deleting nexus3_repository example/)
+      expect { instance.destroy }.to raise_error(Puppet::Error, %r{Error while deleting nexus3_repository example})
     end
   end
 
-  it 'should return false if it is not existing' do
+  it 'return false if it is not existing' do
     # the dummy example isn't returned by self.instances
     expect(instance.exists?).to be_falsey
   end

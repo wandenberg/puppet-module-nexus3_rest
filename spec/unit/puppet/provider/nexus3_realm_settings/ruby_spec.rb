@@ -7,7 +7,7 @@ describe type_class.provider(:ruby) do
 
   let(:values) do
     {
-      names: ['name1', 'name2']
+      names: %w[name1 name2]
     }
   end
 
@@ -28,27 +28,27 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'prefetch' do
-    it 'should raise error if more than one resource of this type is configured' do
+    it 'raise error if more than one resource of this type is configured' do
       expect {
-        described_class.prefetch({example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2'))})
-      }.to raise_error(Puppet::Error, /There are more then 1 instance\(s\) of 'nexus3_realm_settings': example1, example2/)
+        described_class.prefetch({ example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2')) })
+      }.to raise_error(Puppet::Error, %r{There are more then 1 instance\(s\) of 'nexus3_realm_settings': example1, example2})
     end
 
-    it 'should not raise error if just one resource of this type is configured' do
+    it 'not raise error if just one resource of this type is configured' do
       expect(Nexus3::API).to receive(:execute_script).and_return(values.to_json)
 
       expect {
-        described_class.prefetch({example1: type_class.new(values.merge(name: 'example1'))})
+        described_class.prefetch({ example1: type_class.new(values.merge(name: 'example1')) })
       }.not_to raise_error
     end
 
-    it 'should set the provider no matter if the names matches' do
+    it 'set the provider no matter if the names matches' do
       expect(Nexus3::API).to receive(:execute_script).and_return('{"name": "example2", "names": ["from_service"] }')
 
-      resources = {example1: type_class.new(values.merge(name: 'example1'))}
+      resources = { example1: type_class.new(values.merge(name: 'example1')) }
       described_class.prefetch(resources)
       expect(resources[:example1].provider.names).to eql(['from_service'])
-      expect(resources[:example1][:names]).to eql(['name1', 'name2'])
+      expect(resources[:example1][:names]).to eql(%w[name1 name2])
     end
   end
 
@@ -76,12 +76,12 @@ describe type_class.provider(:ruby) do
       allow(Nexus3::API).to receive(:execute_script).and_return(values.to_json)
       instances = described_class.instances
       expect(instances.length).to eq 1
-      expect(instances[0].names).to eq ['name1', 'name2']
+      expect(instances[0].names).to eq %w[name1 name2]
     end
   end
 
   describe 'flush' do
-    it 'should execute a script to update the changes' do
+    it 'execute a script to update the changes' do
       script = <<~EOS
         def realmManager = container.lookup(org.sonatype.nexus.security.realm.RealmManager.class.name)
         def config = realmManager.getConfiguration()
@@ -94,7 +94,7 @@ describe type_class.provider(:ruby) do
     end
 
     describe 'when some value has changed' do
-      before(:each) { instance.names = ['name1', 'name3'] }
+      before(:each) { instance.names = %w[name1 name3] }
 
       specify { expect(instance.instance_variable_get(:@update_required)).to be_truthy }
     end

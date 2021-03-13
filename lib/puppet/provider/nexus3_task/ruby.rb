@@ -21,11 +21,11 @@ Puppet::Type.type(:nexus3_task).provide(:ruby, parent: Puppet::Provider::Nexus3B
     resource_hash
   end
 
-  def id=(value)
+  def id=(_value)
     raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'id'
   end
 
-  def type=(value)
+  def type=(_value)
     raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'type'
   end
 end

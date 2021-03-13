@@ -1,6 +1,7 @@
 require File.join(File.dirname(__FILE__), 'task_field')
 
 module Nexus3
+  # Class to wrap Nexus3 tasks definition and helper methods
   class Task
     FIELDS_BY_TYPE = {
       'blobstore.compact' => [Nexus3::TaskField.new('blobstore_name')],
@@ -29,7 +30,7 @@ module Nexus3
       'script' => [Nexus3::TaskField.new('language'), Nexus3::TaskField.new('source')],
       'security.purge-api-keys' => [],
       'tasklog.cleanup' => [],
-    }
+    }.freeze
 
     FIELDS = FIELDS_BY_TYPE.values.flatten.sort.uniq
 
@@ -44,10 +45,10 @@ module Nexus3
       when :daily
         "org.sonatype.nexus.scheduling.schedule.Daily(java.util.Date.parse('yyyy-MM-dd HH:mm', '#{resource[:start_date]} #{resource[:start_time]}'))"
       when :weekly
-        days_to_run = "#{resource[:recurring_day].split(',').map{|day| day[0..2].upcase}}.collect{ org.sonatype.nexus.scheduling.schedule.Weekly.Weekday.valueOf(it) }"
+        days_to_run = "#{resource[:recurring_day].split(',').map { |day| day[0..2].upcase }}.collect{ org.sonatype.nexus.scheduling.schedule.Weekly.Weekday.valueOf(it) }"
         "org.sonatype.nexus.scheduling.schedule.Weekly(java.util.Date.parse('yyyy-MM-dd HH:mm', '#{resource[:start_date]} #{resource[:start_time]}'), new HashSet(#{days_to_run}))"
       when :monthly
-        days_to_run = "#{resource[:recurring_day].split(',').map{|day| day == 'last' ? 999 : day.to_i}}.collect{ org.sonatype.nexus.scheduling.schedule.Monthly.CalendarDay.day(it) }"
+        days_to_run = "#{resource[:recurring_day].split(',').map { |day| day == 'last' ? 999 : day.to_i }}.collect{ org.sonatype.nexus.scheduling.schedule.Monthly.CalendarDay.day(it) }"
         "org.sonatype.nexus.scheduling.schedule.Monthly(java.util.Date.parse('yyyy-MM-dd HH:mm', '#{resource[:start_date]} #{resource[:start_time]}'), new HashSet(#{days_to_run}))"
       when :advanced
         "org.sonatype.nexus.scheduling.schedule.Cron(new java.util.Date(), '#{resource[:cron_expression]}')"

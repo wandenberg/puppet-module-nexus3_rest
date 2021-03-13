@@ -27,7 +27,7 @@ Puppet::Type.newtype(:nexus3_repository_group) do
     desc 'When repository is enabled or not to receive connections.'
     newvalues(:true, :false)
     defaultto :true
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:repositories, array_matching: :all) do
@@ -47,13 +47,13 @@ Puppet::Type.newtype(:nexus3_repository_group) do
 
   newproperty(:force_basic_auth) do
     desc 'Disable to allow anonymous pull (Note: also requires Docker Bearer Token Realm to be activated)'
-    defaultto do @resource[:provider_type] == :docker ? :true : nil end
+    defaultto { @resource[:provider_type] == :docker ? :true : nil }
     newvalues(:true, :false)
   end
 
   newproperty(:v1_enabled) do
     desc 'Allow clients to use the V1 API to interact with this Repository'
-    defaultto do @resource[:provider_type] == :docker ? :true : nil end
+    defaultto { @resource[:provider_type] == :docker ? :true : nil }
     newvalues(:true, :false)
   end
 
@@ -61,7 +61,7 @@ Puppet::Type.newtype(:nexus3_repository_group) do
     desc 'When should validate or not that all content uploaded to this repository is of a MIME type appropriate for the repository format.'
     newvalues(:true, :false)
     defaultto :true
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   validate do
@@ -73,6 +73,6 @@ Puppet::Type.newtype(:nexus3_repository_group) do
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

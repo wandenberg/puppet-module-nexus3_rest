@@ -10,7 +10,7 @@ Puppet::Type.type(:nexus3_ldap).provide(:ruby, parent: Puppet::Provider::Nexus3B
 
   mk_resource_methods
 
-  def id=(value)
+  def id=(_value)
     raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'id'
   end
 end

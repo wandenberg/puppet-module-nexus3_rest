@@ -19,10 +19,10 @@ Puppet::Type.newtype(:nexus3_anonymous_settings) do
     desc 'When Anonymous user can access the server or not.'
     newvalues(:true, :false)
     defaultto :false
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

@@ -32,19 +32,19 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'prefetch' do
-    it 'should not raise error if more than one resource of this type is configured' do
+    it 'not raise error if more than one resource of this type is configured' do
       allow(Nexus3::API).to receive(:execute_script).and_return('[]')
 
       expect {
-        described_class.prefetch({example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2'))})
+        described_class.prefetch({ example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2')) })
       }.not_to raise_error
     end
 
     describe 'found instance' do
-      before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return([{name: 'example1', format: 'all'}].to_json) }
+      before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return([{ name: 'example1', format: 'all' }].to_json) }
 
-      it 'should not set the format' do
-        resources = {example1: type_class.new(values.merge(name: 'example1'))}
+      it 'not set the format' do
+        resources = { example1: type_class.new(values.merge(name: 'example1')) }
         described_class.prefetch(resources)
         expect(resources[:example1].provider.notes).to eq('')
         expect(resources[:example1][:notes]).to be_truthy
@@ -54,8 +54,8 @@ describe type_class.provider(:ruby) do
     describe 'not found instance' do
       before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return('[]') }
 
-      it 'should not set the format' do
-        resources = {example1: type_class.new(values.merge(name: 'example1'))}
+      it 'not set the format' do
+        resources = { example1: type_class.new(values.merge(name: 'example1')) }
         described_class.prefetch(resources)
         expect(resources[:example1].provider.notes).to eq(:absent)
         expect(resources[:example1][:notes]).to be_truthy
@@ -111,7 +111,7 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'create' do
-    it 'should execute a script to create the instance' do
+    it 'execute a script to create the instance' do
       script = <<~EOS
         def policyStorage = container.lookup(org.sonatype.nexus.cleanup.storage.CleanupPolicyStorage.class.name)
 
@@ -119,6 +119,7 @@ describe type_class.provider(:ruby) do
         criteria.lastDownloaded = 2592000.toString()
 
         def policy = new org.sonatype.nexus.cleanup.storage.CleanupPolicy()
+
         policy.setCriteria(criteria)
         policy.setFormat(('all' == 'all' ? 'ALL_FORMATS' : 'all'))
         policy.setName('example')
@@ -131,14 +132,14 @@ describe type_class.provider(:ruby) do
       instance.create
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
-      expect { instance.create }.to raise_error(Puppet::Error, /Error while creating nexus3_cleanup_policy example/)
+      expect { instance.create }.to raise_error(Puppet::Error, %r{Error while creating nexus3_cleanup_policy example})
     end
   end
 
   describe 'flush' do
-    it 'should execute a script to update the instance' do
+    it 'execute a script to update the instance' do
       script = <<~EOS
         def policyStorage = container.lookup(org.sonatype.nexus.cleanup.storage.CleanupPolicyStorage.class.name)
 
@@ -159,10 +160,10 @@ describe type_class.provider(:ruby) do
       instance.flush
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
       instance.mark_config_dirty
-      expect { instance.flush }.to raise_error(Puppet::Error, /Error while updating nexus3_cleanup_policy example/)
+      expect { instance.flush }.to raise_error(Puppet::Error, %r{Error while updating nexus3_cleanup_policy example})
     end
 
     describe 'when some value has changed' do
@@ -173,7 +174,7 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'destroy' do
-    it 'should execute a script to destroy the instance' do
+    it 'execute a script to destroy the instance' do
       script = <<~EOS
         def policyStorage = container.lookup(org.sonatype.nexus.cleanup.storage.CleanupPolicyStorage.class.name)
         if (policyStorage.exists('example')) {
@@ -184,13 +185,13 @@ describe type_class.provider(:ruby) do
       instance.destroy
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
-      expect { instance.destroy }.to raise_error(Puppet::Error, /Error while deleting nexus3_cleanup_policy example/)
+      expect { instance.destroy }.to raise_error(Puppet::Error, %r{Error while deleting nexus3_cleanup_policy example})
     end
   end
 
-  it 'should return false if it is not existing' do
+  it 'return false if it is not existing' do
     # the dummy example isn't returned by self.instances
     expect(instance.exists?).to be_falsey
   end

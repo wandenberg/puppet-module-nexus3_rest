@@ -65,19 +65,19 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'prefetch' do
-    it 'should not raise error if more than one resource of this type is configured' do
+    it 'not raise error if more than one resource of this type is configured' do
       allow(Nexus3::API).to receive(:execute_script).and_return('[]')
 
       expect {
-        described_class.prefetch({example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2'))})
+        described_class.prefetch({ example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2')) })
       }.not_to raise_error
     end
 
     describe 'found instance' do
-      before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return([{name: 'example1', hostname: 'from_service'}].to_json) }
+      before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return([{ name: 'example1', hostname: 'from_service' }].to_json) }
 
-      it 'should not set the provider' do
-        resources = {example1: type_class.new(values.merge(name: 'example1'))}
+      it 'not set the provider' do
+        resources = { example1: type_class.new(values.merge(name: 'example1')) }
         described_class.prefetch(resources)
         expect(resources[:example1].provider.hostname).to eq('from_service')
         expect(resources[:example1][:hostname]).to eq('ldap.server.com')
@@ -87,8 +87,8 @@ describe type_class.provider(:ruby) do
     describe 'not found instance' do
       before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return('[]') }
 
-      it 'should not set the provider' do
-        resources = {example1: type_class.new(values.merge(name: 'example1'))}
+      it 'not set the provider' do
+        resources = { example1: type_class.new(values.merge(name: 'example1')) }
         described_class.prefetch(resources)
         expect(resources[:example1].provider.hostname).to eq(:absent)
         expect(resources[:example1][:hostname]).to eq('ldap.server.com')
@@ -101,7 +101,7 @@ describe type_class.provider(:ruby) do
       script = <<~EOS
         def ldapConfigurationManager = container.lookup(org.sonatype.nexus.ldap.persist.LdapConfigurationManager.class.name)
         def ldapConfigurations = ldapConfigurationManager.listLdapServerConfigurations()
-        
+
         def infos = ldapConfigurations.collect { ldapConfiguration ->
           def connection = ldapConfiguration.getConnection()
           def host = connection.getHost()
@@ -118,11 +118,11 @@ describe type_class.provider(:ruby) do
             connection_retry_delay: connection.getConnectionRetryDelay(),
             connection_timeout: connection.getConnectionTimeout(),
             sasl_realm: connection.getSaslRealm(),
-        
+
             authentication_scheme: connection.getAuthScheme(),
             username: connection.getSystemUsername(),
             password: connection.getSystemPassword(),
-        
+
             user_base_dn: mapping.getUserBaseDn(),
             user_email_attribute: mapping.getEmailAddressAttribute(),
             user_id_attribute: mapping.getUserIdAttribute(),
@@ -131,14 +131,14 @@ describe type_class.provider(:ruby) do
             user_real_name_attribute: mapping.getUserRealNameAttribute(),
             user_subtree: mapping.isUserSubtree(),
             user_member_of_attribute: mapping.getUserMemberOfAttribute(),
-        
+
             group_base_dn: mapping.getGroupBaseDn(),
             group_id_attribute: mapping.getGroupIdAttribute(),
             group_member_attribute: mapping.getGroupMemberAttribute(),
             group_member_format: mapping.getGroupMemberFormat(),
             group_object_class: mapping.getGroupObjectClass(),
             group_subtree: mapping.isGroupSubtree(),
-        
+
             ldap_filter: mapping.getLdapFilter(),
             ldap_groups_as_roles: mapping.isLdapGroupsAsRoles(),
           ]
@@ -221,14 +221,15 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'create' do
-    it 'should execute a script to create the instance' do
+    it 'execute a script to create the instance' do
       script = <<~EOS
         def ldapConfigurationManager = container.lookup(org.sonatype.nexus.ldap.persist.LdapConfigurationManager.class.name)
 
         def ldapConfiguration = new org.sonatype.nexus.ldap.persist.entity.LdapConfiguration()
+
         ldapConfiguration.setName('example')
         ldapConfiguration.setOrder(1)
-        
+
         def connection = new org.sonatype.nexus.ldap.persist.entity.Connection()
         connection.setSearchBase('sch_base')
         connection.setMaxIncidentsCount(5)
@@ -238,16 +239,16 @@ describe type_class.provider(:ruby) do
         connection.setAuthScheme('none')
         connection.setSystemUsername('username')
         connection.setSystemPassword('password')
-        
+
         ldapConfiguration.setConnection(connection)
-        
+
         def host = new org.sonatype.nexus.ldap.persist.entity.Connection.Host()
         host.setProtocol(org.sonatype.nexus.ldap.persist.entity.Connection.Protocol.ldap)
         host.setHostName('ldap.server.com')
         host.setPort(1234)
-        
+
         connection.setHost(host)
-        
+
         def mapping = new org.sonatype.nexus.ldap.persist.entity.Mapping()
         mapping.setUserBaseDn('user_base_dn')
         mapping.setEmailAddressAttribute('user_email_attribute')
@@ -265,29 +266,29 @@ describe type_class.provider(:ruby) do
         mapping.setGroupSubtree(false)
         mapping.setLdapFilter('ldap_filter')
         mapping.setLdapGroupsAsRoles(false)
-        
+
         ldapConfiguration.setMapping(mapping)
-        
+
         ldapConfigurationManager.addLdapServerConfiguration(ldapConfiguration)
       EOS
       expect(Nexus3::API).to receive(:execute_script).with(script)
       instance.create
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
-      expect { instance.create }.to raise_error(Puppet::Error, /Error while creating nexus3_ldap example/)
+      expect { instance.create }.to raise_error(Puppet::Error, %r{Error while creating nexus3_ldap example})
     end
   end
 
   describe 'flush' do
-    it 'should execute a script to update the instance' do
+    it 'execute a script to update the instance' do
       script = <<~EOS
         def ldapConfigurationManager = container.lookup(org.sonatype.nexus.ldap.persist.LdapConfigurationManager.class.name)
 
         def ldapConfiguration = ldapConfigurationManager.getLdapServerConfiguration('internal_id')
         ldapConfiguration.setOrder(1)
-        
+
         def connection = ldapConfiguration.getConnection()
         connection.setSearchBase('sch_base')
         connection.setMaxIncidentsCount(5)
@@ -297,12 +298,12 @@ describe type_class.provider(:ruby) do
         connection.setAuthScheme('none')
         connection.setSystemUsername('username')
         connection.setSystemPassword('password')
-        
+
         def host = connection.getHost()
         host.setProtocol(org.sonatype.nexus.ldap.persist.entity.Connection.Protocol.ldap)
         host.setHostName('ldap.server.com')
         host.setPort(1234)
-        
+
         def mapping = ldapConfiguration.getMapping()
         mapping.setUserBaseDn('user_base_dn')
         mapping.setEmailAddressAttribute('user_email_attribute')
@@ -320,7 +321,7 @@ describe type_class.provider(:ruby) do
         mapping.setGroupSubtree(false)
         mapping.setLdapFilter('ldap_filter')
         mapping.setLdapGroupsAsRoles(false)
-        
+
         ldapConfigurationManager.updateLdapServerConfiguration(ldapConfiguration)
       EOS
       expect(Nexus3::API).to receive(:execute_script).with(script)
@@ -328,14 +329,14 @@ describe type_class.provider(:ruby) do
       instance.flush
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
       instance.mark_config_dirty
-      expect { instance.flush }.to raise_error(Puppet::Error, /Error while updating nexus3_ldap example/)
+      expect { instance.flush }.to raise_error(Puppet::Error, %r{Error while updating nexus3_ldap example})
     end
 
-    it 'should not allow changes on id' do
-      expect { instance.id = 'other_id' }.to raise_error(Puppet::Error, /id is write-once only and cannot be changed./)
+    it 'not allow changes on id' do
+      expect { instance.id = 'other_id' }.to raise_error(Puppet::Error, %r{id is write-once only and cannot be changed.})
     end
 
     describe 'when some value has changed' do
@@ -346,7 +347,7 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'destroy' do
-    it 'should execute a script to destroy the instance' do
+    it 'execute a script to destroy the instance' do
       script = <<~EOS
         def ldapConfigurationManager = container.lookup(org.sonatype.nexus.ldap.persist.LdapConfigurationManager.class.name)
         ldapConfigurationManager.deleteLdapServerConfiguration('internal_id')
@@ -355,13 +356,13 @@ describe type_class.provider(:ruby) do
       instance.destroy
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
-      expect { instance.destroy }.to raise_error(Puppet::Error, /Error while deleting nexus3_ldap example/)
+      expect { instance.destroy }.to raise_error(Puppet::Error, %r{Error while deleting nexus3_ldap example})
     end
   end
 
-  it 'should return false if it is not existing' do
+  it 'return false if it is not existing' do
     # the dummy example isn't returned by self.instances
     expect(instance.exists?).to be_falsey
   end

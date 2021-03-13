@@ -43,7 +43,7 @@ describe type_class.provider(:ruby) do
 
   let(:resource_values) do
     resource_values = values.merge(name: 'example').merge(resource_extra_attributes)
-    resource_values.reject! {|k, v| remove_values.include?(k) } unless remove_values.empty?
+    resource_values.reject! { |k, _v| remove_values.include?(k) } unless remove_values.empty?
     resource_values
   end
 
@@ -66,19 +66,19 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'prefetch' do
-    it 'should not raise error if more than one resource of this type is configured' do
+    it 'not raise error if more than one resource of this type is configured' do
       allow(Nexus3::API).to receive(:execute_script).and_return('[]')
 
       expect {
-        described_class.prefetch({example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2'))})
+        described_class.prefetch({ example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2')) })
       }.not_to raise_error
     end
 
     describe 'found instance' do
-      before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return([{name: 'example1', alert_email: 'from_service@server.com'}].to_json) }
+      before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return([{ name: 'example1', alert_email: 'from_service@server.com' }].to_json) }
 
-      it 'should not set the provider' do
-        resources = {example1: type_class.new(values.merge(name: 'example1'))}
+      it 'not set the provider' do
+        resources = { example1: type_class.new(values.merge(name: 'example1')) }
         described_class.prefetch(resources)
         expect(resources[:example1].provider.alert_email).to eq('from_service@server.com')
         expect(resources[:example1][:alert_email]).to eq('foo@server.com')
@@ -88,8 +88,8 @@ describe type_class.provider(:ruby) do
     describe 'not found instance' do
       before(:each) { allow(Nexus3::API).to receive(:execute_script).and_return('[]') }
 
-      it 'should not set the provider' do
-        resources = {example1: type_class.new(values.merge(name: 'example1'))}
+      it 'not set the provider' do
+        resources = { example1: type_class.new(values.merge(name: 'example1')) }
         described_class.prefetch(resources)
         expect(resources[:example1].provider.alert_email).to eq(:absent)
         expect(resources[:example1][:alert_email]).to eq('foo@server.com')
@@ -114,21 +114,21 @@ describe type_class.provider(:ruby) do
             alert_email: config.getAlertEmail(),
             frequency: schedule.getType(),
           ]
-        
+
           if ((schedule.getType() != 'manual') && (schedule.getType() != 'cron')) {
             info['start_date'] = schedule.getStartAt().format('yyyy-MM-dd')
             info['start_time'] = schedule.getStartAt().format('HH:mm')
           }
-        
+
           if (schedule.getType() == 'cron') {
             info['cron_expression'] = schedule.getCronExpression()
             info['frequency'] = 'advanced'
           }
-        
+
           if (schedule.getType() == 'weekly') {
             info['recurring_day'] = schedule.getDaysToRun().collect{ weekdays[it.name()] }.join(',')
           }
-        
+
           if (schedule.getType() == 'monthly') {
             info['recurring_day'] = schedule.getDaysToRun().collect{ it.isLastDayOfMonth() ? 'last' :  it.getDay() }.join(',')
           }
@@ -285,7 +285,7 @@ describe type_class.provider(:ruby) do
         { type: 'blobstore.compact' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('blobstore.compact')
@@ -306,7 +306,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.docker.upload-purge' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('repository.docker.upload-purge')
@@ -327,7 +327,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.maven.publish-dotindex' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('repository.maven.publish-dotindex')
@@ -348,7 +348,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.maven.purge-unused-snapshots' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('repository.maven.purge-unused-snapshots')
@@ -370,7 +370,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.maven.rebuild-metadata' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('repository.maven.rebuild-metadata')
@@ -395,7 +395,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.maven.remove-snapshots' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('repository.maven.remove-snapshots')
@@ -420,7 +420,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.maven.unpublish-dotindex' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('repository.maven.unpublish-dotindex')
@@ -441,7 +441,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.purge-unused' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('repository.purge-unused')
@@ -463,7 +463,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.rebuild-index' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('repository.rebuild-index')
@@ -484,7 +484,7 @@ describe type_class.provider(:ruby) do
         { type: 'script' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('script')
@@ -506,7 +506,7 @@ describe type_class.provider(:ruby) do
         { type: 'security.purge-api-keys' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('security.purge-api-keys')
@@ -526,7 +526,7 @@ describe type_class.provider(:ruby) do
         { type: 'db.backup' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('db.backup')
@@ -551,7 +551,7 @@ describe type_class.provider(:ruby) do
         [:cron_expression, :recurring_day, :start_date, :start_time]
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('script')
@@ -577,7 +577,7 @@ describe type_class.provider(:ruby) do
         [:cron_expression, :recurring_day]
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('script')
@@ -603,7 +603,7 @@ describe type_class.provider(:ruby) do
         [:cron_expression, :recurring_day]
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('script')
@@ -629,7 +629,7 @@ describe type_class.provider(:ruby) do
         [:cron_expression, :recurring_day]
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('script')
@@ -648,14 +648,14 @@ describe type_class.provider(:ruby) do
 
     describe 'for frequency weekly' do
       let(:resource_extra_attributes) do
-        { type: 'script', frequency: 'weekly', recurring_day: %w(tuesday thursday sunday) }
+        { type: 'script', frequency: 'weekly', recurring_day: %w[tuesday thursday sunday] }
       end
 
       let(:remove_values) do
         [:cron_expression]
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('script')
@@ -674,14 +674,14 @@ describe type_class.provider(:ruby) do
 
     describe 'for frequency monthly' do
       let(:resource_extra_attributes) do
-        { type: 'script', frequency: 'monthly', recurring_day: %w(1 5 10 15 20 25 30 last) }
+        { type: 'script', frequency: 'monthly', recurring_day: %w[1 5 10 15 20 25 30 last] }
       end
 
       let(:remove_values) do
         [:cron_expression]
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('script')
@@ -707,7 +707,7 @@ describe type_class.provider(:ruby) do
         [:recurring_day, :start_date, :start_time]
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def config = taskScheduler.createTaskConfigurationInstance('script')
@@ -724,10 +724,9 @@ describe type_class.provider(:ruby) do
       end
     end
 
-
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
-      expect { instance.create }.to raise_error(Puppet::Error, /Error while creating nexus3_task example/)
+      expect { instance.create }.to raise_error(Puppet::Error, %r{Error while creating nexus3_task example})
     end
   end
 
@@ -737,7 +736,7 @@ describe type_class.provider(:ruby) do
         { type: 'blobstore.compact' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -759,7 +758,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.docker.upload-purge' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -781,7 +780,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.maven.publish-dotindex' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -803,7 +802,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.maven.purge-unused-snapshots' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -826,7 +825,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.maven.rebuild-metadata' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -852,7 +851,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.maven.remove-snapshots' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -878,7 +877,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.maven.unpublish-dotindex' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -900,7 +899,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.purge-unused' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -923,7 +922,7 @@ describe type_class.provider(:ruby) do
         { type: 'repository.rebuild-index' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -945,7 +944,7 @@ describe type_class.provider(:ruby) do
         { type: 'script' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -968,7 +967,7 @@ describe type_class.provider(:ruby) do
         { type: 'security.purge-api-keys' }
       end
 
-      it 'should execute a script to create the instance' do
+      it 'execute a script to create the instance' do
         script = <<~EOS
           def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
           def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -984,18 +983,18 @@ describe type_class.provider(:ruby) do
       end
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
       instance.mark_config_dirty
-      expect { instance.flush }.to raise_error(Puppet::Error, /Error while updating nexus3_task example/)
+      expect { instance.flush }.to raise_error(Puppet::Error, %r{Error while updating nexus3_task example})
     end
 
-    it 'should not allow changes on id' do
-      expect { instance.id = 'other_id' }.to raise_error(Puppet::Error, /id is write-once only and cannot be changed./)
+    it 'not allow changes on id' do
+      expect { instance.id = 'other_id' }.to raise_error(Puppet::Error, %r{id is write-once only and cannot be changed.})
     end
 
-    it 'should not allow changes on type' do
-      expect { instance.type = 'blobstore.compact' }.to raise_error(Puppet::Error, /type is write-once only and cannot be changed./)
+    it 'not allow changes on type' do
+      expect { instance.type = 'blobstore.compact' }.to raise_error(Puppet::Error, %r{type is write-once only and cannot be changed.})
     end
 
     describe 'when some value has changed' do
@@ -1006,7 +1005,7 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'destroy' do
-    it 'should execute a script to destroy the instance' do
+    it 'execute a script to destroy the instance' do
       script = <<~EOS
         def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
         def taskInfo = taskScheduler.getTaskById('internal_id')
@@ -1016,13 +1015,13 @@ describe type_class.provider(:ruby) do
       instance.destroy
     end
 
-    it 'should raise a human readable error message if the operation failed' do
+    it 'raise a human readable error message if the operation failed' do
       allow(Nexus3::API).to receive(:execute_script).and_raise('Operation failed')
-      expect { instance.destroy }.to raise_error(Puppet::Error, /Error while deleting nexus3_task example/)
+      expect { instance.destroy }.to raise_error(Puppet::Error, %r{Error while deleting nexus3_task example})
     end
   end
 
-  it 'should return false if it is not existing' do
+  it 'return false if it is not existing' do
     # the dummy example isn't returned by self.instances
     expect(instance.exists?).to be_falsey
   end

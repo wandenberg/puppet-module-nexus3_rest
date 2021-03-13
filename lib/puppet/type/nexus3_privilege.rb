@@ -46,6 +46,6 @@ Puppet::Type.newtype(:nexus3_privilege) do
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

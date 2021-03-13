@@ -7,9 +7,9 @@ describe type_class.provider(:ruby) do
 
   let(:values) do
     {
-        enabled: true,
-        username: 'user',
-        realm: 'LDAPRealm',
+      enabled: true,
+      username: 'user',
+      realm: 'LDAPRealm',
     }
   end
 
@@ -30,24 +30,24 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'prefetch' do
-    it 'should raise error if more than one resource of this type is configured' do
+    it 'raise error if more than one resource of this type is configured' do
       expect {
-        described_class.prefetch({example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2'))})
-      }.to raise_error(Puppet::Error, /There are more then 1 instance\(s\) of 'nexus3_anonymous_settings': example1, example2/)
+        described_class.prefetch({ example1: type_class.new(values.merge(name: 'example1')), example2: type_class.new(values.merge(name: 'example2')) })
+      }.to raise_error(Puppet::Error, %r{There are more then 1 instance\(s\) of 'nexus3_anonymous_settings': example1, example2})
     end
 
-    it 'should not raise error if just one resource of this type is configured' do
+    it 'not raise error if just one resource of this type is configured' do
       expect(Nexus3::API).to receive(:execute_script).and_return(values.to_json)
 
       expect {
-        described_class.prefetch({example1: type_class.new(values.merge(name: 'example1'))})
+        described_class.prefetch({ example1: type_class.new(values.merge(name: 'example1')) })
       }.not_to raise_error
     end
 
-    it 'should set the provider no matter if the names matches' do
+    it 'set the provider no matter if the names matches' do
       expect(Nexus3::API).to receive(:execute_script).and_return('{"name": "example2", "username": "from_service" }')
 
-      resources = {example1: type_class.new(values.merge(name: 'example1'))}
+      resources = { example1: type_class.new(values.merge(name: 'example1')) }
       described_class.prefetch(resources)
       expect(resources[:example1].provider.username).to eq('from_service')
       expect(resources[:example1][:username]).to eq 'user'
@@ -89,7 +89,7 @@ describe type_class.provider(:ruby) do
   end
 
   describe 'flush' do
-    it 'should execute a script to update the changes' do
+    it 'execute a script to update the changes' do
       script = <<~EOS
         def anonymousManager = container.lookup(org.sonatype.nexus.security.anonymous.AnonymousManager.class.name)
         def config = anonymousManager.getConfiguration()

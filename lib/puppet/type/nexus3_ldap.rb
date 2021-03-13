@@ -27,7 +27,7 @@ Puppet::Type.newtype(:nexus3_ldap) do
   newproperty(:hostname) do
     desc 'The host name of the LDAP server.'
     validate do |value|
-      raise ArgumentError, "Hostname must not be empty" if value.nil? or value.to_s.empty?
+      raise ArgumentError, 'Hostname must not be empty' if value.nil? || value.to_s.empty?
     end
   end
 
@@ -35,8 +35,8 @@ Puppet::Type.newtype(:nexus3_ldap) do
     desc 'The port number the LDAP server is listening on. Must be within 1 and 65535.'
     defaultto 389
     validate do |value|
-      raise ArgumentError, "Port must be a non-negative integer, got #{value}" unless value.to_s =~ /\d+/
-      raise ArgumentError, "Port must within [1, 65535], got #{value}" unless (1..65535).include?(value.to_i)
+      raise ArgumentError, "Port must be a non-negative integer, got #{value}" unless %r{\d+}.match?(value.to_s)
+      raise ArgumentError, "Port must within [1, 65535], got #{value}" unless (1..65_535).cover?(value.to_i)
     end
     munge { |value| Integer(value) }
   end
@@ -44,7 +44,7 @@ Puppet::Type.newtype(:nexus3_ldap) do
   newproperty(:search_base) do
     desc 'The LDAP search base to use.'
     validate do |value|
-      raise ArgumentError, "search_base must not be empty" if value.nil? or value.to_s.empty?
+      raise ArgumentError, 'search_base must not be empty' if value.nil? || value.to_s.empty?
     end
   end
 
@@ -92,7 +92,7 @@ Puppet::Type.newtype(:nexus3_ldap) do
     desc 'Set to true if users are in a subtree under the user base DN.'
     newvalues(:true, :false)
     defaultto :false
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:user_object_class) do
@@ -127,7 +127,7 @@ Puppet::Type.newtype(:nexus3_ldap) do
     desc 'Set to true if Nexus should map LDAP groups to roles.'
     newvalues(:true, :false)
     defaultto :true
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   # Group type
@@ -140,7 +140,7 @@ Puppet::Type.newtype(:nexus3_ldap) do
     desc 'Set to true if groups are in a subtree under the group base DN.'
     newvalues(:true, :false)
     defaultto :false
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:group_object_class) do
@@ -164,16 +164,16 @@ Puppet::Type.newtype(:nexus3_ldap) do
       raise ArgumentError, 'hostname must be provided' if self[:hostname].to_s.empty?
       raise ArgumentError, 'search_base must be provided' if self[:search_base].to_s.empty?
       if self[:ldap_groups_as_roles] == :true
-        raise ArgumentError, 'group_base_dn must not be empty when using ldap_groups_as_roles' if self[:group_base_dn].nil? or self[:group_base_dn].to_s.empty?
-        raise ArgumentError, 'group_object_class must not be empty when using ldap_groups_as_roles' if self[:group_object_class].nil? or self[:group_object_class].to_s.empty?
-        raise ArgumentError, 'group_id_attribute must not be empty when using ldap_groups_as_roles' if self[:group_id_attribute].nil? or self[:group_id_attribute].to_s.empty?
-        raise ArgumentError, 'group_member_attribute must not be empty when using ldap_groups_as_roles' if self[:group_member_attribute].nil? or self[:group_member_attribute].to_s.empty?
-        raise ArgumentError, 'group_member_format must not be empty when using ldap_groups_as_roles' if self[:group_member_format].nil? or self[:group_member_format].to_s.empty?
+        raise ArgumentError, 'group_base_dn must not be empty when using ldap_groups_as_roles' if self[:group_base_dn].nil? || self[:group_base_dn].to_s.empty?
+        raise ArgumentError, 'group_object_class must not be empty when using ldap_groups_as_roles' if self[:group_object_class].nil? || self[:group_object_class].to_s.empty?
+        raise ArgumentError, 'group_id_attribute must not be empty when using ldap_groups_as_roles' if self[:group_id_attribute].nil? || self[:group_id_attribute].to_s.empty?
+        raise ArgumentError, 'group_member_attribute must not be empty when using ldap_groups_as_roles' if self[:group_member_attribute].nil? || self[:group_member_attribute].to_s.empty?
+        raise ArgumentError, 'group_member_format must not be empty when using ldap_groups_as_roles' if self[:group_member_format].nil? || self[:group_member_format].to_s.empty?
       end
     end
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

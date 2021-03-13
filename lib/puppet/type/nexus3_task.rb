@@ -19,7 +19,7 @@ Puppet::Type.newtype(:nexus3_task) do
     desc 'Enable or disable the scheduled task.'
     newvalues(:true, :false)
     defaultto :true
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:type) do
@@ -35,9 +35,9 @@ Puppet::Type.newtype(:nexus3_task) do
     defaultto :absent
     validate do |value|
       raise ArgumentError, 'Alert email must not be empty' if value.to_s.empty?
-      raise ArgumentError, "Alert email must be a valid email address, got '#{value}'." unless value =~ /@/ || value.intern == :absent
+      raise ArgumentError, "Alert email must be a valid email address, got '#{value}'." unless value =~ %r{@} || value.to_sym == :absent
     end
-    munge { |value| value.intern == :absent ? value.intern : value }
+    munge { |value| value.to_sym == :absent ? value.to_sym : value }
   end
 
   Nexus3::Task::FIELDS.each do |field|
@@ -66,7 +66,7 @@ Puppet::Type.newtype(:nexus3_task) do
       `manual` or `advanced`.'
     validate do |value|
       raise ArgumentError, 'Start date must not be empty' if value.to_s.empty?
-      raise ArgumentError, "Start date must match YYYY-MM-DD, got '#{value}'" unless value.to_s =~ /^\d{4}-\d{2}-\d{2}$/
+      raise ArgumentError, "Start date must match YYYY-MM-DD, got '#{value}'" unless %r{^\d{4}-\d{2}-\d{2}$}.match?(value.to_s)
     end
   end
 
@@ -74,7 +74,7 @@ Puppet::Type.newtype(:nexus3_task) do
     desc 'The start time in `hh:mm` the task should run (according to the timezone of the service). Mandatory unless `frequency` is
       `manual` or `advanced`.'
     validate do |value|
-      raise ArgumentError, "Start time must match the following format: <hh::mm>, got '#{value}'" unless value.to_s =~ /^\d\d?:\d\d$/
+      raise ArgumentError, "Start time must match the following format: <hh::mm>, got '#{value}'" unless %r{^\d\d?:\d\d$}.match?(value.to_s)
     end
   end
 
@@ -84,7 +84,7 @@ Puppet::Type.newtype(:nexus3_task) do
       are valid (1, 2, 3, 4, ... 29, 30, 31 and `last`).'
     validate do |value|
       raise ArgumentError, 'Reccuring day must not be empty' if value.to_s.empty?
-      raise ArgumentError, 'Multiple reccuring days must be provided as an array, not a comma-separated list.' if value.to_s.include?(',')
+      raise ArgumentError, 'Multiple recurring days must be provided as an array, not a comma-separated list.' if value.to_s.include?(',')
     end
     munge do |value|
       munged_value = super(value)
@@ -100,22 +100,22 @@ Puppet::Type.newtype(:nexus3_task) do
       raise ArgumentError, 'type must be provided' if self[:type].nil?
 
       case self[:frequency]
-        when :manual
-          reject_specified_properties([:cron_expression, :recurring_day, :start_date, :start_time])
-        when :once, :hourly, :daily
-          reject_specified_properties([:cron_expression, :recurring_day])
-          ensure_specified_properties([:start_date, :start_time])
-        when :weekly
-          reject_specified_properties([:cron_expression])
-          ensure_specified_properties([:start_date, :start_time, :recurring_day])
-          ensure_recurring_day_in(%w(monday tuesday wednesday thursday friday saturday sunday))
-        when :monthly
-          reject_specified_properties([:cron_expression])
-          ensure_specified_properties([:start_date, :start_time, :recurring_day])
-          ensure_recurring_day_in([('1'..'31').to_a, 'last'].flatten)
-        when :advanced
-          reject_specified_properties([:start_date, :start_time, :recurring_day])
-          ensure_specified_properties([:cron_expression])
+      when :manual
+        reject_specified_properties([:cron_expression, :recurring_day, :start_date, :start_time])
+      when :once, :hourly, :daily
+        reject_specified_properties([:cron_expression, :recurring_day])
+        ensure_specified_properties([:start_date, :start_time])
+      when :weekly
+        reject_specified_properties([:cron_expression])
+        ensure_specified_properties([:start_date, :start_time, :recurring_day])
+        ensure_recurring_day_in(%w[monday tuesday wednesday thursday friday saturday sunday])
+      when :monthly
+        reject_specified_properties([:cron_expression])
+        ensure_specified_properties([:start_date, :start_time, :recurring_day])
+        ensure_recurring_day_in([('1'..'31').to_a, 'last'].flatten)
+      when :advanced
+        reject_specified_properties([:start_date, :start_time, :recurring_day])
+        ensure_specified_properties([:cron_expression])
       end
     end
   end
@@ -123,14 +123,14 @@ Puppet::Type.newtype(:nexus3_task) do
   # Ensure none of the listed properties is specified (the properties references a value).
   #
   def reject_specified_properties(properties)
-    rejected_properties = properties.collect { |property| property unless self[property].nil? }.compact
+    rejected_properties = properties.map { |property| property unless self[property].nil? }.compact
     raise ArgumentError, "#{rejected_properties.join(' and ')} not allowed when frequency is set to '#{self[:frequency]}'" unless rejected_properties.empty?
   end
 
   # Ensure all listed properties have non-empty values set.
   #
   def ensure_specified_properties(properties)
-    missing_fields = properties.collect { |property| property if self[property].to_s.empty? }.compact
+    missing_fields = properties.map { |property| property if self[property].to_s.empty? }.compact
     raise ArgumentError, "Setting frequency to '#{self[:frequency]}' requires #{missing_fields.join(' and ')} to be set as well" unless missing_fields.empty?
   end
 
@@ -150,6 +150,6 @@ Puppet::Type.newtype(:nexus3_task) do
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

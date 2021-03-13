@@ -1,4 +1,5 @@
 module Nexus3
+  # Class to wrap Nexus3 task's fields definition
   class TaskField
     include Comparable
 
@@ -11,24 +12,24 @@ module Nexus3
       @getter = "get#{type.capitalize}"
       @setter = "set#{type.capitalize}"
       @full_getter = case type
-                       when 'string'
-                         "get#{type.capitalize}('#{@key_name}')"
-                       when 'integer'
-                         "get#{type.capitalize}('#{@key_name}', 0)"
-                       when 'boolean'
-                         "get#{type.capitalize}('#{@key_name}', false)"
+                     when 'string'
+                       "get#{type.capitalize}('#{@key_name}')"
+                     when 'integer'
+                       "get#{type.capitalize}('#{@key_name}', 0)"
+                     when 'boolean'
+                       "get#{type.capitalize}('#{@key_name}', false)"
                      end
     end
 
     def get_value_to_setter(resource)
       value = resource[@key.to_sym]
       case @type
-        when 'string'
-          "'#{value}'"
-        when 'integer'
-          value.to_i
-        when 'boolean'
-          value.to_s == 'true'
+      when 'string'
+        "'#{value}'"
+      when 'integer'
+        value.to_i
+      when 'boolean'
+        value.to_s == 'true'
       end
     end
 
@@ -37,13 +38,13 @@ module Nexus3
     end
 
     def eql?(other)
-      self.hash == other.hash
+      hash == other.hash
     end
 
     def <=>(other)
       return -1 if other.nil? || !other.is_a?(Nexus3::TaskField)
 
-      id = "#{self.key}-#{self.type}"
+      id = "#{key}-#{type}"
       other_id = "#{other.key}-#{other.type}"
 
       if id < other_id
@@ -58,7 +59,7 @@ module Nexus3
     private
 
     def convert_to_task_key_name(value)
-      value.split('_').each_with_index.map{ |word,index| index == 0 ? word : word.capitalize }.join
+      value.split('_').each_with_index.map { |word, index| index == 0 ? word : word.capitalize }.join
     end
   end
 end

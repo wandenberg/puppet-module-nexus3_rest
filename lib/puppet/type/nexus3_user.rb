@@ -31,7 +31,7 @@ Puppet::Type.newtype(:nexus3_user) do
     desc 'The email of the user.'
     validate do |value|
       raise ArgumentError, 'Email must not be empty' if value.nil? || value.to_s.empty?
-      raise ArgumentError, "Invalid email address '#{value}'." if value !~ /@/
+      raise ArgumentError, "Invalid email address '#{value}'." unless %r{@}.match?(value.to_s)
     end
   end
 
@@ -39,7 +39,7 @@ Puppet::Type.newtype(:nexus3_user) do
     desc 'When user is read only or not.'
     newvalues(:true, :false)
     defaultto :false
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:status) do
@@ -65,6 +65,6 @@ Puppet::Type.newtype(:nexus3_user) do
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

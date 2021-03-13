@@ -6,6 +6,7 @@ require File.join(File.dirname(__FILE__), 'config')
 require File.join(File.dirname(__FILE__), 'service')
 
 module Nexus3
+  # Class that wraps the calls to Nexus3 Script API
   class API
     def self.execute_script(script)
       command_name = upload_script(script)
@@ -24,7 +25,7 @@ module Nexus3
       data = {
         'name' => command_name,
         'type' => 'groovy',
-        'content' =>  script
+        'content' => script
       }
 
       service.client.request(Net::HTTP::Post, '', 'application/json', data.to_json, username, password) do |response|
@@ -67,8 +68,6 @@ module Nexus3
       end
     end
 
-    private
-
     def self.service
       @service ||= init_service
     end
@@ -82,17 +81,19 @@ module Nexus3
     end
 
     def self.version
-      @version ||= begin
-        result = execute_script("!!container.lookup(org.sonatype.nexus.blobstore.api.BlobStoreManager.class.name).metaClass.getMetaMethod('newConfiguration')")
-        return '< 3.20' unless result == 'true'
+      @version ||= nexus3_server_version
+    end
 
-        result = execute_script("!!repository.repositoryManager.metaClass.getMetaMethod('newConfiguration')")
-        return '< 3.21' unless result == 'true'
+    def self.nexus3_server_version
+      result = execute_script("!!container.lookup(org.sonatype.nexus.blobstore.api.BlobStoreManager.class.name).metaClass.getMetaMethod('newConfiguration')")
+      return '< 3.20' unless result == 'true'
 
-        '>= 3.21'
-      rescue
-        '< 3.20'
-      end
+      result = execute_script("!!repository.repositoryManager.metaClass.getMetaMethod('newConfiguration')")
+      return '< 3.21' unless result == 'true'
+
+      '>= 3.21'
+    rescue
+      '< 3.20'
     end
   end
 end

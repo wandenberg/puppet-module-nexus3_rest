@@ -8,22 +8,23 @@ Puppet::Type.type(:nexus3_repository).provide(:ruby, parent: Puppet::Provider::N
     read_only: 'DENY',
     allow_write_once: 'ALLOW_ONCE',
     allow_write: 'ALLOW'
-  }
+  }.freeze
 
   DOCKER_PROXY_INDEX_TYPE = {
     registry: 'REGISTRY',
     hub: 'HUB',
     custom: 'CUSTOM'
-  }
+  }.freeze
 
   def self.templates_folder
     File.join(File.dirname(__FILE__), 'templates')
   end
 
   def destroy
-    raise "The current configuration prevents the deletion of nexus_repository #{resource[:name]}; If this change is" +
-              " intended, please update the configuration file (#{Nexus3::Config.file_path}) in order to perform this change." \
-      unless Nexus3::Config.can_delete_repositories
+    unless Nexus3::Config.can_delete_repositories
+      raise "The current configuration prevents the deletion of nexus_repository #{resource[:name]}; " \
+            "If this change is intended, please update the configuration file (#{Nexus3::Config.file_path}) in order to perform this change."
+    end
 
     super
   end
@@ -37,26 +38,25 @@ Puppet::Type.type(:nexus3_repository).provide(:ruby, parent: Puppet::Provider::N
 
   mk_resource_methods
 
-  def type=(value)
+  def type=(_value)
     raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'type'
   end
 
-  def provider_type=(value)
+  def provider_type=(_value)
     raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'provider_type'
   end
 
-  def version_policy=(value)
+  def version_policy=(_value)
     raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'version_policy'
   end
 
-  def blobstore_name=(value)
+  def blobstore_name=(_value)
     raise Puppet::Error, Puppet::Provider::Nexus3Base::WRITE_ONCE_ERROR_MESSAGE % 'blobstore_name'
   end
 
   def write_policy=(value)
-    if resource[:type] == :hosted
-      mark_config_dirty if @property_hash[:write_policy] != value
-      @property_hash[:write_policy] = value
-    end
+    return unless resource[:type] == :hosted
+    mark_config_dirty if @property_hash[:write_policy] != value
+    @property_hash[:write_policy] = value
   end
 end

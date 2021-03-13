@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe Puppet::Type.type(:nexus3_repository) do
-  subject { Puppet::Type.type(:nexus3_repository) }
-
   let(:required_values) do
     {
       name: 'default',
@@ -10,9 +8,9 @@ describe Puppet::Type.type(:nexus3_repository) do
       type: :proxy
     }
   end
-  
+
   describe 'by default' do
-    let(:instance) { subject.new(required_values) }
+    let(:instance) { described_class.new(required_values) }
 
     it { expect(instance[:blobstore_name]).to eq('default') }
     it { expect(instance[:cleanup_policies]).to eq [] }
@@ -32,7 +30,7 @@ describe Puppet::Type.type(:nexus3_repository) do
   end
 
   describe 'for Maven2' do
-    let(:group) { subject.new(required_values.merge(provider_type: :maven2)) }
+    let(:group) { described_class.new(required_values.merge(provider_type: :maven2)) }
 
     it { expect(group[:version_policy]).to eq(:release) }
     it { expect(group[:layout_policy]).to eq(:strict) }
@@ -40,167 +38,167 @@ describe Puppet::Type.type(:nexus3_repository) do
   end
 
   describe 'for hosted' do
-    let(:group) { subject.new(required_values.merge(type: :hosted)) }
+    let(:group) { described_class.new(required_values.merge(type: :hosted)) }
 
     it { expect(group[:write_policy]).to eq(:allow_write_once) }
   end
 
-  it 'should validate type' do
+  it 'validate type' do
     expect {
-      subject.new(required_values.merge(type: 'invalid'))
-    }.to raise_error(Puppet::Error, /Invalid value "invalid"/)
+      described_class.new(required_values.merge(type: 'invalid'))
+    }.to raise_error(Puppet::Error, %r{Invalid value "invalid"})
   end
 
-  it 'should validate provider_type' do
+  it 'validate provider_type' do
     expect {
-      subject.new(required_values.merge(provider_type: 'invalid'))
-    }.to raise_error(Puppet::Error, /Invalid value "invalid"/)
+      described_class.new(required_values.merge(provider_type: 'invalid'))
+    }.to raise_error(Puppet::Error, %r{Invalid value "invalid"})
   end
 
-  it 'should accept Maven2 repository' do
-    subject.new(required_values.merge(provider_type: :maven2))
+  it 'accept Maven2 repository' do
+    described_class.new(required_values.merge(provider_type: :maven2))
   end
 
-  it 'should validate version_policy' do
+  it 'validate version_policy' do
     expect {
-      subject.new(required_values.merge(version_policy: 'invalid'))
-    }.to raise_error(Puppet::Error, /Invalid value "invalid"/)
+      described_class.new(required_values.merge(version_policy: 'invalid'))
+    }.to raise_error(Puppet::Error, %r{Invalid value "invalid"})
   end
 
-  it 'should validate layout_policy' do
+  it 'validate layout_policy' do
     expect {
-      subject.new(required_values.merge(layout_policy: 'invalid'))
-    }.to raise_error(Puppet::Error, /Invalid value "invalid"/)
+      described_class.new(required_values.merge(layout_policy: 'invalid'))
+    }.to raise_error(Puppet::Error, %r{Invalid value "invalid"})
   end
 
-  it 'should validate write_policy' do
+  it 'validate write_policy' do
     expect {
-      subject.new(required_values.merge(write_policy: 'invalid'))
-    }.to raise_error(Puppet::Error, /Invalid value "invalid"/)
+      described_class.new(required_values.merge(write_policy: 'invalid'))
+    }.to raise_error(Puppet::Error, %r{Invalid value "invalid"})
   end
 
-  it 'should validate remote_auth_type' do
+  it 'validate remote_auth_type' do
     expect {
-      subject.new(required_values.merge(remote_auth_type: 'invalid'))
-    }.to raise_error(Puppet::Error, /Invalid value "invalid"/)
+      described_class.new(required_values.merge(remote_auth_type: 'invalid'))
+    }.to raise_error(Puppet::Error, %r{Invalid value "invalid"})
   end
 
-  describe :online do
+  describe 'online' do
     specify 'should default to true' do
-      expect(subject.new(required_values)[:online]).to be :true
+      expect(described_class.new(required_values)[:online]).to be :true
     end
 
     specify 'should accept :true' do
-      expect { subject.new(required_values.merge(online: :true)) }.to_not raise_error
-      expect(subject.new(required_values.merge(online: :true))[:online]).to be :true
+      expect { described_class.new(required_values.merge(online: :true)) }.not_to raise_error
+      expect(described_class.new(required_values.merge(online: :true))[:online]).to be :true
     end
 
     specify 'should accept "true"' do
-      expect { subject.new(required_values.merge(online: 'true')) }.to_not raise_error
-      expect(subject.new(required_values.merge(online: 'true'))[:online]).to be :true
+      expect { described_class.new(required_values.merge(online: 'true')) }.not_to raise_error
+      expect(described_class.new(required_values.merge(online: 'true'))[:online]).to be :true
     end
 
     specify 'should accept :false' do
-      expect { subject.new(required_values.merge(online: :false)) }.to_not raise_error
-      expect(subject.new(required_values.merge(online: :false))[:online]).to be :false
+      expect { described_class.new(required_values.merge(online: :false)) }.not_to raise_error
+      expect(described_class.new(required_values.merge(online: :false))[:online]).to be :false
     end
 
     specify 'should accept "false"' do
-      expect { subject.new(required_values.merge(online: 'false')) }.to_not raise_error
-      expect(subject.new(required_values.merge(online: 'false'))[:online]).to be :false
+      expect { described_class.new(required_values.merge(online: 'false')) }.not_to raise_error
+      expect(described_class.new(required_values.merge(online: 'false'))[:online]).to be :false
     end
   end
 
-  describe :blocked do
+  describe 'blocked' do
     specify 'should default to false' do
-      expect(subject.new(required_values)[:blocked]).to be :false
+      expect(described_class.new(required_values)[:blocked]).to be :false
     end
 
     specify 'should accept :true' do
-      expect { subject.new(required_values.merge(blocked: :true)) }.to_not raise_error
-      expect(subject.new(required_values.merge(blocked: :true))[:blocked]).to be :true
+      expect { described_class.new(required_values.merge(blocked: :true)) }.not_to raise_error
+      expect(described_class.new(required_values.merge(blocked: :true))[:blocked]).to be :true
     end
 
     specify 'should accept "true"' do
-      expect { subject.new(required_values.merge(blocked: 'true')) }.to_not raise_error
-      expect(subject.new(required_values.merge(blocked: 'true'))[:blocked]).to be :true
+      expect { described_class.new(required_values.merge(blocked: 'true')) }.not_to raise_error
+      expect(described_class.new(required_values.merge(blocked: 'true'))[:blocked]).to be :true
     end
 
     specify 'should accept :false' do
-      expect { subject.new(required_values.merge(blocked: :false)) }.to_not raise_error
-      expect(subject.new(required_values.merge(blocked: :false))[:blocked]).to be :false
+      expect { described_class.new(required_values.merge(blocked: :false)) }.not_to raise_error
+      expect(described_class.new(required_values.merge(blocked: :false))[:blocked]).to be :false
     end
 
     specify 'should accept "false"' do
-      expect { subject.new(required_values.merge(blocked: 'false')) }.to_not raise_error
-      expect(subject.new(required_values.merge(blocked: 'false'))[:blocked]).to be :false
+      expect { described_class.new(required_values.merge(blocked: 'false')) }.not_to raise_error
+      expect(described_class.new(required_values.merge(blocked: 'false'))[:blocked]).to be :false
     end
   end
 
-  describe :strict_content_type_validation do
+  describe 'strict_content_type_validation' do
     specify 'should default to false' do
-      expect(subject.new(required_values)[:strict_content_type_validation]).to be :true
+      expect(described_class.new(required_values)[:strict_content_type_validation]).to be :true
     end
 
     specify 'should accept :true' do
-      expect { subject.new(required_values.merge(strict_content_type_validation: :true)) }.to_not raise_error
-      expect(subject.new(required_values.merge(strict_content_type_validation: :true))[:strict_content_type_validation]).to be :true
+      expect { described_class.new(required_values.merge(strict_content_type_validation: :true)) }.not_to raise_error
+      expect(described_class.new(required_values.merge(strict_content_type_validation: :true))[:strict_content_type_validation]).to be :true
     end
 
     specify 'should accept "true' do
-      expect { subject.new(required_values.merge(strict_content_type_validation: 'true')) }.to_not raise_error
-      expect(subject.new(required_values.merge(strict_content_type_validation: 'true'))[:strict_content_type_validation]).to be :true
+      expect { described_class.new(required_values.merge(strict_content_type_validation: 'true')) }.not_to raise_error
+      expect(described_class.new(required_values.merge(strict_content_type_validation: 'true'))[:strict_content_type_validation]).to be :true
     end
 
     specify 'should accept :false' do
-      expect { subject.new(required_values.merge(strict_content_type_validation: :false)) }.to_not raise_error
-      expect(subject.new(required_values.merge(strict_content_type_validation: :false))[:strict_content_type_validation]).to be :false
+      expect { described_class.new(required_values.merge(strict_content_type_validation: :false)) }.not_to raise_error
+      expect(described_class.new(required_values.merge(strict_content_type_validation: :false))[:strict_content_type_validation]).to be :false
     end
 
     specify 'should accept "false"' do
-      expect { subject.new(required_values.merge(strict_content_type_validation: 'false')) }.to_not raise_error
-      expect(subject.new(required_values.merge(strict_content_type_validation: 'false'))[:strict_content_type_validation]).to be :false
+      expect { described_class.new(required_values.merge(strict_content_type_validation: 'false')) }.not_to raise_error
+      expect(described_class.new(required_values.merge(strict_content_type_validation: 'false'))[:strict_content_type_validation]).to be :false
     end
   end
 
-  describe :provider_type do
+  describe 'provider_type' do
     specify 'should accept a valid provider_type' do
-      expect { subject.new(required_values.merge(provider_type: 'docker')) }.to_not raise_error
+      expect { described_class.new(required_values.merge(provider_type: 'docker')) }.not_to raise_error
     end
 
     specify 'should not have default value for provider_type' do
       expect {
         required_values.delete(:provider_type)
-        subject.new(required_values)
-      }.to raise_error(Puppet::ResourceError, /provider_type must be provided/)
+        described_class.new(required_values)
+      }.to raise_error(Puppet::ResourceError, %r{provider_type must be provided})
     end
 
     specify 'should not accept empty string' do
       expect {
-        subject.new(required_values.merge(provider_type: ''))
-      }.to raise_error(Puppet::ResourceError, /Parameter provider_type failed/)
+        described_class.new(required_values.merge(provider_type: ''))
+      }.to raise_error(Puppet::ResourceError, %r{Parameter provider_type failed})
     end
   end
 
-  describe :cleanup_policies do
+  describe 'cleanup_policies' do
     specify 'should accept a valid array of cleanup_policies' do
-      expect { subject.new(required_values.merge(cleanup_policies: ['policy-1', 'policy-2'])) }.to_not raise_error
+      expect { described_class.new(required_values.merge(cleanup_policies: %w[policy-1 policy-2])) }.not_to raise_error
     end
 
     specify 'should not accept empty string' do
       expect {
-        subject.new(required_values.merge(cleanup_policies: ''))
-      }.to raise_error(Puppet::ResourceError, /Parameter cleanup_policies failed/)
+        described_class.new(required_values.merge(cleanup_policies: ''))
+      }.to raise_error(Puppet::ResourceError, %r{Parameter cleanup_policies failed})
     end
 
     specify 'should not accept a string as array' do
       expect {
-        subject.new(required_values.merge(cleanup_policies: 'name1,name2'))
-      }.to raise_error(Puppet::ResourceError, /Parameter cleanup_policies failed/)
+        described_class.new(required_values.merge(cleanup_policies: 'name1,name2'))
+      }.to raise_error(Puppet::ResourceError, %r{Parameter cleanup_policies failed})
     end
   end
 
   describe 'when removing' do
-    it { expect { subject.new(name: 'any', ensure: :absent) }.to_not raise_error }
+    it { expect { described_class.new(name: 'any', ensure: :absent) }.not_to raise_error }
   end
 end

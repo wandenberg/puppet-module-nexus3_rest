@@ -21,7 +21,7 @@ Puppet::Type.newtype(:nexus3_blobstore) do
     desc 'Enable soft quota'
     newvalues(:true, :false)
     defaultto :false
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:quota_limit_bytes) do
@@ -32,7 +32,7 @@ Puppet::Type.newtype(:nexus3_blobstore) do
   newproperty(:quota_type) do
     desc 'The quota type of the blob store'
     newvalues(:spaceRemainingQuota, :spaceUsedQuota)
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:bucket) do
@@ -75,16 +75,16 @@ Puppet::Type.newtype(:nexus3_blobstore) do
   newproperty(:signertype) do
     desc 'Signer type on S3 store'
     newvalues(:DEFAULT, :S3SignerType, :AWSS3V4SignerType)
-    defaultto do @resource[:type] == 'S3' ? :DEFAULT : nil end
-    munge { |value| super(value).to_s.intern }
+    defaultto { @resource[:type] == 'S3' ? :DEFAULT : nil }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:forcepathstyle, parent: Puppet::Property::Boolean) do
-  desc 'Force path style on S3 store'
-  newvalues(:true, :false)
-  defaultto do @resource[:type] == 'S3' ? :false : nil end
-  munge { |value| super(value).to_s.intern }
-end
+    desc 'Force path style on S3 store'
+    newvalues(:true, :false)
+    defaultto { @resource[:type] == 'S3' ? :false : nil }
+    munge { |value| super(value).to_s.to_sym }
+  end
 
   validate do
     if self[:ensure] == :present
@@ -97,6 +97,6 @@ end
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

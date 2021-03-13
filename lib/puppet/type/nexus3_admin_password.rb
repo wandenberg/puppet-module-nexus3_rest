@@ -21,15 +21,15 @@ Puppet::Type.newtype(:nexus3_admin_password) do
 
   newproperty(:password) do
     desc 'The password of the user.'
-    def is_to_s(current_value)
+    def is_to_s(_current_value)
       '[old password]'
     end
 
-    def should_to_s(new_value)
+    def should_to_s(_new_value)
       '[new password]'
     end
-    
-    def change_to_s(current_value, new_value)
+
+    def change_to_s(_current_value, _new_value)
       '[check if the correct password is assigned]'
     end
 
@@ -43,6 +43,6 @@ Puppet::Type.newtype(:nexus3_admin_password) do
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

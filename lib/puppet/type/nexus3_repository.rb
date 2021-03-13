@@ -23,7 +23,7 @@ Puppet::Type.newtype(:nexus3_repository) do
     desc 'When repository is enabled or not to receive connections.'
     newvalues(:true, :false)
     defaultto :true
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:blobstore_name) do
@@ -45,19 +45,19 @@ Puppet::Type.newtype(:nexus3_repository) do
 
   newproperty(:version_policy) do
     desc 'Maven2 repositories can store release, snapshot or mixed artifacts.'
-    defaultto do @resource[:provider_type] == :maven2 ? :release : nil end
+    defaultto { @resource[:provider_type] == :maven2 ? :release : nil }
     newvalues(:snapshot, :release, :mixed)
   end
 
   newproperty(:layout_policy) do
     desc 'Maven2 repositories can check if all paths are maven artifact or metadata paths.'
-    defaultto do @resource[:provider_type] == :maven2 ? :strict : nil end
+    defaultto { @resource[:provider_type] == :maven2 ? :strict : nil }
     newvalues(:strict, :permissive)
   end
 
   newproperty(:write_policy) do
     desc 'Controls if users are allowed to deploy and/or update artifacts in this repository. Responds to the \'Deployment Policy\' setting in the UI and is applicable for hosted repositories only.'
-    defaultto do @resource[:type] == :hosted ? :allow_write_once : nil end
+    defaultto { @resource[:type] == :hosted ? :allow_write_once : nil }
     newvalues(:read_only, :allow_write_once, :allow_write)
   end
 
@@ -65,7 +65,7 @@ Puppet::Type.newtype(:nexus3_repository) do
     desc 'When should validate or not that all content uploaded to this repository is of a MIME type appropriate for the repository format.'
     newvalues(:true, :false)
     defaultto :true
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   # docker-specific #
@@ -79,13 +79,13 @@ Puppet::Type.newtype(:nexus3_repository) do
 
   newproperty(:force_basic_auth) do
     desc 'Disable to allow anonymous pull (Note: also requires Docker Bearer Token Realm to be activated)'
-    defaultto do @resource[:provider_type] == :docker ? :true : nil end
+    defaultto { @resource[:provider_type] == :docker ? :true : nil }
     newvalues(:true, :false)
   end
 
   newproperty(:v1_enabled) do
     desc 'Allow clients to use the V1 API to interact with this Repository'
-    defaultto do @resource[:provider_type] == :docker ? :true : nil end
+    defaultto { @resource[:provider_type] == :docker ? :true : nil }
     newvalues(:true, :false)
   end
 
@@ -96,7 +96,7 @@ Puppet::Type.newtype(:nexus3_repository) do
     * Use HUB to use the index from DockerHub.
     * Use CUSTOM in conjunction with the index_url param to
     * specify a custom index location '
-    defaultto do ((@resource[:provider_type] == :docker) && (@resource[:type] == :proxy)) ? :registry : nil end
+    defaultto { ((@resource[:provider_type] == :docker) && (@resource[:type] == :proxy)) ? :registry : nil }
     newvalues(:registry, :hub, :custom)
   end
 
@@ -108,7 +108,7 @@ Puppet::Type.newtype(:nexus3_repository) do
   newproperty(:depth) do
     desc 'Depth in directory tree where repodata structure is created.'
     newvalues(0, 1, 2, 3, 4, 5)
-    defaultto do @resource[:provider_type] == :yum ? 0 : nil end
+    defaultto { @resource[:provider_type] == :yum ? 0 : nil }
     munge { |value| super(value).to_s }
   end
 
@@ -120,8 +120,8 @@ Puppet::Type.newtype(:nexus3_repository) do
   newproperty(:is_flat) do
     desc 'Is this repository flat?'
     newvalues(:true, :false)
-    defaultto do ((@resource[:provider_type] == :apt) && (@resource[:type] == :proxy)) ? :false : nil end
-    munge { |value| super(value).to_s.intern }
+    defaultto { ((@resource[:provider_type] == :apt) && (@resource[:type] == :proxy)) ? :false : nil }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:asset_history_limit) do
@@ -141,30 +141,30 @@ Puppet::Type.newtype(:nexus3_repository) do
     desc 'Whether to automatically block outbound connections to remote repository in case of unresponsiveness.' \
          'Only useful for proxy-type repositories.'
     newvalues(:true, :false)
-    defaultto do @resource[:type] == :proxy ? :true : nil end
-    munge { |value| super(value).to_s.intern }
+    defaultto { @resource[:type] == :proxy ? :true : nil }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:blocked, parent: Puppet::Property::Boolean) do
     desc 'Whether to block connection to remote repository.' \
          'Only useful for proxy-type repositories.'
     newvalues(:true, :false)
-    defaultto do @resource[:type] == :proxy ? :false : nil end
-    munge { |value| super(value).to_s.intern }
+    defaultto { @resource[:type] == :proxy ? :false : nil }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:negative_cache_enabled, parent: Puppet::Property::Boolean) do
     desc 'Whether to cache responses for content not present in the proxied repository.' \
          'Only useful for proxy-type repositories.'
     newvalues(:true, :false)
-    defaultto do @resource[:type] == :proxy ? :true : nil end
-    munge { |value| super(value).to_s.intern }
+    defaultto { @resource[:type] == :proxy ? :true : nil }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:negative_cache_ttl) do
     desc 'How long to cache the fact that a file was not found in the repository (in minutes).' \
          'Only useful for proxy-type repositories.'
-    defaultto do @resource[:type] == :proxy ? 1440 : nil end
+    defaultto { @resource[:type] == :proxy ? 1440 : nil }
   end
 
   newproperty(:remote_url) do
@@ -185,12 +185,12 @@ Puppet::Type.newtype(:nexus3_repository) do
   newproperty(:metadata_max_age) do
     desc 'How long (in minutes) to cache metadata before rechecking the remote repository. ' \
          'Only useful for proxy-type repositories.'
-    defaultto do @resource[:type] == :proxy ? 1440 : nil end
+    defaultto { @resource[:type] == :proxy ? 1440 : nil }
   end
 
   newproperty(:remote_auth_type) do
     desc 'Define the type of authentication to be used to the remote repository.'
-    defaultto do @resource[:provider_type] == :maven2 ? :username : :none end
+    defaultto { @resource[:provider_type] == :maven2 ? :username : :none }
     newvalues(:none, :username, :ntlm, :bearerToken)
   end
 
@@ -208,15 +208,16 @@ Puppet::Type.newtype(:nexus3_repository) do
     desc 'The password used for authentication to the remote repository. ' \
          'Will be only used if `remote_password` is set to `present`. ' \
          'Only useful for proxy-type repositories.'
-    def is_to_s(current_value)
+
+    def is_to_s(_current_value)
       '[old password]'
     end
 
-    def should_to_s(new_value)
+    def should_to_s(_new_value)
       '[new password]'
     end
 
-    def change_to_s(current_value, new_value)
+    def change_to_s(_current_value, _new_value)
       '[old password] to [new password]'
     end
   end
@@ -232,7 +233,7 @@ Puppet::Type.newtype(:nexus3_repository) do
   end
 
   newproperty(:routing_rule) do
-      desc 'The routing rule to be used while sending requests to proxied server'
+    desc 'The routing rule to be used while sending requests to proxied server'
   end
 
   validate do
@@ -244,6 +245,6 @@ Puppet::Type.newtype(:nexus3_repository) do
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

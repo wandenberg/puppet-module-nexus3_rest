@@ -18,7 +18,7 @@ Puppet::Type.newtype(:nexus3_smtp_settings) do
     desc 'The port number the SMTP server is listening on. Must be within 1 and 65535.'
     defaultto 25
     validate do |value|
-      raise ArgumentError, "Port must be a non-negative integer, got #{value}" unless value.to_s =~ /\d+/
+      raise ArgumentError, "Port must be a non-negative integer, got #{value}" unless %r{\d+}.match?(value.to_s)
       raise ArgumentError, "Port must within [1, 65535], got #{value}" unless (1..65_535).cover?(value.to_i)
     end
     munge { |value| Integer(value) }
@@ -28,7 +28,7 @@ Puppet::Type.newtype(:nexus3_smtp_settings) do
     desc 'When SMTP settings is enabled or not.'
     newvalues(:true, :false)
     defaultto :false
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:username) do
@@ -43,7 +43,7 @@ Puppet::Type.newtype(:nexus3_smtp_settings) do
     desc 'Email address used in the `From:` field.'
     validate do |value|
       raise ArgumentError, 'Sender email must not be empty' if value.to_s.empty?
-      raise ArgumentError, "Invalid email address '#{value}'." if value !~ /@/
+      raise ArgumentError, "Invalid email address '#{value}'." unless %r{@}.match?(value.to_s)
     end
   end
 
@@ -52,6 +52,6 @@ Puppet::Type.newtype(:nexus3_smtp_settings) do
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end

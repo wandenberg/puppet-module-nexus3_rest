@@ -21,7 +21,7 @@ Puppet::Type.newtype(:nexus3_role) do
     desc 'When role is read only or not.'
     newvalues(:true, :false)
     defaultto :false
-    munge { |value| super(value).to_s.intern }
+    munge { |value| super(value).to_s.to_sym }
   end
 
   newproperty(:source) do
@@ -32,7 +32,7 @@ Puppet::Type.newtype(:nexus3_role) do
     desc 'A list of roles names'
     defaultto []
     validate do |value|
-      raise ArgumentError, "roles names must be provided in an array" if value.empty? || value.include?(',')
+      raise ArgumentError, 'roles names must be provided in an array' if value.empty? || value.include?(',')
     end
 
     def insync?(is)
@@ -44,7 +44,7 @@ Puppet::Type.newtype(:nexus3_role) do
     desc 'A list of privileges names'
     defaultto []
     validate do |value|
-      raise ArgumentError, "privileges names must be provided in an array" if value.empty? || value.include?(',')
+      raise ArgumentError, 'privileges names must be provided in an array' if value.empty? || value.include?(',')
     end
 
     def insync?(is)
@@ -53,6 +53,6 @@ Puppet::Type.newtype(:nexus3_role) do
   end
 
   autorequire(:file) do
-    Nexus3::Config::file_path
+    Nexus3::Config.file_path
   end
 end
