@@ -411,13 +411,14 @@ PLATFORMS
 
 DEPENDENCIES
   json (= 2.3.0)
-  puppet
+  puppet (= 7.4.1)
   puppet-module-posix-default-r2.7 (~> 1.0)
   puppet-module-posix-dev-r2.7 (~> 1.0)
   puppet-module-posix-system-r2.7 (~> 1.0)
   puppet-module-win-default-r2.7 (~> 1.0)
   puppet-module-win-dev-r2.7 (~> 1.0)
   puppet-module-win-system-r2.7 (~> 1.0)
+  simplecov (= 0.18.5)
   webmock (= 3.12.1)
 
 BUNDLED WITH
