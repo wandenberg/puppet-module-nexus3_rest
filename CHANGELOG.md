@@ -1,3 +1,6 @@
+## 0.4.3
+- Convert to PDK project
+
 ## 0.4.2
 - Add support for Helm repository type
 - Add support to configure the Negative Cache in proxied repositories
