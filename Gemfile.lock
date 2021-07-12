@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     CFPropertyList (2.3.6)
-    addressable (2.7.0)
+    addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     ansi (1.5.0)
     ast (2.4.2)
@@ -411,7 +411,7 @@ PLATFORMS
 
 DEPENDENCIES
   json (= 2.3.0)
-  puppet (= 7.4.1)
+  puppet
   puppet-module-posix-default-r2.7 (~> 1.0)
   puppet-module-posix-dev-r2.7 (~> 1.0)
   puppet-module-posix-system-r2.7 (~> 1.0)
