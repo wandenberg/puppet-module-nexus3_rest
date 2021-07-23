@@ -73,5 +73,5 @@ end
 
 group :test do
   gem 'simplecov', '0.18.5'
-  gem 'webmock', '3.12.1'
+  gem 'webmock', '~> 3.12'
 end
