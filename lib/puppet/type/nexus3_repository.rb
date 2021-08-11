@@ -148,7 +148,13 @@ Puppet::Type.newtype(:nexus3_repository) do
 
   newproperty(:remote_auth_type) do
     desc 'Define the type of authentication to be used to the remote repository.'
-    defaultto do @resource[:provider_type] == :maven2 ? :username : :none end
+    defaultto do
+      if @resource[:type] == :proxy
+        @resource[:provider_type] == :maven2 ? :username : :none
+      else
+        nil
+      end
+    end
     newvalues(:none, :username, :ntlm)
   end
 
