@@ -130,7 +130,11 @@ Puppet::Type.newtype(:nexus3_ldap) do
     munge { |value| super(value).to_s.to_sym }
   end
 
-  # Group type
+  newproperty(:ldap_groups_as_roles_type) do
+    desc 'Set LDAP group type. Can be one of: `static` or `dynamic`.'
+    defaultto :static
+    newvalues(:static, :dynamic)
+  end
 
   newproperty(:group_base_dn) do
     desc 'The LDAP group base dn to use.'
@@ -163,12 +167,12 @@ Puppet::Type.newtype(:nexus3_ldap) do
     if self[:ensure] == :present
       raise ArgumentError, 'hostname must be provided' if self[:hostname].to_s.empty?
       raise ArgumentError, 'search_base must be provided' if self[:search_base].to_s.empty?
-      if self[:ldap_groups_as_roles] == :true
-        raise ArgumentError, 'group_base_dn must not be empty when using ldap_groups_as_roles' if self[:group_base_dn].nil? || self[:group_base_dn].to_s.empty?
-        raise ArgumentError, 'group_object_class must not be empty when using ldap_groups_as_roles' if self[:group_object_class].nil? || self[:group_object_class].to_s.empty?
-        raise ArgumentError, 'group_id_attribute must not be empty when using ldap_groups_as_roles' if self[:group_id_attribute].nil? || self[:group_id_attribute].to_s.empty?
-        raise ArgumentError, 'group_member_attribute must not be empty when using ldap_groups_as_roles' if self[:group_member_attribute].nil? || self[:group_member_attribute].to_s.empty?
-        raise ArgumentError, 'group_member_format must not be empty when using ldap_groups_as_roles' if self[:group_member_format].nil? || self[:group_member_format].to_s.empty?
+      if self[:ldap_groups_as_roles] == :true and self[:ldap_groups_as_roles_type] == :static
+        raise ArgumentError, 'group_base_dn must not be empty when using ldap_groups_as_roles and ldap_groups_as_roles_type being set to static' if self[:group_base_dn].nil? || self[:group_base_dn].to_s.empty?
+        raise ArgumentError, 'group_object_class must not be empty when using ldap_groups_as_roles and ldap_groups_as_roles_type being set to static' if self[:group_object_class].nil? || self[:group_object_class].to_s.empty?
+        raise ArgumentError, 'group_id_attribute must not be empty when using ldap_groups_as_roles and ldap_groups_as_roles_type being set to static' if self[:group_id_attribute].nil? || self[:group_id_attribute].to_s.empty?
+        raise ArgumentError, 'group_member_attribute must not be empty when using ldap_groups_as_roles and ldap_groups_as_roles_type being set to static' if self[:group_member_attribute].nil? || self[:group_member_attribute].to_s.empty?
+        raise ArgumentError, 'group_member_format must not be empty when using ldap_groups_as_roles and ldap_groups_as_roles_type being set to static' if self[:group_member_format].nil? || self[:group_member_format].to_s.empty?
       end
     end
   end

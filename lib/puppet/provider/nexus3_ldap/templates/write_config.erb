@@ -28,14 +28,21 @@ mapping.setUserObjectClass('<%= resource[:user_object_class] %>')
 mapping.setUserPasswordAttribute('<%= resource[:user_password_attribute] %>')
 mapping.setUserRealNameAttribute('<%= resource[:user_real_name_attribute] %>')
 mapping.setUserSubtree(<%= resource[:user_subtree] %>)
-mapping.setUserMemberOfAttribute('<%= resource[:user_member_of_attribute] %>')
+mapping.setGroupSubtree(<%= resource[:group_subtree] %>)
+mapping.setLdapFilter('<%= resource[:ldap_filter] %>')
+
+<%- if resource[:ldap_groups_as_roles] -%>
+mapping.setLdapGroupsAsRoles(true)
+
+<%- if resource[:ldap_groups_as_roles_type] == :static -%>
 mapping.setGroupBaseDn('<%= resource[:group_base_dn] %>')
+mapping.setGroupObjectClass('<%= resource[:group_object_class] %>')
 mapping.setGroupIdAttribute('<%= resource[:group_id_attribute] %>')
 mapping.setGroupMemberAttribute('<%= resource[:group_member_attribute] %>')
 mapping.setGroupMemberFormat('<%= resource[:group_member_format] %>')
-mapping.setGroupObjectClass('<%= resource[:group_object_class] %>')
-mapping.setGroupSubtree(<%= resource[:group_subtree] %>)
-mapping.setLdapFilter('<%= resource[:ldap_filter] %>')
-mapping.setLdapGroupsAsRoles(<%= resource[:ldap_groups_as_roles] %>)
+<%- else -%>
+mapping.setUserMemberOfAttribute('<%= resource[:user_member_of_attribute] %>')
+<%- end -%>
+<%- end -%>
 
 ldapConfigurationManager.updateLdapServerConfiguration(ldapConfiguration)

@@ -5,6 +5,14 @@ def infos = ldapConfigurations.collect { ldapConfiguration ->
   def connection = ldapConfiguration.getConnection()
   def host = connection.getHost()
   def mapping = ldapConfiguration.getMapping()
+  def groupType
+
+  if (mapping.getGroupBaseDn() || mapping.getGroupObjectClass() || mapping.getGroupIdAttribute() || mapping.getGroupMemberAttribute() || mapping.getGroupMemberFormat()) {
+    groupType = 'static'
+  } else {
+    groupType = 'dynamic'
+  }
+
   [
     name: ldapConfiguration.getName(),
     id: ldapConfiguration.getId(),
@@ -40,6 +48,7 @@ def infos = ldapConfigurations.collect { ldapConfiguration ->
 
     ldap_filter: mapping.getLdapFilter(),
     ldap_groups_as_roles: mapping.isLdapGroupsAsRoles(),
+    ldap_groups_as_roles_type: groupType,
   ]
 }
 return groovy.json.JsonOutput.toJson(infos)

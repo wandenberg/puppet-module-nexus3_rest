@@ -175,34 +175,35 @@ The Nexus LDAP settings can be configured using the `nexus3_ldap` resource:
 ```
 #!puppet
 nexus3_ldap_settings { 'company_ldap':
-  hostname                 => 'somehost',           #required: LDAP server hostname
-  port                     => '389'                 #389 is default
-  protocol                 => 'ldap',               #ldap is default, valid values: ldap, ldaps
-  search_base              => 'dc=example,dc=com',  #required
-  max_incidents_count      => '3',
-  connection_retry_delay   => '300',
-  connection_timeout       => '30',
-  authentication_scheme    => 'none',               #none is default, valid values: simple, none, DIGEST_MD5, CRAM_MD5
-  username                 => 'someuser',           #required (when authentication_scheme is not none): User to authenticate with LDAP service
-  password                 => 'hunter2',            #default is unspecified
-  sasl_realm               => '',                   #optional
-  user_base_dn             => 'OU=users',           #OU=users is default
-  user_subtree             => false,                #false is default
-  user_object_class        => 'user',               #user is default
-  user_id_attribute        => 'cn',                 #cn is default
-  user_real_name_attribute => 'displayName',        #default is displayName
-  user_email_attribute     => 'email',              #email is default
-  user_password_attribute  => 'pw',                 #optional
-  user_member_of_attribute => '',                   #optional
-  ldap_filter              => '',                   #optional
-  ldap_groups_as_roles     => false,                #true is default
-  group_base_dn            => 'OU=groups',          #OU=groups is default, required if ldap_groups_as_roles is true
-  group_subtree            => false,                #false is default
-  group_object_class       => 'group',              #group is default, required if ldap_groups_as_roles is true
-  group_id_attribute       => 'cn',                 #cn is default, required if ldap_groups_as_roles is true
-  group_member_attribute   => 'uniqueMember',       #uniqueMember is default, required if ldap_groups_as_roles is true
-  group_member_format      => '${dn}',              #${dn} is default, required if ldap_groups_as_roles is true
-  order                    => 0,                    #optional, to set the order of the available LDAP servers
+  hostname                  => 'somehost',           #required: LDAP server hostname
+  port                      => '389'                 #389 is default
+  protocol                  => 'ldap',               #ldap is default, valid values: ldap, ldaps
+  search_base               => 'dc=example,dc=com',  #required
+  max_incidents_count       => '3',
+  connection_retry_delay    => '300',
+  connection_timeout        => '30',
+  authentication_scheme     => 'none',               #none is default, valid values: simple, none, DIGEST_MD5, CRAM_MD5
+  username                  => 'someuser',           #required (when authentication_scheme is not none): User to authenticate with LDAP service
+  password                  => 'hunter2',            #default is unspecified
+  sasl_realm                => '',                   #optional
+  user_base_dn              => 'OU=users',           #OU=users is default
+  user_subtree              => false,                #false is default
+  user_object_class         => 'user',               #user is default
+  user_id_attribute         => 'cn',                 #cn is default
+  user_real_name_attribute  => 'displayName',        #default is displayName
+  user_email_attribute      => 'email',              #email is default
+  user_password_attribute   => 'pw',                 #optional
+  user_member_of_attribute  => '',                   #optional
+  ldap_filter               => '',                   #optional
+  ldap_groups_as_roles      => false,                #true is default
+  ldap_groups_as_roles_type => 'static',            #static is default. Valid values are static or dynamic
+  group_base_dn             => 'OU=groups',          #OU=groups is default, required if ldap_groups_as_roles is true
+  group_subtree             => false,                #false is default
+  group_object_class        => 'group',              #group is default, required if ldap_groups_as_roles is true
+  group_id_attribute        => 'cn',                 #cn is default, required if ldap_groups_as_roles is true
+  group_member_attribute    => 'uniqueMember',       #uniqueMember is default, required if ldap_groups_as_roles is true
+  group_member_format       => '${dn}',              #${dn} is default, required if ldap_groups_as_roles is true
+  order                     => 0,                    #optional, to set the order of the available LDAP servers
 }
 ```
 
