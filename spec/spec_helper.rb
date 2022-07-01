@@ -53,6 +53,10 @@ RSpec.configure do |c|
     # by default Puppet runs at warning level
     Puppet.settings[:strict] = :warning
     Puppet.settings[:strict_variables] = true
+    WebMock.disable_net_connect!(allow_localhost: true)
+    Nexus3::API.instance_variable_set(:@service, nil)
+    Nexus3::API.instance_variable_set(:@version, nil)
+    Nexus3::Config.reset
   end
   c.filter_run_excluding(bolt: true) unless ENV['GEM_BOLT']
   c.after(:suite) do
@@ -91,3 +95,18 @@ def stub_default_config_and_healthcheck
     .with(headers: { 'Accept' => 'application/json', 'Authorization' => 'Basic Zm9vYmFyOnNlY3JldA==', 'Content-Type' => 'application/json' })
     .to_return(status: 403)
 end
+
+def stub_config
+  config = {
+    nexus_base_url: ENV.fetch('NEXUS_TEST_BASE_URL', 'http://localhost:8081'),
+    nexus_script_api_path: '/service/rest/v1/script/',
+    admin_username: ENV.fetch('NEXUS_TEST_USERNAME', 'admin'),
+    admin_password: ENV.fetch('NEXUS_TEST_PASSWORD', 'admin123'),
+    health_check_retries: 1,
+    health_check_timeout: 10,
+    can_delete_repositories: true,
+  }
+  allow(Nexus3::Config).to receive(:read_config).and_return(config)
+end
+
+Puppet.settings[:confdir] = '/etc/puppetlabs/puppet'
