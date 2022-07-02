@@ -452,3 +452,11 @@ be updated when attributes of the same resource change as well.
 4. Commit your changes (`git commit -am 'Add some feature'`)
 5. Push to the branch (`git push origin my-new-feature`)
 6. Create new pull request targeting master
+
+## Running tests ##
+
+The tests run now against a real Nexus3 Server.  
+It can be an ordinary server instance, but dummy objects will be created on it on every run, or can be executed against a server instance inside docker.  
+To build the Docker image run: `./docker/build.sh [NEXUS_VERSION, for instance, 3.40.1]`  
+To execute the container in CI mode run: `./docker/run.sh true [NEXUS_VERSION, for instance, 3.40.1]`  
+To execute the container in interactive mode run: `./docker/run.sh false [NEXUS_VERSION, for instance, 3.40.1] [container_name, for instance, nexus3-tests]`. Then enter on bash and run `bundle exec rspec`.
