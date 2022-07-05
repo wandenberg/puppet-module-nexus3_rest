@@ -132,12 +132,12 @@ To change the Email settings the module provides the `nexus3_smtp_settings` reso
 ```
 #!puppet
 nexus3_smtp_settings { 'global':
-  enabled                => true,
-  hostname               => 'mail.example.com',
-  port                   => 25,
-  username               => 'jdoe',
-  password               => 'keepitsecret',
-  sender_email           => 'nexus@example.com',
+  enabled      => true,
+  host         => 'mail.example.com',
+  port         => 25,
+  username     => 'jdoe',
+  password     => 'keepitsecret',
+  from_address => 'nexus@example.com',
 }
 ```
 

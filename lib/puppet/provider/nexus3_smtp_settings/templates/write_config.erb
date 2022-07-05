@@ -1,10 +1,6 @@
+<%= File.read(File.join(templates_folder, '../../groovy_utils.erb')) %>
+
 def emailManager = container.lookup(org.sonatype.nexus.email.EmailManager.class.name);
 def config = emailManager.getConfiguration();
-config.enabled = <%= resource[:enabled] %>;
-config.host = '<%= resource[:hostname] %>';
-config.port = <%= resource[:port] %>;
-config.username = '<%= resource[:username] %>';
-config.password = '<%= resource[:password] %>';
-config.fromAddress = '<%= resource[:sender_email] %>';
-config.subjectPrefix = '<%= resource[:subject_prefix] %>';
+<%= Puppet::Provider::Nexus3Utils.to_groovy_properties('config', resource) %>
 emailManager.setConfiguration(config);

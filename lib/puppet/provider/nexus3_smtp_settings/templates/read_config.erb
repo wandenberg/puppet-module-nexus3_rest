@@ -1,11 +1,11 @@
+<%= File.read(File.join(templates_folder, '../../groovy_utils.erb')) %>
+
 def emailManager = container.lookup(org.sonatype.nexus.email.EmailManager.class.name);
 def config = emailManager.getConfiguration();
-return groovy.json.JsonOutput.toJson([
-  enabled : config.enabled,
-  hostname : config.host,
-  port : config.port,
-  username : config.username,
-  password : config.password,
-  sender_email : config.fromAddress,
-  subject_prefix : config.subjectPrefix,
-]);
+def info = [:]
+
+config.properties.findAll { it.key != 'class' && it.key != 'entityMetadata' }.each { key, value ->
+  info[toSnakeCase(key)] = value instanceof Boolean || value instanceof Integer ? value : ensureDefault(value, '')
+}
+
+return groovy.json.JsonOutput.toJson([info]);

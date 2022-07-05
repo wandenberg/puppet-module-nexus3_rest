@@ -1,0 +1,31 @@
+static String toSnakeCase( String text ) {
+  text.replaceAll( /([A-Z])/, /_$1/ ).toLowerCase().replaceAll( /^_/, '' )
+}
+
+static String toCamelCase( String text, boolean capitalized = false ) {
+  text = text.replaceAll( "(_)([A-Za-z0-9])", { Object[] it -> it[2].toUpperCase() } )
+  return capitalized ? capitalize(text) : text
+}
+
+static String ensureDefault( String text, String defaultValue = '' ) {
+  return text ? text : defaultValue
+}
+
+void printAllMethods( obj ) {
+  if( !obj ) {
+    println( "Object is null\r\n" );
+    return;
+  }
+
+  if( !obj.metaClass && obj.getClass() ) {
+    printAllMethods( obj.getClass() );
+    return;
+  }
+
+  def str = "class ${ obj.getClass().name } functions:\r\n";
+  obj.metaClass.methods.name.unique().each {
+    str += it+"(); ";
+  }
+
+  log.info("${str}\r\n");
+}

@@ -1,39 +1,26 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Puppet::Type.type(:nexus3_smtp_settings) do
   let(:required_values) do
     {
       name: 'example',
-      hostname: 'smtp.server.com',
+      host: 'smtp.server.com',
     }
   end
 
-  before :each do
-    provider_class = described_class.provide(:simple) do
-      mk_resource_methods
-
-      def flush; end
-
-      def self.instances
-        []
-      end
-    end
-    allow(described_class).to receive(:defaultprovider).and_return(provider_class)
-  end
-
-  describe 'hostname' do
-    specify 'should accept a valid hostname' do
-      expect { described_class.new(required_values.merge(hostname: 'smtp.example.com')) }.not_to raise_error
+  describe 'host' do
+    specify 'should accept a valid host' do
+      expect { described_class.new(required_values.merge(host: 'smtp.example.com')) }.not_to raise_error
     end
 
     specify 'should accept a localhost' do
-      expect { described_class.new(required_values.merge(hostname: 'localhost')) }.not_to raise_error
+      expect { described_class.new(required_values.merge(host: 'localhost')) }.not_to raise_error
     end
 
-    specify 'should not accept empty string' do
-      expect {
-        described_class.new(required_values.merge(hostname: ''))
-      }.to raise_error(Puppet::ResourceError, %r{Parameter hostname failed})
+    specify 'should use default value when empty string' do
+      expect(described_class.new(required_values.merge(host: ''))[:host]).to be('localhost')
     end
   end
 
@@ -42,22 +29,20 @@ describe Puppet::Type.type(:nexus3_smtp_settings) do
       expect(described_class.new(required_values)[:port]).to be(25)
     end
 
-    specify 'should not accept empty string' do
-      expect {
-        described_class.new(required_values.merge(port: ''))
-      }.to raise_error(Puppet::ResourceError, %r{Parameter port failed})
+    specify 'should use default value when empty string' do
+      expect(described_class.new(required_values.merge(port: ''))[:port]).to be(25)
     end
 
     specify 'should not accept characters' do
       expect {
         described_class.new(required_values.merge(port: 'abc'))
-      }.to raise_error(Puppet::ResourceError, %r{Parameter port failed})
+      }.to raise_error(ArgumentError, %r{Port must be within \[1, 65535\]})
     end
 
     specify 'should not accept port 0' do
       expect {
         described_class.new(required_values.merge(port: 0))
-      }.to raise_error(Puppet::ResourceError, %r{Parameter port failed})
+      }.to raise_error(ArgumentError, %r{Port must be within \[1, 65535\]})
     end
 
     specify 'should accept port 1' do
@@ -75,7 +60,7 @@ describe Puppet::Type.type(:nexus3_smtp_settings) do
     specify 'should not accept ports larger than 65535' do
       expect {
         described_class.new(required_values.merge(port: 65_536))
-      }.to raise_error(Puppet::ResourceError, %r{Parameter port failed})
+      }.to raise_error(ArgumentError, %r{Port must be within \[1, 65535\]})
     end
   end
 
@@ -107,7 +92,7 @@ describe Puppet::Type.type(:nexus3_smtp_settings) do
 
   describe 'username' do
     specify 'should default to empty string' do
-      expect(described_class.new(required_values)[:username]).to eq nil
+      expect(described_class.new(required_values)[:username]).to eq ''
     end
 
     specify 'should accept empty string' do
@@ -121,7 +106,7 @@ describe Puppet::Type.type(:nexus3_smtp_settings) do
 
   describe 'password' do
     specify 'should default to nil' do
-      expect(described_class.new(required_values)[:password]).to eq nil
+      expect(described_class.new(required_values)[:password]).to eq ''
     end
 
     specify 'should accept empty string' do
@@ -133,27 +118,25 @@ describe Puppet::Type.type(:nexus3_smtp_settings) do
     end
   end
 
-  describe 'sender_email' do
+  describe 'from_address' do
     specify 'should accept valid email address' do
-      expect { described_class.new(required_values.merge(sender_email: 'jdoe@example.com')) }.not_to raise_error
+      expect { described_class.new(required_values.merge(from_address: 'jdoe@example.com')) }.not_to raise_error
     end
 
-    specify 'should not accept empty email address' do
-      expect {
-        described_class.new(required_values.merge(sender_email: ''))
-      }.to raise_error(Puppet::ResourceError, %r{Parameter sender_email failed})
+    specify 'should use default value when empty email address' do
+      expect(described_class.new(required_values.merge(from_address: ''))[:from_address]).to be('nexus@example.org')
     end
 
     specify 'should not accept invalid email address' do
       expect {
-        described_class.new(required_values.merge(sender_email: 'invalid'))
-      }.to raise_error(Puppet::ResourceError, %r{Parameter sender_email failed})
+        described_class.new(required_values.merge(from_address: 'invalid'))
+      }.to raise_error(Puppet::ResourceError, %r{Parameter from_address failed})
     end
   end
 
   describe 'subject_prefix' do
     specify 'should default to nil' do
-      expect(described_class.new(required_values)[:subject_prefix]).to eq nil
+      expect(described_class.new(required_values)[:subject_prefix]).to eq ''
     end
 
     specify 'should accept empty string' do
