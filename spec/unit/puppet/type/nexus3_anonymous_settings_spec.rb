@@ -1,22 +1,9 @@
 require 'spec_helper'
 
 describe Puppet::Type.type(:nexus3_anonymous_settings) do
-  before :each do
-    provider_class = described_class.provide(:simple) do
-      mk_resource_methods
-
-      def flush; end
-
-      def self.instances
-        []
-      end
-    end
-    allow(described_class).to receive(:defaultprovider).and_return(provider_class)
-  end
-
   describe 'username' do
-    specify 'should default to empty string' do
-      expect(described_class.new(name: 'any')[:username]).to eq nil
+    specify 'should default to anonymous' do
+      expect(described_class.new(name: 'any')[:username]).to eq 'anonymous'
     end
 
     specify 'should accept empty string' do
@@ -30,15 +17,19 @@ describe Puppet::Type.type(:nexus3_anonymous_settings) do
 
   describe 'realm' do
     specify 'should default to empty string' do
-      expect(described_class.new(name: 'any')[:realm]).to eq nil
+      expect(described_class.new(name: 'any')[:realm]).to eq 'NexusAuthorizingRealm'
     end
 
-    specify 'should accept empty string' do
-      expect { described_class.new(name: 'any', realm: '') }.not_to raise_error
+    specify 'should use default when empty string' do
+      expect(described_class.new(name: 'any', realm: '')[:realm]).to eq 'NexusAuthorizingRealm'
     end
 
     specify 'should accept valid realm' do
-      expect { described_class.new(name: 'any', realm: 'jdoe') }.not_to raise_error
+      expect { described_class.new(name: 'any', realm: 'LdapRealm') }.not_to raise_error
+    end
+
+    specify 'should not accept valid realm' do
+      expect { described_class.new(name: 'any', realm: 'jdoe') }.to raise_error(Puppet::ResourceError, %r{Parameter realm failed})
     end
   end
 
