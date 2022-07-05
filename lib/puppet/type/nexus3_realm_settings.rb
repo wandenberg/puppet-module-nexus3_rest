@@ -1,20 +1,41 @@
-require 'puppet/property/boolean'
+# frozen_string_literal: true
 
-Puppet::Type.newtype(:nexus3_realm_settings) do
-  @doc = 'Manages Nexus 3 Realm settings.'
+require 'puppet/resource_api'
+require 'puppet_x/nexus3/config'
 
-  newparam(:name, namevar: true) do
-    desc 'Name of the configuration.'
-  end
+Puppet::ResourceApi.register_type(
+  name: 'nexus3_realm_settings',
+  docs: <<-EOS,
+@summary a nexus3_realm_settings type
+@example
+nexus3_realm_settings { 'global':
+  names => ['NexusAuthenticatingRealm', 'NexusAuthorizingRealm'],
+}
 
-  newproperty(:names, array_matching: :all) do
-    desc 'A list of realms names'
-    validate do |value|
-      raise ArgumentError, 'realms names must be provided in an array' if value.empty? || value.include?(',')
-    end
-  end
+This type provides Puppet with the capabilities to manage Nexus 3 Realm settings.
 
-  autorequire(:file) do
-    Nexus3::Config.file_path
-  end
-end
+**Autorequires**:
+* `File[$PUPPET_CONF_DIR/nexus3_rest.conf]`
+  EOS
+  features: ['canonicalize'],
+  attributes: {
+    ensure: {
+      type: 'Enum[present, absent]',
+      desc: 'Whether this resource should be present or absent on the target system.',
+      default: 'present',
+    },
+    name: {
+      type: 'String',
+      desc: 'The name of the resource you want to manage.',
+      behaviour: :namevar,
+    },
+    names: {
+      type: 'Array[Pattern[/\A(NexusAuthenticatingRealm|NexusAuthorizingRealm|ConanToken|DockerToken|LdapRealm|NpmToken|NuGetApiKey|rutauth-realm|DefaultRole)\z/]]',
+      desc: 'A list of realms names',
+      default: %w[NexusAuthenticatingRealm NexusAuthorizingRealm],
+    },
+  },
+  autorequire: {
+    file: Nexus3::Config.file_path,
+  },
+)
