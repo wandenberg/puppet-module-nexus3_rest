@@ -450,6 +450,7 @@ DEPENDENCIES
   puppet-module-win-default-r2.7 (~> 1.0)
   puppet-module-win-dev-r2.7 (~> 1.0)
   puppet-module-win-system-r2.7 (~> 1.0)
+  puppet-resource_api
   simplecov (= 0.18.5)
   webmock (~> 3.12)
 
