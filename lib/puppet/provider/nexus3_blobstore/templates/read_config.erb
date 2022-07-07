@@ -4,17 +4,33 @@ def blobStores = blobStoreManager.browse()
 def infos = blobStores.findResults { blobStore ->
   def config = blobStore.getBlobStoreConfiguration()
   def quotaConfig = config.attributes.blobStoreQuotaConfig
+  def multiplier = config.type == 'File' ? 1_048_576 : 1_048_576_000_000
   def attributes = [
     name: config.name,
     type: config.type,
+    path: '',
+    bucket: '',
+    prefix: '',
+    access_key_id: '',
+    secret_access_key: '',
+    session_token: '',
+    assume_role: '',
+    encryption_type: '',
+    encryption_key: '',
+    region: '',
+    endpoint: '',
+    max_connection_pool_size: '',
+    expiration: '',
+    signertype: '',
+    forcepathstyle: '',
     soft_quota_enabled: quotaConfig ? true : false,
-    quota_limit_bytes: quotaConfig ? quotaConfig.quotaLimitBytes / 1000000 : null,
-    quota_type: quotaConfig ? quotaConfig.quotaType : null,
+    quota_limit_bytes: quotaConfig ? quotaConfig.quotaLimitBytes / multiplier : '',
+    quota_type: quotaConfig ? quotaConfig.quotaType : '',
   ]
 
   if (config.type == 'File') {
     def blobDir = blobStore.relativeBlobDir
-	attributes.path = blobDir.isAbsolute() ? blobDir.toAbsolutePath().toString() : blobDir.getFileName().toString()
+    attributes.path = blobDir.isAbsolute() ? blobDir.toAbsolutePath().toString() : blobDir.getFileName().toString()
   }
 
   if (config.type == 'S3') {
@@ -25,11 +41,14 @@ def infos = blobStores.findResults { blobStore ->
     attributes.secret_access_key = s3.secretAccessKey
     attributes.session_token = s3.sessionToken
     attributes.assume_role = s3.assumeRole
+    attributes.encryption_type = s3.encryption_type ? s3.encryption_type : ''
+    attributes.encryption_key = s3.encryption_key
     attributes.region = s3.region
     attributes.endpoint = s3.endpoint
-    attributes.expiration = s3.expiration
+    attributes.max_connection_pool_size = s3.max_connection_pool_size ? new Integer(s3.max_connection_pool_size) : ''
+    attributes.expiration = new Integer(s3.expiration)
     attributes.signertype = s3.signertype
-    attributes.forcepathstyle = s3.forcepathstyle == 'true'
+    attributes.forcepathstyle = s3.forcepathstyle ? s3.forcepathstyle == 'true' : ''
   }
 
   attributes

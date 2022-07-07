@@ -2,11 +2,4 @@ def blobStoreManager = container.lookup(org.sonatype.nexus.blobstore.api.BlobSto
 def blobStore = blobStoreManager.get('<%= resource[:name] %>')
 def config = blobStore.getBlobStoreConfiguration()
 
-if ((config.type == 'S3') && !blobStore.isStarted()) {
-  blobStore.start()
-  while (!blobStore.isStarted()) {
-    sleep(5)
-  }
-}
-
 blobStoreManager.delete('<%= resource[:name] %>')

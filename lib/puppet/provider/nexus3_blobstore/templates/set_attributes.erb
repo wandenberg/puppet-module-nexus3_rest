@@ -1,0 +1,35 @@
+config.setAttributes([:])
+
+<%- if [:true, true, 'true'].include?(resource[:soft_quota_enabled]) -%>
+config.attributes.blobStoreQuotaConfig = [
+  quotaType: '<%= resource[:quota_type] %>',
+  quotaLimitBytes: new Long(<%= resource[:quota_limit_bytes].to_i * (resource[:type] == 'File' ? 1_048_576 : 1_048_576_000_000) %>),
+]
+<%- else -%>
+config.attributes.remove('blobStoreQuotaConfig')
+<%- end -%>
+
+<%- if resource[:type] == 'File' -%>
+config.attributes.file = [:]
+config.attributes.file.path = '<%= resource[:path] %>'
+<%- else -%>
+config.attributes.s3 = [:]
+config.attributes.s3.bucket = '<%= resource[:bucket] %>'
+config.attributes.s3.prefix = '<%= resource[:prefix] %>'
+config.attributes.s3.accessKeyId = '<%= resource[:access_key_id] %>'
+config.attributes.s3.secretAccessKey = '<%= resource[:secret_access_key] %>'
+config.attributes.s3.sessionToken = '<%= resource[:session_token] %>'
+config.attributes.s3.assumeRole = '<%= resource[:assume_role] %>'
+<%- if resource[:encryption_type].to_s.empty? -%>
+config.attributes.s3.encryption_type = null
+<%- else -%>
+config.attributes.s3.encryption_type = '<%= resource[:encryption_type] %>'
+<%- end -%>
+config.attributes.s3.encryption_key = '<%= resource[:encryption_key] %>'
+config.attributes.s3.region = '<%= resource[:region] %>'
+config.attributes.s3.endpoint = '<%= resource[:endpoint] %>'
+config.attributes.s3.max_connection_pool_size = '<%= resource[:max_connection_pool_size] %>'
+config.attributes.s3.expiration = <%= resource[:expiration].to_i %>
+config.attributes.s3.signertype = '<%= resource[:signertype] %>'
+config.attributes.s3.forcepathstyle = '<%= resource[:forcepathstyle] %>'
+<%- end -%>

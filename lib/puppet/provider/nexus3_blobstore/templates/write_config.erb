@@ -2,30 +2,9 @@ def blobStoreManager = container.lookup(org.sonatype.nexus.blobstore.api.BlobSto
 def blobStore = blobStoreManager.get('<%= resource[:name] %>')
 def config = blobStore.getBlobStoreConfiguration()
 
-<%- if resource[:soft_quota_enabled] == :true -%>
-config.attributes.blobStoreQuotaConfig = [
-  quotaType: '<%= resource[:quota_type] %>',
-  quotaLimitBytes: new Long(<%= resource[:quota_limit_bytes].to_i * 1000000 %>),
-]
-<%- else -%>
-config.attributes.remove('blobStoreQuotaConfig')
-<%- end -%>
+<%= Puppet::Provider::Nexus3Utils.render_template(templates_folder, 'set_attributes.erb', resource) %>
 
-<%- if resource[:type] == 'File' -%>
-config.attributes.file.path = '<%= resource[:path] %>'
-<%- else -%>
-config.attributes.s3.bucket = '<%= resource[:bucket] %>'
-config.attributes.s3.prefix = '<%= resource[:prefix] %>'
-config.attributes.s3.accessKeyId = '<%= resource[:access_key_id] %>'
-config.attributes.s3.secretAccessKey = '<%= resource[:secret_access_key] %>'
-config.attributes.s3.sessionToken = '<%= resource[:session_token] %>'
-config.attributes.s3.assumeRole = '<%= resource[:assume_role] %>'
-config.attributes.s3.region = '<%= resource[:region] %>'
-config.attributes.s3.endpoint = '<%= resource[:endpoint] %>'
-config.attributes.s3.expiration = <%= resource[:expiration].to_i %>
-config.attributes.s3.signertype = '<%= resource[:signertype] %>'
-config.attributes.s3.forcepathstyle = '<%= resource[:forcepathstyle] %>'
-<%- end -%>
+blobStoreManager.update(config)
 
 if ((config.type == 'S3') && !blobStore.isStarted()) {
   blobStore.start()
@@ -33,5 +12,3 @@ if ((config.type == 'S3') && !blobStore.isStarted()) {
     sleep(5)
   }
 }
-
-blobStoreManager.update(config)
