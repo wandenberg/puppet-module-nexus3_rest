@@ -5,10 +5,6 @@ def rule = new org.sonatype.nexus.repository.routing.RoutingRule()
 def rule = routingRuleStore.newRoutingRule()
 <%- end -%>
 
-rule.name = '<%= resource[:name] %>'
-rule.description = '<%= resource[:description] %>'
-rule.mode = '<%= resource[:mode] %>'
-<%- unless resource[:matchers].empty? -%>
-rule.matchers = new ArrayList(<%= resource[:matchers] %>)
-<%- end -%>
+<%= Puppet::Provider::Nexus3Utils.render_template(templates_folder, 'set_attributes.erb', resource) %>
+
 routingRuleStore.create(rule)

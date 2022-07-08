@@ -1,10 +1,6 @@
 def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
 def rule = routingRuleStore.getByName('<%= resource[:name] %>')
 
-rule.name = '<%= resource[:name] %>'
-rule.description = '<%= resource[:description] %>'
-rule.mode = '<%= resource[:mode] %>'
-<%- unless resource[:matchers].empty? -%>
-rule.matchers = new ArrayList(<%= resource[:matchers] %>)
-<%- end -%>
+<%= Puppet::Provider::Nexus3Utils.render_template(templates_folder, 'set_attributes.erb', resource) %>
+
 routingRuleStore.update(rule)

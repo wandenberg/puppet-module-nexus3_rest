@@ -1,0 +1,6 @@
+rule.name = '<%= resource[:name] %>'
+rule.description = '<%= resource[:description] %>'
+rule.mode = '<%= resource[:mode] %>'
+<%- unless resource[:matchers].empty? -%>
+  rule.matchers = new ArrayList(<%= resource[:matchers] %>)
+<%- end -%>
