@@ -69,8 +69,7 @@ Style/TrailingCommaInArrayLiteral:
     and re-ordering nicer.
   EnforcedStyleForMultiline: comma
 Style/SymbolArray:
-  Description: Using percent style obscures symbolic intent of array's contents.
-  EnforcedStyle: brackets
+  EnforcedStyle: percent
 RSpec/MessageSpies:
   EnforcedStyle: receive
 Style/Documentation:
