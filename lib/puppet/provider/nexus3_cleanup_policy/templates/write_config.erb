@@ -1,25 +1,6 @@
 def policyStorage = container.lookup(org.sonatype.nexus.cleanup.storage.CleanupPolicyStorage.class.name)
-
-def criteria = [:]
-<%- if resource[:is_prerelease].nil? -%>
-criteria.remove('isPrerelease')
-<%- else -%>
-criteria.isPrerelease = <%= resource[:is_prerelease] %>.toString()
-<%- end -%>
-<%- unless resource[:last_blob_updated].nil? -%>
-criteria.lastBlobUpdated = <%= resource[:last_blob_updated] * 60 * 60 * 24 %>.toString()
-<%- end -%>
-<%- unless resource[:last_downloaded].nil? -%>
-criteria.lastDownloaded = <%= resource[:last_downloaded] * 60 * 60 * 24 %>.toString()
-<%- end -%>
-<%- unless resource[:regex].nil? -%>
-criteria.regex = '<%= resource[:regex] %>'
-<%- end -%>
-
 def policy = policyStorage.get('<%= resource[:name] %>')
-policy.setCriteria(criteria)
-policy.setFormat(('<%= resource[:format] %>' == 'all' ? 'ALL_FORMATS' : '<%= resource[:format] %>'))
-policy.setNotes('<%= resource[:notes] %>')
-policy.setMode('delete')
+
+<%= Puppet::Provider::Nexus3Utils.render_template(templates_folder, 'set_attributes.erb', resource) %>
 
 policyStorage.update(policy)

@@ -1,0 +1,26 @@
+def criteria = [:]
+<%- if %w[maven2 npm yum].include?(resource[:format]) && !resource[:is_prerelease].to_s.empty? -%>
+criteria.isPrerelease = <%= resource[:is_prerelease] %>.toString()
+<%- else -%>
+criteria.remove('isPrerelease')
+<%- end -%>
+<%- if resource[:last_blob_updated].to_s.empty? -%>
+criteria.remove('lastBlobUpdated')
+<%- else -%>
+criteria.lastBlobUpdated = <%= resource[:last_blob_updated].to_i * 60 * 60 * 24 %>.toString()
+<%- end -%>
+<%- if resource[:last_downloaded].to_s.empty? -%>
+criteria.remove('lastDownloaded')
+<%- else -%>
+criteria.lastDownloaded = <%= resource[:last_downloaded].to_i * 60 * 60 * 24 %>.toString()
+<%- end -%>
+<%- if resource[:regex].to_s.empty? -%>
+criteria.remove('regex')
+<%- else -%>
+criteria.regex = '<%= resource[:regex] %>'
+<%- end -%>
+
+policy.setCriteria(criteria)
+policy.setFormat(('<%= resource[:format] %>' == 'all' ? 'ALL_FORMATS' : '<%= resource[:format] %>'))
+policy.setNotes('<%= resource[:notes] %>')
+policy.setMode('delete')

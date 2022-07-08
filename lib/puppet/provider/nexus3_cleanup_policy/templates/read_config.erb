@@ -11,12 +11,10 @@ policies.each { policy ->
   attributes.format = (format == 'ALL_FORMATS' ? 'all' : format)
 
   def criteria = policy.getCriteria()
-  attributes.regex = (criteria.containsKey('regex') ? criteria['regex'] : null)
-  attributes.last_downloaded = (criteria.containsKey('lastDownloaded') ? criteria['lastDownloaded'].toInteger() / 60 / 60 / 24 : null)
-  attributes.last_blob_updated = (criteria.containsKey('lastBlobUpdated') ? criteria['lastBlobUpdated'].toInteger() / 60 / 60 / 24 : null)
-  if (criteria.containsKey('isPrerelease')) {
-    attributes.is_prerelease = criteria['isPrerelease'].toBoolean()
-  }
+  attributes.regex = (criteria.containsKey('regex') ? criteria['regex'] : '')
+  attributes.last_downloaded = (criteria.containsKey('lastDownloaded') ? criteria['lastDownloaded'].toInteger() / 60 / 60 / 24 : '')
+  attributes.last_blob_updated = (criteria.containsKey('lastBlobUpdated') ? criteria['lastBlobUpdated'].toInteger() / 60 / 60 / 24 : '')
+  attributes.is_prerelease = criteria.containsKey('isPrerelease') ? criteria['isPrerelease'].toBoolean() : ''
 
   infos << attributes
 }

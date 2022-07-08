@@ -11,19 +11,13 @@ describe Puppet::Type.type(:nexus3_cleanup_policy) do
   describe 'by default' do
     let(:instance) { described_class.new(required_values) }
 
-    it { expect(instance[:format]).to eq(:all) }
-  end
-
-  it 'not accept no criteria' do
-    expect {
-      described_class.new(name: 'any', format: :all)
-    }.to raise_error(Puppet::ResourceError, %r{At least one criteria must be provided})
+    it { expect(instance[:format]).to eq('all') }
   end
 
   it 'validate format' do
     expect {
       described_class.new(required_values.merge(format: 'invalid'))
-    }.to raise_error(Puppet::Error, %r{Invalid value "invalid"})
+    }.to raise_error(Puppet::ResourceError, %r{Parameter format failed})
   end
 
   specify 'should accept apt format policy' do
@@ -35,8 +29,8 @@ describe Puppet::Type.type(:nexus3_cleanup_policy) do
       required_values.merge(format: 'yum')
     end
 
-    specify 'should default to nil' do
-      expect(described_class.new(required_values)[:is_prerelease]).to be nil
+    specify 'should default to empty string' do
+      expect(described_class.new(required_values)[:is_prerelease]).to eq ''
     end
 
     specify 'should accept :true for yum repos' do
