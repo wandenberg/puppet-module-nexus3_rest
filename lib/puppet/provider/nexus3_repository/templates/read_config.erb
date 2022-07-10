@@ -1,3 +1,20 @@
+<%= File.read(File.join(templates_folder, '../../groovy_utils.erb')) %>
+
+String convertWritePolicy(String value) {
+  switch(value) {
+  case 'DENY':
+    return 'read_only'
+  case 'ALLOW_ONCE':
+    return 'allow_write_once'
+  case 'ALLOW':
+    return 'allow_write'
+  case 'REPLICATION_ONLY':
+    return 'allow_write_by_replication'
+  default:
+    return ''
+  }
+}
+
 def repositories = repository.repositoryManager.browse()
 def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
 def infos = repositories.findResults { repository ->
@@ -13,16 +30,25 @@ def infos = repositories.findResults { repository ->
   def proxy = config.attributes('proxy')
   def group = config.attributes('group')
   def maven = config.attributes('maven')
-  def yum   = config.attributes('yum')
+  def raw = config.attributes('raw')
+  def yum = config.attributes('yum')
+  def yumSigning = config.attributes('yumSigning')
   def docker = config.attributes('docker')
   def dockerProxy = config.attributes('dockerProxy')
   def apt = config.attributes('apt')
   def aptSigning = config.attributes('aptSigning')
   def aptHosted = config.attributes('aptHosted')
+  def bower = config.attributes('bower')
+  def npm = config.attributes('npm')
+  def nugetProxy = config.attributes('nugetProxy')
   def httpclient = config.attributes('httpclient');
+  def httpclientConnection = httpclient.child('connection');
   def authentication = httpclient.child('authentication');
   def rule = config.routingRuleId ? routingRuleStore.getById(config.routingRuleId.value) : null
-  def negativeCache = config.attributes('negativeCache')
+  def negativeCache = config.attributes('negativeCache');
+  def component = config.attributes('component');
+  def contentDispositionDefault = providerType == 'maven2' ? 'inline' : (providerType == 'raw' ? 'attachment' : '')
+  def is_proxy = type == 'proxy';
 
   [
     name: config.repositoryName,
@@ -30,37 +56,52 @@ def infos = repositories.findResults { repository ->
     provider_type: providerType,
     online: config.isOnline(),
     cleanup_policies: cleanup.get('policyName') ? cleanup.get('policyName') : [],
-    write_policy: storage.get('writePolicy'),
+    write_policy: convertWritePolicy(storage.get('writePolicy')),
     blobstore_name: storage.get('blobStoreName'),
-    strict_content_type_validation: storage.get('strictContentTypeValidation'),
-    remote_url: proxy.get('remoteUrl'),
-    content_max_age: proxy.get('contentMaxAge'),
-    metadata_max_age: proxy.get('metadataMaxAge'),
-    version_policy: maven.get('versionPolicy')?.toLowerCase(),
-    layout_policy: maven.get('layoutPolicy')?.toLowerCase(),
-    auto_block: httpclient.get('autoBlock'),
-    blocked: httpclient.get('blocked'),
+    strict_content_type_validation: storage.get('strictContentTypeValidation') != null ? storage.get('strictContentTypeValidation').toBoolean() : providerType == 'raw' ? false : true,
+    proprietary_components: component.get('proprietaryComponents') != null ? component.get('proprietaryComponents').toBoolean() : is_proxy ? '' : false,
+    remote_url: ensureDefault(proxy.get('remoteUrl')),
+    content_max_age: proxy.get('contentMaxAge') ? proxy.get('contentMaxAge').toInteger() : '',
+    metadata_max_age: proxy.get('metadataMaxAge') ? proxy.get('metadataMaxAge').toInteger() : '',
+    version_policy: ensureDefault(maven.get('versionPolicy')?.toLowerCase()),
+    layout_policy: ensureDefault(maven.get('layoutPolicy')?.toLowerCase(), ensureDefault(yum.get('layoutPolicy')?.toLowerCase())),
+    content_disposition: ensureDefault(maven.get('contentDisposition')?.toLowerCase(), ensureDefault(raw.get('contentDisposition')?.toLowerCase(), contentDispositionDefault)),
+    auto_block: httpclient.get('autoBlock') != null ? httpclient.get('autoBlock').toBoolean() : (is_proxy ? false : ''),
+    blocked: httpclient.get('blocked') != null ? httpclient.get('blocked').toBoolean() : (is_proxy ? false : ''),
     remote_auth_type: authentication.get('type') ? authentication.get('type') : 'none',
-    remote_bearer_token: authentication.get('bearerToken'),
-    remote_user: authentication.get('username'),
-    remote_password: authentication.get('password'),
-    remote_ntlm_host: authentication.get('ntlmHost'),
-    remote_ntlm_domain: authentication.get('ntlmDomain'),
-    depth: yum.get('repodataDepth').toString(),
-    http_port: docker.get('httpPort'),
-    https_port: docker.get('httpsPort'),
-    v1_enabled: docker.get('v1Enabled'),
-    force_basic_auth: docker.get('forceBasicAuth'),
-    index_type: dockerProxy.get('indexType'),
-    index_url: dockerProxy.get('indexUrl'),
-    distribution: apt.get('distribution'),
-    is_flat: apt.get('flat'),
-    pgp_keypair: aptSigning.get('keypair'),
-    pgp_keypair_passphrase: aptSigning.get('passphrase'),
-    asset_history_limit: aptHosted.get('assetHistoryLimit'),
-    routing_rule: rule ? rule.name : '',
-    negative_cache_enabled: negativeCache.get('enabled'),
-    negative_cache_ttl: negativeCache.get('timeToLive'),
+    remote_bearer_token: ensureDefault(authentication.get('bearerToken')),
+    remote_user: ensureDefault(authentication.get('username')),
+    remote_password: ensureDefault(authentication.get('password')),
+    remote_ntlm_host: ensureDefault(authentication.get('ntlmHost')),
+    remote_ntlm_domain: ensureDefault(authentication.get('ntlmDomain')),
+    remote_user_agent: ensureDefault(httpclientConnection.get('userAgentSuffix')),
+    remote_retries: httpclientConnection.get('retries') ? httpclientConnection.get('retries').toInteger() : '',
+    remote_connection_timeout: httpclientConnection.get('timeout') ? httpclientConnection.get('timeout').toInteger() : '',
+    remote_enable_circular_redirects: httpclientConnection.get('enableCircularRedirects') != null ? httpclientConnection.get('enableCircularRedirects').toBoolean() : (is_proxy ? false : ''),
+    remote_enable_cookies: httpclientConnection.get('enableCookies') != null ? httpclientConnection.get('enableCookies').toBoolean() : (is_proxy ? false : ''),
+    depth: yum.get('repodataDepth') ? yum.get('repodataDepth') : '',
+    http_port: docker.get('httpPort') ? docker.get('httpPort').toInteger() : '',
+    https_port: docker.get('httpsPort') ? docker.get('httpsPort').toInteger() : '',
+    v1_enabled: docker.get('v1Enabled') != null ? docker.get('v1Enabled').toBoolean() : '',
+    force_basic_auth: docker.get('forceBasicAuth') != null ? docker.get('forceBasicAuth').toBoolean() : '',
+    cache_foreign_layers: dockerProxy.get('cacheForeignLayers') != null ? dockerProxy.get('cacheForeignLayers').toBoolean() : '',
+    foreign_layers_url_whitelist: dockerProxy.get('foreignLayerUrlWhitelist') ? dockerProxy.get('foreignLayerUrlWhitelist') : [],
+    index_type: ensureDefault(dockerProxy.get('indexType')?.toLowerCase()),
+    index_url: ensureDefault(dockerProxy.get('indexUrl')),
+    distribution: ensureDefault(apt.get('distribution')),
+    is_flat: apt.get('flat') != null ? apt.get('flat').toBoolean() : '',
+    pgp_keypair: ensureDefault(aptSigning.get('keypair'), ensureDefault(yumSigning.get('keypair'))),
+    pgp_keypair_passphrase: ensureDefault(aptSigning.get('passphrase'), ensureDefault(yumSigning.get('passphrase'))),
+    asset_history_limit: aptHosted.get('assetHistoryLimit') ? aptHosted.get('assetHistoryLimit').toInteger() : '',
+    routing_rule: ensureDefault(rule?.name),
+    negative_cache_enabled: negativeCache.get('enabled') != null ? negativeCache.get('enabled').toBoolean() : is_proxy ? true : '',
+    negative_cache_ttl: negativeCache.get('timeToLive') ? negativeCache.get('timeToLive').toInteger() : (type == 'proxy' ? 1440 : ''),
+    rewrite_package_urls: bower.get('rewritePackageUrls') != null ? bower.get('rewritePackageUrls').toBoolean() : '',
+    remove_non_cataloged: npm.get('removeNonCataloged') != null ? npm.get('removeNonCataloged').toBoolean() : '',
+    remove_quarantined_versions: npm.get('removeQuarantinedVersions') != null ? npm.get('removeQuarantinedVersions').toBoolean() : '',
+    nuget_version: ensureDefault(nugetProxy.get('nugetVersion')),
+    query_cache_item_max_age: nugetProxy.get('queryCacheItemMaxAge') ? nugetProxy.get('queryCacheItemMaxAge').toInteger() : '',
   ]
 }
+
 return groovy.json.JsonOutput.toJson(infos)

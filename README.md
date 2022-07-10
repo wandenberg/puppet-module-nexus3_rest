@@ -306,7 +306,7 @@ nexus3_repository { 'new-repository':
                                       'policy2',
                                     ],
   version_policy                 => 'snapshot',           #valid values: 'snapshot', 'release' (default for maven2), 'mixed'
-  write_policy                   => 'allow_write_once',   #valid values: 'read_only', 'allow_write_once (default for maven2)', 'allow_write'
+  write_policy                   => 'allow_write_once',   #valid values: 'read_only', 'allow_write_once (default for maven2)', 'allow_write', 'allow_write_by_replication'
   strict_content_type_validation => true,                 #valid values: true (default), false
 
   #the following 'remote_' and '*block*' properties may only be used when type => 'proxy'

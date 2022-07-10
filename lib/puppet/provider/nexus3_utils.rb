@@ -23,6 +23,19 @@ module Puppet::Provider::Nexus3Utils
     end
   end
 
+  WRITE_POLICY_MAPPING = {
+    'read_only' => 'DENY',
+    'allow_write_once' => 'ALLOW_ONCE',
+    'allow_write' => 'ALLOW',
+    'allow_write_by_replication' => 'REPLICATION_ONLY',
+  }.freeze
+
+  DOCKER_PROXY_INDEX_TYPE = {
+    'registry' => 'REGISTRY',
+    'hub' => 'HUB',
+    'custom' => 'CUSTOM'
+  }.freeze
+
   # Hook to return all instances of a resource type that its provider finds on the current system. Mainly used when
   # invoking `puppet resource`.
   def get(_context)

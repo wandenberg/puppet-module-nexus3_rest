@@ -1,0 +1,139 @@
+storage.set('strictContentTypeValidation', <%= resource[:strict_content_type_validation] %>)
+
+config.online = <%= resource[:online] %>
+
+config.routingRuleId = null
+<%- unless resource[:routing_rule].to_s.empty? -%>
+def rule = routingRuleStore.getByName('<%= resource[:routing_rule] %>')
+config.routingRuleId = org.sonatype.nexus.common.entity.EntityHelper.id(rule)
+<%- end -%>
+
+<%- unless resource[:cleanup_policies] && resource[:cleanup_policies].empty? -%>
+def cleanup = config.attributes('cleanup')
+cleanup.set('policyName', new HashSet(<%= resource[:cleanup_policies] %>))
+<%- end -%>
+
+<%- if resource[:provider_type] == 'apt' -%>
+def apt = config.attributes('apt')
+apt.set('distribution', '<%= resource[:distribution] %>')
+<%- end -%>
+
+<%- if resource[:provider_type] == 'docker' -%>
+def docker = config.attributes('docker')
+docker.set('v1Enabled', '<%= resource[:v1_enabled] %>')
+docker.set('forceBasicAuth','<%= resource[:force_basic_auth] %>')
+<%- if defined? resource[:http_port] -%>
+docker.set('httpPort', '<%= resource[:http_port] %>')
+<%- end -%>
+<%- if defined? resource[:https_port] -%>
+docker.set('httpsPort', '<%= resource[:https_port] %>')
+<%- end -%>
+<%- end -%>
+
+<%- if resource[:provider_type] == 'maven2' -%>
+def maven = config.attributes('maven')
+maven.set('layoutPolicy', '<%= resource[:layout_policy].upcase %>')
+maven.set('contentDisposition', '<%= resource[:content_disposition].upcase %>')
+<%- end -%>
+
+<%- if resource[:provider_type] == 'raw' -%>
+def raw = config.attributes('raw')
+raw.set('contentDisposition', '<%= resource[:content_disposition].upcase %>')
+<%- end -%>
+
+<%- if resource[:type] == 'hosted' -%>
+storage.set('writePolicy', '<%= Puppet::Provider::Nexus3Utils::WRITE_POLICY_MAPPING[resource[:write_policy]] %>')
+
+config.attributes('httpclient').remove('authentication')
+
+def component = config.attributes('component')
+component.set('proprietaryComponents', <%= resource[:proprietary_components] %>)
+
+<%- if resource[:provider_type] == 'apt' -%>
+def aptSigning = config.attributes('aptSigning')
+aptSigning.set('keypair', """<%= resource[:pgp_keypair] %>""")
+aptSigning.set('passphrase', '<%= resource[:pgp_keypair_passphrase] %>')
+def aptHosted = config.attributes('aptHosted')
+aptHosted.set('assetHistoryLimit', '<%= resource[:asset_history_limit] %>')
+<%- end -%>
+
+<%- if resource[:provider_type] == 'yum' -%>
+def yum = config.attributes('yum')
+yum.set('repodataDepth', <%= resource[:depth]  %>)
+yum.set('layoutPolicy', '<%= resource[:layout_policy].upcase %>')
+<%- end -%>
+
+<%- end -%>
+
+<%- if resource[:type] == 'proxy' -%>
+
+def proxy = config.attributes('proxy')
+proxy.set('remoteUrl', '<%= resource[:remote_url] %>')
+proxy.set('contentMaxAge', '<%= resource[:content_max_age] %>')
+proxy.set('metadataMaxAge', '<%= resource[:metadata_max_age] %>')
+def negativeCache = config.attributes('negativeCache')
+negativeCache.set('enabled', '<%= resource[:negative_cache_enabled] %>')
+negativeCache.set('timeToLive', '<%= resource[:negative_cache_ttl] %>')
+def httpclient = config.attributes('httpclient');
+httpclient.set('blocked', '<%= resource[:blocked] %>');
+httpclient.set('autoBlock', '<%= resource[:auto_block] %>');
+<%- if resource[:remote_auth_type] == 'none' -%>
+httpclient.remove('authentication')
+<%- else -%>
+def authentication = httpclient.child('authentication');
+authentication.set('type', '<%= resource[:remote_auth_type] %>');
+authentication.set('bearerToken', '<%= resource[:remote_bearer_token] %>');
+authentication.set('username', '<%= resource[:remote_user] %>');
+authentication.set('password', '<%= resource[:remote_password] %>');
+authentication.set('ntlmHost', '<%= resource[:remote_ntlm_host] %>');
+authentication.set('ntlmDomain', '<%= resource[:remote_ntlm_domain] %>');
+<%- end -%>
+def httpclientConnection = httpclient.child('connection');
+httpclientConnection.set('userAgentSuffix', '<%= resource[:remote_user_agent] %>');
+httpclientConnection.set('retries', '<%= resource[:remote_retries] %>');
+<%- if resource[:remote_connection_timeout].to_s.empty? -%>
+httpclientConnection.remove('timeout')
+<%- else -%>
+httpclientConnection.set('timeout', '<%= resource[:remote_connection_timeout] %>');
+<%- end -%>
+httpclientConnection.set('enableCircularRedirects', '<%= resource[:remote_enable_circular_redirects] %>');
+httpclientConnection.set('enableCookies', '<%= resource[:remote_enable_cookies] %>');
+
+<%- if resource[:provider_type] == 'apt' -%>
+apt.set('flat', <%= resource[:is_flat] %>)
+<%- end -%>
+
+<%- if resource[:provider_type] == 'bower' -%>
+def bower = config.attributes('bower');
+bower.set('rewritePackageUrls', '<%= resource[:rewrite_package_urls] %>');
+<%- end -%>
+
+<%- if resource[:provider_type] == 'docker' -%>
+def dockerProxy = config.attributes('dockerProxy')
+dockerProxy.set('cacheForeignLayers', '<%= resource[:cache_foreign_layers] %>')
+dockerProxy.set('foreignLayerUrlWhitelist', <%= resource[:foreign_layers_url_whitelist] %>)
+dockerProxy.set('indexType', '<%= Puppet::Provider::Nexus3Utils::DOCKER_PROXY_INDEX_TYPE[resource[:index_type]] %>')
+<%- if resource[:index_type] == 'custom' -%>
+dockerProxy.set('indexUrl', '<%= resource[:index_url] %>')
+<%- end -%>
+<%- end -%>
+
+<%- if resource[:provider_type] == 'npm' -%>
+def npm = config.attributes('npm');
+npm.set('removeNonCataloged', '<%= resource[:remove_non_cataloged] %>');
+npm.set('removeQuarantinedVersions', '<%= resource[:remove_quarantined_versions] %>');
+<%- end -%>
+
+<%- if resource[:provider_type] == 'nuget' -%>
+def nugetProxy = config.attributes('nugetProxy');
+nugetProxy.set('nugetVersion', '<%= resource[:nuget_version] %>');
+nugetProxy.set('queryCacheItemMaxAge', <%= resource[:query_cache_item_max_age] %>);
+<%- end -%>
+
+<%- if resource[:provider_type] == 'yum' -%>
+def yumSigning = config.attributes('yumSigning')
+yumSigning.set('keypair', """<%= resource[:pgp_keypair] %>""")
+yumSigning.set('passphrase', '<%= resource[:pgp_keypair_passphrase] %>')
+<%- end -%>
+
+<%- end -%>

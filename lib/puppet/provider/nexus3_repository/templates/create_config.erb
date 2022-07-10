@@ -7,82 +7,14 @@ def config = repository.repositoryManager.newConfiguration()
 
 config.repositoryName = '<%= resource[:name] %>'
 config.recipeName = '<%= resource[:provider_type] %>-<%= resource[:type] %>'
-config.online = <%= resource[:online] %>
+
 def storage = config.attributes('storage')
 storage.set('blobStoreName', '<%= resource[:blobstore_name] %>')
-storage.set('strictContentTypeValidation', <%= resource[:strict_content_type_validation] %>)
-<%- unless resource[:cleanup_policies].nil? -%>
-def cleanup = config.attributes('cleanup')
-cleanup.set('policyName', new HashSet(<%= resource[:cleanup_policies] %>))
-<%- end -%>
-<%- if resource[:type] == :hosted -%>
-storage.set('writePolicy', '<%= WRITE_POLICY_MAPPING[resource[:write_policy]] %>')
-<%- elsif resource[:type] == :proxy -%>
-def proxy = config.attributes('proxy')
-proxy.set('remoteUrl', '<%= resource[:remote_url] %>')
-proxy.set('contentMaxAge', '<%= resource[:content_max_age] %>')
-proxy.set('metadataMaxAge', '<%= resource[:metadata_max_age] %>')
-def negativeCache = config.attributes('negativeCache')
-negativeCache.set('enabled', '<%= resource[:negative_cache_enabled] %>')
-negativeCache.set('timeToLive', '<%= resource[:negative_cache_ttl] %>')
-def httpclient = config.attributes('httpclient');
-httpclient.set('blocked', '<%= resource[:blocked] %>');
-httpclient.set('autoBlock', '<%= resource[:auto_block] %>');
-<%- if resource[:remote_auth_type] == :none -%>
-httpclient.remove('authentication')
-<%- else -%>
-def authentication = httpclient.child('authentication');
-authentication.set('type', '<%= resource[:remote_auth_type] %>');
-authentication.set('bearerToken', '<%= resource[:remote_bearer_token] %>');
-authentication.set('username', '<%= resource[:remote_user] %>');
-authentication.set('password', '<%= resource[:remote_password] %>');
-authentication.set('ntlmHost', '<%= resource[:remote_ntlm_host] %>');
-authentication.set('ntlmDomain', '<%= resource[:remote_ntlm_domain] %>');
-<%- end -%>
-<%- end -%>
-<%- if resource[:provider_type] == :apt -%>
-def apt = config.attributes('apt')
-apt.set('distribution', '<%= resource[:distribution] %>')
-<%- if resource[:type] == :hosted -%>
-def aptSigning = config.attributes('aptSigning')
-aptSigning.set('keypair', """<%= resource[:pgp_keypair] %>""")
-aptSigning.set('passphrase', '<%= resource[:pgp_keypair_passphrase] %>')
-def aptHosted = config.attributes('aptHosted')
-aptHosted.set('assetHistoryLimit', '<%= resource[:asset_history_limit] %>')
-<%- else -%>
-apt.set('flat', <%= resource[:is_flat] %>)
-<%- end -%>
-<%- end -%>
-<%- if resource[:provider_type] == :maven2 -%>
-def maven = config.attributes('maven')
+
+<%= Puppet::Provider::Nexus3Utils.render_template(templates_folder, 'set_attributes.erb', resource) %>
+
+<%- if resource[:provider_type] == 'maven2' -%>
 maven.set('versionPolicy', '<%= resource[:version_policy].upcase %>')
-maven.set('layoutPolicy', '<%= resource[:layout_policy].upcase %>')
 <%- end -%>
-<%- if resource[:provider_type] == :yum -%>
-def yum = config.attributes('yum')
-yum.set('repodataDepth', <%= resource[:depth]  %>)
-<%- end -%>
-<%- if resource[:provider_type] == :docker -%>
-def docker = config.attributes('docker')
-<%- if resource[:type] == :proxy -%>
-def dockerProxy = config.attributes('dockerProxy')
-dockerProxy.set('indexType', '<%= DOCKER_PROXY_INDEX_TYPE[resource[:index_type]] %>')
-<%- if resource[:index_type] == :custom -%>
-dockerProxy.set('indexUrl', '<%= resource[:index_url] %>')
-<%- end -%>
-<%- end -%>
-<%- if defined? resource[:http_port] -%>
-docker.set('httpPort', '<%= resource[:http_port] %>')
-<%- end -%>
-<%- if defined? resource[:https_port] -%>
-docker.set('httpsPort', '<%= resource[:https_port] %>')
-<%- end -%>
-docker.set('v1Enabled', '<%= resource[:v1_enabled] %>')
-docker.set('forceBasicAuth','<%= resource[:force_basic_auth] %>')
-<%- end -%>
-config.routingRuleId = null
-<%- if resource[:routing_rule] -%>
-def rule = routingRuleStore.getByName('<%= resource[:routing_rule] %>')
-config.routingRuleId = org.sonatype.nexus.common.entity.EntityHelper.id(rule)
-<%- end -%>
+
 repository.repositoryManager.create(config)
