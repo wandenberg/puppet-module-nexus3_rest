@@ -1,2 +1,4 @@
 def ldapConfigurationManager = container.lookup(org.sonatype.nexus.ldap.persist.LdapConfigurationManager.class.name)
-ldapConfigurationManager.deleteLdapServerConfiguration('<%= resource.provider.id %>')
+def ldapConfigurations = ldapConfigurationManager.listLdapServerConfigurations()
+ldapConfiguration = ldapConfigurations.find { it.name == '<%= resource[:name] %>' }
+ldapConfigurationManager.deleteLdapServerConfiguration(ldapConfiguration.getId())

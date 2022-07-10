@@ -1,41 +1,11 @@
 def ldapConfigurationManager = container.lookup(org.sonatype.nexus.ldap.persist.LdapConfigurationManager.class.name)
-
-def ldapConfiguration = ldapConfigurationManager.getLdapServerConfiguration('<%= resource.provider.id %>')
-<%- if resource[:order] -%>
-ldapConfiguration.setOrder(<%= resource[:order] %>)
-<%- end -%>
+def ldapConfigurations = ldapConfigurationManager.listLdapServerConfigurations()
+ldapConfiguration = ldapConfigurations.find { it.name == '<%= resource[:name] %>' }
 
 def connection = ldapConfiguration.getConnection()
-connection.setSearchBase('<%= resource[:search_base] %>')
-connection.setMaxIncidentsCount(<%= resource[:max_incidents_count] %>)
-connection.setConnectionRetryDelay(<%= resource[:connection_retry_delay] %>)
-connection.setConnectionTimeout(<%= resource[:connection_timeout] %>)
-connection.setSaslRealm('<%= resource[:sasl_realm] %>')
-connection.setAuthScheme('<%= resource[:authentication_scheme] %>')
-connection.setSystemUsername('<%= resource[:username] %>')
-connection.setSystemPassword('<%= resource[:password] %>')
-
 def host = connection.getHost()
-host.setProtocol(org.sonatype.nexus.ldap.persist.entity.Connection.Protocol.<%= resource[:protocol] %>)
-host.setHostName('<%= resource[:hostname] %>')
-host.setPort(<%= resource[:port] %>)
-
 def mapping = ldapConfiguration.getMapping()
-mapping.setUserBaseDn('<%= resource[:user_base_dn] %>')
-mapping.setEmailAddressAttribute('<%= resource[:user_email_attribute] %>')
-mapping.setUserIdAttribute('<%= resource[:user_id_attribute] %>')
-mapping.setUserObjectClass('<%= resource[:user_object_class] %>')
-mapping.setUserPasswordAttribute('<%= resource[:user_password_attribute] %>')
-mapping.setUserRealNameAttribute('<%= resource[:user_real_name_attribute] %>')
-mapping.setUserSubtree(<%= resource[:user_subtree] %>)
-mapping.setUserMemberOfAttribute('<%= resource[:user_member_of_attribute] %>')
-mapping.setGroupBaseDn('<%= resource[:group_base_dn] %>')
-mapping.setGroupIdAttribute('<%= resource[:group_id_attribute] %>')
-mapping.setGroupMemberAttribute('<%= resource[:group_member_attribute] %>')
-mapping.setGroupMemberFormat('<%= resource[:group_member_format] %>')
-mapping.setGroupObjectClass('<%= resource[:group_object_class] %>')
-mapping.setGroupSubtree(<%= resource[:group_subtree] %>)
-mapping.setLdapFilter('<%= resource[:ldap_filter] %>')
-mapping.setLdapGroupsAsRoles(<%= resource[:ldap_groups_as_roles] %>)
+
+<%= Puppet::Provider::Nexus3Utils.render_template(templates_folder, 'set_attributes.erb', resource) %>
 
 ldapConfigurationManager.updateLdapServerConfiguration(ldapConfiguration)

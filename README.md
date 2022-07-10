@@ -196,6 +196,7 @@ nexus3_ldap_settings { 'company_ldap':
   user_member_of_attribute => '',                   #optional
   ldap_filter              => '',                   #optional
   ldap_groups_as_roles     => false,                #true is default
+  group_type               => 'static',             #static is default. Valid values are static or dynamic
   group_base_dn            => 'OU=groups',          #OU=groups is default, required if ldap_groups_as_roles is true
   group_subtree            => false,                #false is default
   group_object_class       => 'group',              #group is default, required if ldap_groups_as_roles is true

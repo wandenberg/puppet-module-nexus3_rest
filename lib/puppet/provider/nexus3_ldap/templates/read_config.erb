@@ -1,3 +1,5 @@
+<%= File.read(File.join(templates_folder, '../../groovy_utils.erb')) %>
+
 def ldapConfigurationManager = container.lookup(org.sonatype.nexus.ldap.persist.LdapConfigurationManager.class.name)
 def ldapConfigurations = ldapConfigurationManager.listLdapServerConfigurations()
 
@@ -5,9 +7,16 @@ def infos = ldapConfigurations.collect { ldapConfiguration ->
   def connection = ldapConfiguration.getConnection()
   def host = connection.getHost()
   def mapping = ldapConfiguration.getMapping()
+  def groupType = ''
+
+  if (mapping.getUserMemberOfAttribute()) {
+    groupType = 'dynamic'
+  } else if (mapping.getGroupBaseDn() || mapping.getGroupObjectClass() || mapping.getGroupIdAttribute() || mapping.getGroupMemberAttribute() || mapping.getGroupMemberFormat()) {
+    groupType = 'static'
+  }
+
   [
     name: ldapConfiguration.getName(),
-    id: ldapConfiguration.getId(),
     order: ldapConfiguration.getOrder(),
     protocol: host.getProtocol(),
     hostname: host.getHostName(),
@@ -29,7 +38,7 @@ def infos = ldapConfigurations.collect { ldapConfiguration ->
     user_password_attribute: mapping.getUserPasswordAttribute(),
     user_real_name_attribute: mapping.getUserRealNameAttribute(),
     user_subtree: mapping.isUserSubtree(),
-    user_member_of_attribute: mapping.getUserMemberOfAttribute(),
+    user_member_of_attribute: ensureDefault(mapping.getUserMemberOfAttribute()),
 
     group_base_dn: mapping.getGroupBaseDn(),
     group_id_attribute: mapping.getGroupIdAttribute(),
@@ -40,6 +49,8 @@ def infos = ldapConfigurations.collect { ldapConfiguration ->
 
     ldap_filter: mapping.getLdapFilter(),
     ldap_groups_as_roles: mapping.isLdapGroupsAsRoles(),
+    group_type: groupType,
   ]
 }
+
 return groovy.json.JsonOutput.toJson(infos)
