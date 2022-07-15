@@ -1,51 +1,80 @@
-require 'puppet/property/boolean'
+require 'puppet/resource_api'
+require 'puppet_x/nexus3/config'
 
-Puppet::Type.newtype(:nexus3_privilege) do
-  @doc = 'Manages Nexus 3 Privilege'
+Puppet::ResourceApi.register_type(
+  name: 'nexus3_privilege',
+  docs: <<-EOS,
+@summary a nexus3_privilege type
+@example
+nexus3_privilege { 'nx-all':
+  type        => 'wildcard',
+  description => 'All permissions',
+  pattern     => 'nexus:*',
+}
 
-  ensurable
+This type provides Puppet with the capabilities to manage Nexus 3 Privilege.
 
-  newparam(:name, namevar: true) do
-    desc 'Unique privilege name.'
-  end
-
-  newproperty(:type) do
-    desc 'The type of the privilege'
-  end
-
-  newproperty(:description) do
-    desc 'The description of the privilege'
-  end
-
-  newproperty(:pattern) do
-    desc 'The regex pattern'
-  end
-
-  newproperty(:domain) do
-    desc 'The domain for the privilege'
-  end
-
-  newproperty(:actions) do
-    desc 'The comma-delimited list of actions'
-  end
-
-  newproperty(:format) do
-    desc 'The format(s) for the repository'
-  end
-
-  newproperty(:repository_name) do
-    desc 'The repository name'
-  end
-
-  newproperty(:script_name) do
-    desc 'The name of the script'
-  end
-
-  newproperty(:content_selector) do
-    desc 'The name of the script'
-  end
-
-  autorequire(:file) do
-    Nexus3::Config.file_path
-  end
-end
+**Autorequires**:
+* `File[$PUPPET_CONF_DIR/nexus3_rest.conf]`
+  EOS
+  features: ['canonicalize'],
+  attributes: {
+    ensure: {
+      type: 'Enum[present, absent]',
+      desc: 'Whether this resource should be present or absent on the target system.',
+      default: 'present',
+    },
+    name: {
+      type: 'String',
+      desc: 'Unique privilege name.',
+      behaviour: :namevar,
+    },
+    type: {
+      type: 'Pattern[/\A(application|repository-admin|repository-content-selector|repository-view|script|wildcard)\z/]',
+      desc: 'The type of the privilege',
+    },
+    description: {
+      type: 'String',
+      desc: 'The description of the privilege.',
+      default: '',
+    },
+    pattern: {
+      type: 'String',
+      desc: 'The regex pattern.',
+      default: '',
+    },
+    domain: {
+      type: 'String',
+      desc: 'The domain for the privilege.',
+      default: '',
+    },
+    actions: {
+      type: 'String',
+      desc: 'The comma-delimited list of actions.',
+      default: '',
+    },
+    format: {
+      type: 'String',
+      desc: 'The format(s) for the repository.',
+      default: '',
+    },
+    repository_name: {
+      type: 'String',
+      desc: 'The repository name.',
+      default: '',
+    },
+    script_name: {
+      type: 'String',
+      desc: 'The name of the script.',
+      default: '',
+    },
+    content_selector: {
+      type: 'String',
+      desc: 'The name of the script.',
+      default: '',
+    },
+  },
+  autorequire: {
+    file: Nexus3::Config.file_path,
+  },
+)

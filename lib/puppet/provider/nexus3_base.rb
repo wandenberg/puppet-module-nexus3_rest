@@ -42,8 +42,12 @@ class Puppet::Provider::Nexus3Base < Puppet::Provider
       resources.each do |name, resource|
         provider = settings.find { |setting| setting.name.to_s == name.to_s }
         resource.provider = provider if provider
+        validate_resource(resource)
       end
     end
+  end
+
+  def self.validate_resource(resource)
   end
 
   # Update the configuration referenced by the current resource (e.g. just the SMTP settings).

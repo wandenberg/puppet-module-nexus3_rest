@@ -1,8 +1,6 @@
 def authorizationManager = container.lookup(org.sonatype.nexus.security.authz.AuthorizationManager.class.name)
 def privilege = authorizationManager.getPrivilege('<%= resource[:name] %>')
 
-<%- resource.to_hash.each_pair do |key, value| -%>
-<%= to_groovy_properties(key, value) %>
-<%- end -%>
+<%= Puppet::Provider::Nexus3Utils.render_template(templates_folder, 'set_attributes.erb', resource) %>
 
 authorizationManager.updatePrivilege(privilege)
