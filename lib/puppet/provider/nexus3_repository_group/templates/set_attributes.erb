@@ -1,0 +1,34 @@
+config.online = <%= resource[:online] %>
+def group = config.attributes('group')
+group.set('memberNames', <%= resource[:repositories] %>)
+
+storage.set('strictContentTypeValidation', <%= resource[:strict_content_type_validation] %>)
+
+<%- if resource[:provider_type] == 'docker' -%>
+def docker = config.attributes('docker')
+docker.set('v1Enabled', '<%= resource[:v1_enabled] %>')
+docker.set('forceBasicAuth','<%= resource[:force_basic_auth] %>')
+<%- if defined? resource[:http_port] -%>
+docker.set('httpPort', '<%= resource[:http_port] %>')
+<%- end -%>
+<%- if defined? resource[:https_port] -%>
+docker.set('httpsPort', '<%= resource[:https_port] %>')
+<%- end -%>
+<%- end -%>
+
+<%- if resource[:provider_type] == 'maven2' -%>
+def maven = config.attributes('maven')
+maven.set('layoutPolicy', '<%= resource[:layout_policy].upcase %>')
+maven.set('contentDisposition', '<%= resource[:content_disposition].upcase %>')
+<%- end -%>
+
+<%- if resource[:provider_type] == 'raw' -%>
+def raw = config.attributes('raw')
+raw.set('contentDisposition', '<%= resource[:content_disposition].upcase %>')
+<%- end -%>
+
+<%- if resource[:provider_type] == 'yum' -%>
+def yumSigning = config.attributes('yumSigning')
+yumSigning.set('keypair', """<%= resource[:pgp_keypair] %>""")
+yumSigning.set('passphrase', '<%= resource[:pgp_keypair_passphrase] %>')
+<%- end -%>

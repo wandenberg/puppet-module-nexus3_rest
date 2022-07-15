@@ -1,18 +1,7 @@
 def config = repository.repositoryManager.get('<%= resource[:name] %>').getConfiguration()
-config.online = <%= resource[:online] %>
-def group = config.attributes('group')
-group.set('memberNames', <%= resource[:repositories] %>)
+
 def storage = config.attributes('storage')
-storage.set('strictContentTypeValidation', <%= resource[:strict_content_type_validation] %>)
-<%- if resource[:provider_type] == :docker -%>
-def docker = config.attributes('docker')
-<%- if defined? resource[:http_port] -%>
-docker.set('httpPort', '<%= resource[:http_port] %>')
-<%- end -%>
-<%- if defined? resource[:https_port] -%>
-docker.set('httpsPort', '<%= resource[:https_port] %>')
-<%- end -%>
-docker.set('v1Enabled', '<%= resource[:v1_enabled] %>')
-docker.set('forceBasicAuth','<%= resource[:force_basic_auth] %>')
-<%- end -%>
+
+<%= Puppet::Provider::Nexus3Utils.render_template(templates_folder, 'set_attributes.erb', resource) %>
+
 repository.repositoryManager.update(config)

@@ -1,7 +1,9 @@
+<%= File.read(File.join(templates_folder, '../../groovy_utils.erb')) %>
+
 def repositories = repository.repositoryManager.browse()
 def infos = repositories.findResults { repository ->
   def config = repository.getConfiguration()
-  def (provider_type, type) = config.recipeName.split('-')
+  def (providerType, type) = config.recipeName.split('-')
 
   if (type != 'group') {
     return null
@@ -12,19 +14,30 @@ def infos = repositories.findResults { repository ->
   def group = config.attributes('group')
   def maven = config.attributes('maven')
   def docker= config.attributes('docker')
+  def raw = config.attributes('raw')
+  def yum = config.attributes('yum')
+  def yumSigning = config.attributes('yumSigning')
   def httpclient = config.attributes('httpclient');
   def authentication = httpclient.child('authentication');
+
+  def contentDispositionDefault = providerType == 'maven2' ? 'inline' : (providerType == 'raw' ? 'attachment' : '')
+
   [
     name: config.repositoryName,
-    provider_type: provider_type,
+    provider_type: providerType,
     online: config.isOnline(),
     blobstore_name: storage.get('blobStoreName'),
     repositories: group.get('memberNames'),
-    strict_content_type_validation: storage.get('strictContentTypeValidation'),
-    http_port: docker.get('httpPort'),
-    https_port: docker.get('httpsPort'),
-    v1_enabled: docker.get('v1Enabled'),
-    force_basic_auth: docker.get('forceBasicAuth'),
+    strict_content_type_validation: storage.get('strictContentTypeValidation') != null ? storage.get('strictContentTypeValidation').toBoolean() : true,
+    http_port: docker.get('httpPort') ? docker.get('httpPort').toInteger() : '',
+    https_port: docker.get('httpsPort') ? docker.get('httpsPort').toInteger() : '',
+    v1_enabled: docker.get('v1Enabled') != null ? docker.get('v1Enabled').toBoolean() : '',
+    force_basic_auth: docker.get('forceBasicAuth') != null ? docker.get('forceBasicAuth').toBoolean() : '',
+    version_policy: ensureDefault(maven.get('versionPolicy')?.toLowerCase()),
+    layout_policy: ensureDefault(maven.get('layoutPolicy')?.toLowerCase(), providerType == 'maven2' ? 'strict' : ''),
+    content_disposition: ensureDefault(maven.get('contentDisposition')?.toLowerCase(), ensureDefault(raw.get('contentDisposition')?.toLowerCase(), contentDispositionDefault)),
+    pgp_keypair: ensureDefault(yumSigning.get('keypair')),
+    pgp_keypair_passphrase: ensureDefault(yumSigning.get('passphrase')),
   ]
 }
 return groovy.json.JsonOutput.toJson(infos)
