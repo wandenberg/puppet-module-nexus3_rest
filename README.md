@@ -248,12 +248,9 @@ The Nexus Role settings can be configured using the `nexus3_role` resource:
 ```
 #!puppet
 nexus3_role { 'nx-anonymous':
-  role_name   => 'Anonymous',       #optional
   description => 'Anonymous Role',  #optional
   roles       => ['nx-logging-all'],
   privileges  => ['nx-search-read', 'nx-repository-view-*-*-read', 'nx-repository-view-*-*-browse'],
-  read_only   => true,
-  source      => 'default',
 }
 
 ```

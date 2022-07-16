@@ -1,15 +1,6 @@
 def authorizationManager = container.lookup(org.sonatype.nexus.security.authz.AuthorizationManager.class.name)
 def role = authorizationManager.getRole('<%= resource[:name] %>')
 
-role.name = '<%= resource[:role_name] %>'
-role.description = '<%= resource[:description] %>'
-role.source = '<%= resource[:source] %>'
-role.readOnly = <%= resource[:read_only] %>
-<%- unless resource[:roles].empty? -%>
-role.setRoles(new HashSet(<%= resource[:roles] %>))
-<%- end -%>
-<%- unless resource[:privileges].empty? -%>
-role.setPrivileges(new HashSet(<%= resource[:privileges] %>))
-<%- end -%>
+<%= Puppet::Provider::Nexus3Utils.render_template(templates_folder, 'set_attributes.erb', resource) %>
 
 authorizationManager.updateRole(role)
