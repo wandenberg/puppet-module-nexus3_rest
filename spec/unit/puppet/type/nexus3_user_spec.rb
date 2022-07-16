@@ -8,59 +8,27 @@ describe Puppet::Type.type(:nexus3_user) do
       lastname: 'Bar',
       password: 'pass',
       email: 'foo@server.com',
-      status: :disabled,
-      roles: 'role-a',
+      status: 'disabled',
+      roles: ['role-a'],
     }
-  end
-
-  describe 'by default' do
-    let(:instance) { described_class.new(required_values) }
-
-    it { expect(instance[:read_only]).to eq(:false) }
   end
 
   specify 'should not accept empty string as firstname' do
     expect {
       described_class.new(required_values.merge(firstname: ''))
-    }.to raise_error(Puppet::ResourceError, %r{Parameter firstname failed})
+    }.to raise_error(ArgumentError, %r{firstname is required})
   end
 
   specify 'should not accept empty string as lastname' do
     expect {
       described_class.new(required_values.merge(lastname: ''))
-    }.to raise_error(Puppet::ResourceError, %r{Parameter lastname failed})
+    }.to raise_error(ArgumentError, %r{lastname is required})
   end
 
   it 'validate status' do
     expect {
       described_class.new(required_values.merge(status: 'invalid'))
-    }.to raise_error(Puppet::Error, %r{Invalid value "invalid"})
-  end
-
-  describe 'read_only' do
-    specify 'should default to false' do
-      expect(described_class.new(required_values)[:read_only]).to be :false
-    end
-
-    specify 'should accept :true' do
-      expect { described_class.new(required_values.merge(read_only: :true)) }.not_to raise_error
-      expect(described_class.new(required_values.merge(read_only: :true))[:read_only]).to be :true
-    end
-
-    specify 'should accept "true' do
-      expect { described_class.new(required_values.merge(read_only: 'true')) }.not_to raise_error
-      expect(described_class.new(required_values.merge(read_only: 'true'))[:read_only]).to be :true
-    end
-
-    specify 'should accept :false' do
-      expect { described_class.new(required_values.merge(read_only: :false)) }.not_to raise_error
-      expect(described_class.new(required_values.merge(read_only: :false))[:read_only]).to be :false
-    end
-
-    specify 'should accept "false"' do
-      expect { described_class.new(required_values.merge(read_only: 'false')) }.not_to raise_error
-      expect(described_class.new(required_values.merge(read_only: 'false'))[:read_only]).to be :false
-    end
+    }.to raise_error(Puppet::ResourceError, %r{Parameter status failed})
   end
 
   describe 'email' do
@@ -71,7 +39,7 @@ describe Puppet::Type.type(:nexus3_user) do
     specify 'should not accept empty email address' do
       expect {
         described_class.new(required_values.merge(email: ''))
-      }.to raise_error(Puppet::ResourceError, %r{Parameter email failed})
+      }.to raise_error(ArgumentError, %r{email is required})
     end
 
     specify 'should not accept invalid email address' do
@@ -90,25 +58,25 @@ describe Puppet::Type.type(:nexus3_user) do
       expect {
         required_values.delete(:roles)
         described_class.new(required_values)
-      }.to raise_error(Puppet::ResourceError, %r{roles must be provided as a non empty array})
+      }.to raise_error(ArgumentError, %r{At least one role is required})
     end
 
     specify 'should not accept an empty array' do
       expect {
         described_class.new(required_values.merge(roles: []))
-      }.to raise_error(Puppet::ResourceError, %r{roles must be provided as a non empty array})
+      }.to raise_error(ArgumentError, %r{At least one role is required})
     end
 
     specify 'should not accept empty string' do
       expect {
         described_class.new(required_values.merge(roles: ''))
-      }.to raise_error(Puppet::ResourceError, %r{Parameter roles failed})
+      }.to raise_error(ArgumentError, %r{At least one role is required})
     end
 
     specify 'should not accept a string as array' do
       expect {
         described_class.new(required_values.merge(roles: 'name1,name2'))
-      }.to raise_error(Puppet::ResourceError, %r{Parameter roles failed})
+      }.to raise_error(ArgumentError, %r{At least one role is required})
     end
   end
 

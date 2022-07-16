@@ -1,0 +1,6 @@
+user.setFirstName('<%= resource[:firstname] %>')
+user.setLastName('<%= resource[:lastname] %>')
+user.setEmailAddress('<%= resource[:email] %>')
+user.setSource('default')
+user.setStatus(org.sonatype.nexus.security.user.UserStatus.<%= resource[:status] %>)
+user.setRoles(new HashSet(<%= resource[:roles] %>.collect { new org.sonatype.nexus.security.role.RoleIdentifier('default', it) }))

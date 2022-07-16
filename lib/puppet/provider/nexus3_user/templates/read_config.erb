@@ -7,7 +7,6 @@ def infos = users.collect { user ->
     lastname : user.getLastName(),
     email : user.getEmailAddress(),
     roles : user.getRoles().collect { role -> role.getRoleId() },
-    read_only : user.isReadOnly(),
     status : user.getStatus(),
   ]
 }

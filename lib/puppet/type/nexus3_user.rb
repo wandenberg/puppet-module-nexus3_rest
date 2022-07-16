@@ -1,70 +1,62 @@
-require 'puppet/property/boolean'
+require 'puppet/resource_api'
+require 'puppet_x/nexus3/config'
 
-Puppet::Type.newtype(:nexus3_user) do
-  @doc = 'Manages Nexus 3 user.'
+Puppet::ResourceApi.register_type(
+  name: 'nexus3_user',
+  docs: <<-EOS,
+@summary a nexus3_user type
+@example
+nexus3_user { 'admin':
+  firstname => 'Administrator',
+  lastname  => 'User',
+  email     => 'admin@example.org',
+  roles     => ['nx-admin'],
+  status    => 'active',
+}
 
-  ensurable
+This type provides Puppet with the capabilities to manage Nexus 3 User.
 
-  newparam(:name, namevar: true) do
-    desc 'Id of the user.'
-  end
-
-  newproperty(:firstname) do
-    desc 'The first name of the user.'
-    validate do |value|
-      raise ArgumentError, 'First name must not be empty' if value.nil? || value.to_s.empty?
-    end
-  end
-
-  newproperty(:lastname) do
-    desc 'The last name of the user.'
-    validate do |value|
-      raise ArgumentError, 'Last name must not be empty' if value.nil? || value.to_s.empty?
-    end
-  end
-
-  newparam(:password) do
-    desc 'The password of the user.'
-  end
-
-  newproperty(:email) do
-    desc 'The email of the user.'
-    validate do |value|
-      raise ArgumentError, 'Email must not be empty' if value.nil? || value.to_s.empty?
-      raise ArgumentError, "Invalid email address '#{value}'." unless %r{@}.match?(value.to_s)
-    end
-  end
-
-  newproperty(:read_only, parent: Puppet::Property::Boolean) do
-    desc 'When user is read only or not.'
-    newvalues(:true, :false)
-    defaultto :false
-    munge { |value| super(value).to_s.to_sym }
-  end
-
-  newproperty(:status) do
-    desc 'When user is activated or not.'
-    newvalues(:active, :disabled)
-  end
-
-  newproperty(:roles, array_matching: :all) do
-    desc 'A list of roles the user have'
-    validate do |value|
-      raise ArgumentError, 'roles must be provided in an array' if value.empty? || value.include?(',')
-    end
-
-    def insync?(is)
-      is.sort == should.sort
-    end
-  end
-
-  validate do
-    if self[:ensure] == :present
-      raise ArgumentError, 'roles must be provided as a non empty array' unless self[:roles].is_a?(Array) && !self[:roles].empty?
-    end
-  end
-
-  autorequire(:file) do
-    Nexus3::Config.file_path
-  end
-end
+**Autorequires**:
+* `File[$PUPPET_CONF_DIR/nexus3_rest.conf]`
+  EOS
+  features: ['canonicalize'],
+  attributes: {
+    ensure: {
+      type: 'Enum[present, absent]',
+      desc: 'Whether this resource should be present or absent on the target system.',
+      default: 'present',
+    },
+    name: {
+      type: 'String',
+      desc: 'Id of the user.',
+      behaviour: :namevar,
+    },
+    firstname: {
+      type: 'String',
+      desc: 'The first name of the user.',
+    },
+    lastname: {
+      type: 'String',
+      desc: 'The last name of the user.',
+    },
+    password: {
+      type: 'String',
+      desc: 'The password of the user.',
+    },
+    email: {
+      type: 'Pattern[/\A.+@.+\..+\z/]',
+      desc: 'The email of the user.',
+    },
+    status: {
+      type: 'Enum[active, disabled]',
+      desc: 'When user is activated or not.',
+    },
+    roles: {
+      type: 'Array[String]',
+      desc: 'A list of roles the user have.',
+    },
+  },
+  autorequire: {
+    file: Nexus3::Config.file_path,
+  },
+)
