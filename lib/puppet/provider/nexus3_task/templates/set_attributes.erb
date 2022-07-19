@@ -1,0 +1,55 @@
+config.setEnabled(<%= resource[:enabled] %>);
+config.setAlertEmail('<%= resource[:alert_email] %>');
+<%- if resource[:notification_condition] -%>
+config.setNotificationCondition(org.sonatype.nexus.scheduling.TaskNotificationCondition.valueOf('<%= resource[:notification_condition]&.upcase %>'));
+<%- else -%>
+config.setNotificationCondition(org.sonatype.nexus.scheduling.TaskNotificationCondition.valueOf(org.sonatype.nexus.scheduling.TaskNotificationCondition.DEFAULT.name()));
+<%- end -%>
+
+config.setBoolean('dryRun', <%= resource[:dry_run] || false %>);
+config.setBoolean('integrityCheck', <%= resource[:integrity_check] || false %>);
+config.setBoolean('rebuildChecksums', <%= resource[:rebuild_checksums] || false %>);
+config.setBoolean('removeIfReleased', <%= resource[:remove_if_released] || false %>);
+config.setBoolean('restoreBlobs', <%= resource[:restore_blobs] || false %>);
+config.setBoolean('undeleteBlobs', <%= resource[:undelete_blobs] || false %>);
+config.setBoolean('yumMetadataCaching', <%= resource[:yum_metadata_caching] || false %>);
+
+config.setInteger('age', <%= resource[:age].to_i %>);
+config.setInteger('deployOffset', <%= resource[:deploy_offset].to_i %>);
+config.setInteger('gracePeriodInDays', <%= resource[:grace_period_in_days].to_i %>);
+config.setInteger('lastUsed', <%= resource[:last_used].to_i %>);
+config.setInteger('minimumRetained', <%= resource[:minimum_retained].to_i %>);
+config.setInteger('sinceDays', <%= resource[:since_days].to_i %>);
+config.setInteger('snapshotRetentionDays', <%= resource[:snapshot_retention_days].to_i %>);
+
+config.setString('artifactId', '<%= resource[:artifact_id] %>')
+config.setString('baseVersion', '<%= resource[:base_version] %>')
+config.setString('blobstoreName', '<%= resource[:blobstore_name] %>')
+config.setString('groupId', '<%= resource[:group_id] %>')
+config.setString('language', '<%= resource[:language] %>')
+config.setString('location', '<%= resource[:location] %>')
+config.setString('packageName', '<%= resource[:package_name] %>')
+config.setString('repositoryName', '<%= resource[:repository_name] %>')
+config.setString('source', """<%= resource[:source] %>""")
+
+<%-
+  case resource[:frequency]
+  when 'once'
+    schedule = "org.sonatype.nexus.scheduling.schedule.Once(java.util.Date.parse('yyyy-MM-dd HH:mm', '#{resource[:start_date]} #{resource[:start_time]}'))"
+  when 'hourly'
+    schedule = "org.sonatype.nexus.scheduling.schedule.Hourly(java.util.Date.parse('yyyy-MM-dd HH:mm', '#{resource[:start_date]} #{resource[:start_time]}'))"
+  when 'daily'
+    schedule = "org.sonatype.nexus.scheduling.schedule.Daily(java.util.Date.parse('yyyy-MM-dd HH:mm', '#{resource[:start_date]} #{resource[:start_time]}'))"
+  when 'weekly'
+    days_to_run = "#{resource[:recurring_day].map { |day| day[0..2].upcase }}.collect{ org.sonatype.nexus.scheduling.schedule.Weekly.Weekday.valueOf(it) }"
+    schedule = "org.sonatype.nexus.scheduling.schedule.Weekly(java.util.Date.parse('yyyy-MM-dd HH:mm', '#{resource[:start_date]} #{resource[:start_time]}'), new HashSet(#{days_to_run}))"
+  when 'monthly'
+    days_to_run = "#{resource[:recurring_day].map { |day| day == 'last' ? 999 : day.to_i }}.collect{ org.sonatype.nexus.scheduling.schedule.Monthly.CalendarDay.day(it) }"
+    schedule = "org.sonatype.nexus.scheduling.schedule.Monthly(java.util.Date.parse('yyyy-MM-dd HH:mm', '#{resource[:start_date]} #{resource[:start_time]}'), new HashSet(#{days_to_run}))"
+  when 'advanced'
+    schedule = "org.sonatype.nexus.scheduling.schedule.Cron(new java.util.Date(), '#{resource[:cron_expression]}')"
+  else
+    schedule = 'org.sonatype.nexus.scheduling.schedule.Manual()'
+  end
+-%>
+def schedule = new <%= schedule %>

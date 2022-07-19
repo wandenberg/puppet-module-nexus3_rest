@@ -1,3 +1,3 @@
 def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
-def taskInfo = taskScheduler.getTaskById('<%= resource.provider.id %>')
-taskInfo.remove()
+def tasks = taskScheduler.listsTasks()
+tasks.find { it.getName() == '<%= resource[:name] %>' }.remove()

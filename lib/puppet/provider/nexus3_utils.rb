@@ -36,6 +36,12 @@ module Puppet::Provider::Nexus3Utils
     'custom' => 'CUSTOM'
   }.freeze
 
+  TASK_TYPES = %w[blobstore.compact blobstore.rebuildComponentDB create.browse.nodes db.backup rebuild.asset.uploadMetadata repository.cleanup repository.cocoapods.store-remote-url-in-attributes
+                  repository.docker.gc repository.docker.upload-purge repository.maven.publish-dotindex repository.maven.purge-unused-snapshots repository.maven.rebuild-metadata
+                  repository.maven.remove-snapshots repository.maven.unpublish-dotindex repository.npm.rebuild-metadata repository.npm.reindex repository.p2.rewrite-composite-metdata
+                  repository.purge-unused repository.pypi.delete-legacy-proxy-assets repository.rebuild-index repository.storage-facet-cleanup repository.vulnerability.statistics
+                  repository.yum.rebuild.metadata script security.purge-api-keys tasklog.cleanup].freeze
+
   # Hook to return all instances of a resource type that its provider finds on the current system. Mainly used when
   # invoking `puppet resource`.
   def get(_context)

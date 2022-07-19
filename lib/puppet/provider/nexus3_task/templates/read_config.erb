@@ -1,3 +1,5 @@
+<%= File.read(File.join(templates_folder, '../../groovy_utils.erb')) %>
+
 def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
 def tasks = taskScheduler.listsTasks()
 def weekdays = ["SUN": "sunday", "MON": "monday", "TUE": "tuesday", "WED": "wednesday", "THU": "thursday", "FRI": "friday", "SAT": "saturday"]
@@ -5,12 +7,39 @@ def infos = tasks.collect { task ->
   def config = task.getConfiguration()
   def schedule = task.getSchedule()
   def info = [
-    id: config.getId(),
     name: config.getName(),
     type: config.getTypeId(),
     enabled: config.isEnabled(),
-    alert_email: config.getAlertEmail(),
+    alert_email: ensureDefault(config.getAlertEmail()),
+    notification_condition: config.getNotificationCondition().toString().toLowerCase(),
     frequency: schedule.getType(),
+    age: config.getInteger('age', 0),
+    artifact_id: config.getString('artifactId', ''),
+    base_version: config.getString('baseVersion', ''),
+    blobstore_name: config.getString('blobstoreName', ''),
+    cron_expression: '',
+    deploy_offset: config.getInteger('deployOffset', 0),
+    dry_run: config.getBoolean('dryRun', false),
+    grace_period_in_days: config.getInteger('gracePeriodInDays', 0),
+    group_id: config.getString('groupId', ''),
+    integrity_check: config.getBoolean('integrityCheck', false),
+    language: config.getString('language', ''),
+    last_used: config.getInteger('lastUsed', 0),
+    location: config.getString('location', ''),
+    minimum_retained: config.getInteger('minimumRetained', 0),
+    package_name: config.getString('packageName', ''),
+    rebuild_checksums: config.getBoolean('rebuildChecksums', false),
+    recurring_day: [],
+    remove_if_released: config.getBoolean('removeIfReleased', false),
+    repository_name: config.getString('repositoryName', ''),
+    restore_blobs: config.getBoolean('restoreBlobs', false),
+    since_days: config.getInteger('sinceDays', 0),
+    snapshot_retention_days: config.getInteger('snapshotRetentionDays', 0),
+    source: config.getString('source', ''),
+    start_date: '',
+    start_time: '',
+    undelete_blobs: config.getBoolean('undeleteBlobs', false),
+    yum_metadata_caching: config.getBoolean('yumMetadataCaching', false),
   ]
 
   if ((schedule.getType() != 'manual') && (schedule.getType() != 'cron')) {
@@ -24,24 +53,13 @@ def infos = tasks.collect { task ->
   }
 
   if (schedule.getType() == 'weekly') {
-    info['recurring_day'] = schedule.getDaysToRun().collect{ weekdays[it.name()] }.join(',')
+    info['recurring_day'] = schedule.getDaysToRun().collect{ weekdays[it.name()] }
   }
 
   if (schedule.getType() == 'monthly') {
-    info['recurring_day'] = schedule.getDaysToRun().collect{ it.isLastDayOfMonth() ? 'last' :  it.getDay() }.join(',')
+    info['recurring_day'] = schedule.getDaysToRun().collect{ it.isLastDayOfMonth() ? 'last' :  it.getDay().toString() }
   }
 
-<%-
-  Nexus3::Task::FIELDS_BY_TYPE.each do |type, fields|
-    next if fields.empty?
--%>
-  if (config.getTypeId() == '<%= type %>') {
-  <%- fields.each do |field| -%>
-    info['<%= field.key %>'] = config.<%= field.full_getter %>
-  <%- end -%>
-  }
-
-<%- end -%>
   info
 }
 

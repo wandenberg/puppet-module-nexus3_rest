@@ -1,155 +1,198 @@
-require 'puppet/property/boolean'
-require 'puppet/property/list'
-require File.join(File.dirname(__FILE__), '..', '..', 'puppet_x', 'nexus3', 'task')
+require 'puppet/resource_api'
+require 'puppet_x/nexus3/config'
+require 'puppet/provider/nexus3_utils'
 
-Puppet::Type.newtype(:nexus3_task) do
-  @doc = 'Manages Nexus 3 task.'
+Puppet::ResourceApi.register_type(
+  name: 'nexus3_task',
+  docs: <<-EOS,
+@summary a nexus3_task type
+@example
+nexus3_task { 'Cleanup service':
+  type            => 'repository.cleanup',
+  frequency       => 'advanced',
+  cron_expression => '0 0 1 * * ?',
+}
 
-  ensurable
+This type provides Puppet with the capabilities to manage Nexus 3 Task.
 
-  newparam(:name, namevar: true) do
-    desc 'Id of the task.'
-  end
-
-  newparam(:id) do
-    desc 'A read-only parameter set by the nexus3_task.'
-  end
-
-  newproperty(:enabled, parent: Puppet::Property::Boolean) do
-    desc 'Enable or disable the scheduled task.'
-    newvalues(:true, :false)
-    defaultto :true
-    munge { |value| super(value).to_s.to_sym }
-  end
-
-  newproperty(:type) do
-    desc 'The type of the task that will be scheduled to run. Can be the type name (as shown in the user interface) or
-      the type id. The plugin ships a list of known type names; if a type name is not known, it is passed unmodified
-      to Nexus.'
-    newvalues(*Nexus3::Task::FIELDS_BY_TYPE.keys)
-  end
-
-  newproperty(:alert_email) do
-    desc 'The email address where an email will be sent to in case that task execution failed. Set to `absent` to
-      disable the email notification.'
-    defaultto :absent
-    validate do |value|
-      raise ArgumentError, 'Alert email must not be empty' if value.to_s.empty?
-      raise ArgumentError, "Alert email must be a valid email address, got '#{value}'." unless value =~ %r{@} || value.to_sym == :absent
-    end
-    munge { |value| value.to_sym == :absent ? value.to_sym : value }
-  end
-
-  Nexus3::Task::FIELDS.each do |field|
-    newproperty(field.key) do
-      desc "The '#{field.key}' for the task."
-      newvalues(:true, :false) if field.type == 'boolean'
-    end
-  end
-
-  newproperty(:frequency) do
-    desc 'The frequency this task will run. Can be one of: `manual`, `once`, `hourly`, `daily`, `weekly`, `monthly` or
-      `advanced`.'
-    defaultto :manual
-    newvalues(:manual, :once, :hourly, :daily, :weekly, :monthly, :advanced)
-  end
-
-  newproperty(:cron_expression) do
-    desc 'A cron expression that will control the running of the task.'
-    validate do |value|
-      raise ArgumentError, 'Cron expression must be a non-empty string' if value.empty?
-    end
-  end
-
-  newproperty(:start_date) do
-    desc 'The date this task should start running, specified as `YYYY-MM-DD`. Mandatory unless `frequency` is
-      `manual` or `advanced`.'
-    validate do |value|
-      raise ArgumentError, 'Start date must not be empty' if value.to_s.empty?
-      raise ArgumentError, "Start date must match YYYY-MM-DD, got '#{value}'" unless %r{^\d{4}-\d{2}-\d{2}$}.match?(value.to_s)
-    end
-  end
-
-  newproperty(:start_time) do
-    desc 'The start time in `hh:mm` the task should run (according to the timezone of the service). Mandatory unless `frequency` is
-      `manual` or `advanced`.'
-    validate do |value|
-      raise ArgumentError, "Start time must match the following format: <hh::mm>, got '#{value}'" unless %r{^\d\d?:\d\d$}.match?(value.to_s)
-    end
-  end
-
-  newproperty(:recurring_day, parent: Puppet::Property::List) do
-    desc 'The day this task should run. Accepts a list of days. When `frequency` is set to `weekly`, only days of
-      the week (`monday`, `tuesday`, ...) are valid. When `frequency` is set to `monthly`, only days of the month
-      are valid (1, 2, 3, 4, ... 29, 30, 31 and `last`).'
-    validate do |value|
-      raise ArgumentError, 'Reccuring day must not be empty' if value.to_s.empty?
-      raise ArgumentError, 'Multiple recurring days must be provided as an array, not a comma-separated list.' if value.to_s.include?(',')
-    end
-    munge do |value|
-      munged_value = super(value)
-      munged_value.is_a?(String) ? munged_value.downcase : munged_value
-    end
-    def membership
-      :inclusive_membership
-    end
-  end
-
-  validate do
-    if self[:ensure] == :present
-      raise ArgumentError, 'type must be provided' if self[:type].nil?
-
-      case self[:frequency]
-      when :manual
-        reject_specified_properties([:cron_expression, :recurring_day, :start_date, :start_time])
-      when :once, :hourly, :daily
-        reject_specified_properties([:cron_expression, :recurring_day])
-        ensure_specified_properties([:start_date, :start_time])
-      when :weekly
-        reject_specified_properties([:cron_expression])
-        ensure_specified_properties([:start_date, :start_time, :recurring_day])
-        ensure_recurring_day_in(%w[monday tuesday wednesday thursday friday saturday sunday])
-      when :monthly
-        reject_specified_properties([:cron_expression])
-        ensure_specified_properties([:start_date, :start_time, :recurring_day])
-        ensure_recurring_day_in([('1'..'31').to_a, 'last'].flatten)
-      when :advanced
-        reject_specified_properties([:start_date, :start_time, :recurring_day])
-        ensure_specified_properties([:cron_expression])
-      end
-    end
-  end
-
-  # Ensure none of the listed properties is specified (the properties references a value).
-  #
-  def reject_specified_properties(properties)
-    rejected_properties = properties.map { |property| property unless self[property].nil? }.compact
-    raise ArgumentError, "#{rejected_properties.join(' and ')} not allowed when frequency is set to '#{self[:frequency]}'" unless rejected_properties.empty?
-  end
-
-  # Ensure all listed properties have non-empty values set.
-  #
-  def ensure_specified_properties(properties)
-    missing_fields = properties.map { |property| property if self[property].to_s.empty? }.compact
-    raise ArgumentError, "Setting frequency to '#{self[:frequency]}' requires #{missing_fields.join(' and ')} to be set as well" unless missing_fields.empty?
-  end
-
-  # Ensure all items of the recurring_day property are included in the given list of items.
-  #
-  # Note: make sure to pass an array with elements of the type string; otherwise there may be issues with the data types.
-  def ensure_recurring_day_in(valid_items)
-    self[:recurring_day].split(',').each do |item|
-      raise ArgumentError, "Recurring day must be one of [#{valid_items.join(', ')}], got '#{item}'" unless valid_items.include?(item.to_s)
-    end
-  end
-
-  newparam(:inclusive_membership) do
-    desc 'The list is considered a complete lists as opposed to minimum lists.'
-    newvalues(:inclusive)
-    defaultto :inclusive
-  end
-
-  autorequire(:file) do
-    Nexus3::Config.file_path
-  end
-end
+**Autorequires**:
+* `File[$PUPPET_CONF_DIR/nexus3_rest.conf]`
+  EOS
+  features: ['canonicalize'],
+  attributes: {
+    ensure: {
+      type: 'Enum[present, absent]',
+      desc: 'Whether this resource should be present or absent on the target system.',
+      default: 'present',
+    },
+    name: {
+      type: 'String',
+      desc: 'Id of the task.',
+      behaviour: :namevar,
+    },
+    enabled: {
+      type: 'Boolean',
+      desc: 'Enable or disable the scheduled task.',
+      default: true,
+    },
+    type: {
+      type: "Pattern[/\\A(#{Puppet::Provider::Nexus3Utils::TASK_TYPES.join('|')})\\z/]",
+      desc: 'The type of the task that will be scheduled to run. Can be the type name (as shown in the user interface) or
+        the type id. The plugin ships a list of known type names; if a type name is not known, it is passed unmodified
+        to Nexus.',
+    },
+    alert_email: {
+      type: 'Pattern[/\A(.+@.+\..+)?\z/]',
+      desc: 'The email address where an email will be sent to in case that task execution failed.',
+      default: '',
+    },
+    notification_condition: {
+      type: 'Enum[failure, success_failure]',
+      desc: 'Conditions that will trigger a notification email',
+      default: 'failure'
+    },
+    frequency: {
+      type: 'Enum[manual, once, hourly, daily, weekly, monthly, advanced]',
+      desc: 'The frequency this task will run. Can be one of: `manual`, `once`, `hourly`, `daily`, `weekly`, `monthly` or `advanced`.',
+      default: 'manual',
+    },
+    recurring_day: {
+      type: 'Array[String]',
+      desc: 'The days the task will be repeatedly executed.',
+      default: [],
+    },
+    cron_expression: {
+      type: 'String',
+      desc: 'A cron expression that will control the running of the task.',
+      default: '',
+    },
+    start_date: {
+      type: 'Pattern[/\A(\d{4}-\d{2}-\d{2})?\z/]',
+      desc: 'The date this task should start running, specified as `YYYY-MM-DD`. Mandatory unless `frequency` is `manual` or `advanced`.',
+      default: '',
+    },
+    start_time: {
+      type: 'Pattern[/\A(\d?\d:\d{2})?\z/]',
+      desc: 'The start time in `hh:mm` the task should run (according to the timezone of the service). Mandatory unless `frequency` is `manual` or `advanced`.',
+      default: '',
+    },
+    age: {
+      type: 'Integer',
+      desc: "The 'age' for the task.",
+      default: 0,
+    },
+    artifact_id: {
+      type: 'String',
+      desc: "The 'artifact_id' for the task.",
+      default: '',
+    },
+    base_version: {
+      type: 'String',
+      desc: "The 'base_version' for the task.",
+      default: '',
+    },
+    blobstore_name: {
+      type: 'String',
+      desc: "The 'blobstore_name' for the task.",
+      default: '',
+    },
+    deploy_offset: {
+      type: 'Integer',
+      desc: 'Manifests and images deployed within this period before the task starts will not be deleted.',
+      default: 0,
+    },
+    dry_run: {
+      type: 'Boolean',
+      desc: "The 'dry_run' for the task.",
+      default: false,
+    },
+    grace_period_in_days: {
+      type: 'Integer',
+      desc: "The 'grace_period_in_days' for the task.",
+      default: 0,
+    },
+    group_id: {
+      type: 'String',
+      desc: "The 'group_id' for the task.",
+      default: '',
+    },
+    integrity_check: {
+      type: 'Boolean',
+      desc: "The 'integrity_check' for the task.",
+      default: false,
+    },
+    language: {
+      type: 'String',
+      desc: "The 'language' for the task.",
+      default: '',
+    },
+    last_used: {
+      type: 'Integer',
+      desc: "The 'last_used' for the task.",
+      default: 0,
+    },
+    location: {
+      type: 'String',
+      desc: "The 'location' for the task.",
+      default: '',
+    },
+    minimum_retained: {
+      type: 'Integer',
+      desc: "The 'minimum_retained' for the task.",
+      default: 0,
+    },
+    package_name: {
+      type: 'String',
+      desc: "The 'package_name' for the task.",
+      default: '',
+    },
+    rebuild_checksums: {
+      type: 'Boolean',
+      desc: "The 'rebuild_checksums' for the task.",
+      default: false,
+    },
+    remove_if_released: {
+      type: 'Boolean',
+      desc: "The 'remove_if_released' for the task.",
+      default: false,
+    },
+    repository_name: {
+      type: 'String',
+      desc: "The 'repository_name' for the task.",
+      default: '',
+    },
+    restore_blobs: {
+      type: 'Boolean',
+      desc: "The 'restore_blobs' for the task.",
+      default: false,
+    },
+    since_days: {
+      type: 'Integer',
+      desc: "The 'since_days' for the task.",
+      default: 0,
+    },
+    snapshot_retention_days: {
+      type: 'Integer',
+      desc: "The 'snapshot_retention_days' for the task.",
+      default: 0,
+    },
+    source: {
+      type: 'String',
+      desc: "The 'source' for the task.",
+      default: '',
+    },
+    undelete_blobs: {
+      type: 'Boolean',
+      desc: "The 'undelete_blobs' for the task.",
+      default: false,
+    },
+    yum_metadata_caching: {
+      type: 'Boolean',
+      desc: "The 'yum_metadata_caching' for the task.",
+      default: false,
+    },
+  },
+  autorequire: {
+    file: Nexus3::Config.file_path,
+  },
+)

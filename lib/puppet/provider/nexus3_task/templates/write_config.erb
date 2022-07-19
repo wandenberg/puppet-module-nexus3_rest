@@ -1,10 +1,8 @@
 def taskScheduler = container.lookup(org.sonatype.nexus.scheduling.TaskScheduler.class.name)
-def taskInfo = taskScheduler.getTaskById('<%= resource.provider.id %>')
+def tasks = taskScheduler.listsTasks()
+def taskInfo = tasks.find { it.getName() == '<%= resource[:name] %>' }
 def config = taskInfo.getConfiguration()
-config.setEnabled(<%= resource[:enabled] %>)
-config.setAlertEmail('<%= resource[:alert_email] %>')
-<%- Nexus3::Task::FIELDS_BY_TYPE[resource[:type].to_s].each do |field| -%>
-config.<%= field.setter %>('<%= field.key_name %>', <%= field.get_value_to_setter(resource) %>)
-<%- end -%>
-def schedule = new <%= Nexus3::Task.frequency_to_schedule(resource) %>
+
+<%= Puppet::Provider::Nexus3Utils.render_template(templates_folder, 'set_attributes.erb', resource) %>
+
 taskScheduler.scheduleTask(config, schedule);
