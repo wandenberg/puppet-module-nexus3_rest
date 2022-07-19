@@ -20,7 +20,7 @@ describe type_class.provider(:ruby) do
   describe 'define getters and setters to each type properties or params' do
     let(:instance) { described_class.new }
 
-    [:old_password, :password, :admin_password_file].each do |method|
+    %i[old_password password admin_password_file].each do |method|
       specify { expect(instance.respond_to?(method)).to be_truthy }
       specify { expect(instance.respond_to?("#{method}=")).to be_truthy }
     end

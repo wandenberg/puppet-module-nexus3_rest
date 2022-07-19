@@ -21,6 +21,7 @@ Puppet::Type.newtype(:nexus3_admin_password) do
 
   newproperty(:password) do
     desc 'The password of the user.'
+    # rubocop:disable Naming/PredicateName
     def is_to_s(_current_value)
       '[old password]'
     end

@@ -1,6 +1,7 @@
 require 'json'
 require 'net/http'
 require 'forwardable'
+require File.join(File.dirname(__FILE__), '..', 'nexus3')
 
 module Nexus3
   # Ensures the referenced Nexus instance is up and running. It does the health check only once and caches the result.
