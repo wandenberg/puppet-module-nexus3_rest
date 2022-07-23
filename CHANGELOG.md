@@ -1,3 +1,7 @@
+## 1.0.0
+- Complete refactor to use the resource_api base class
+- Refactor tests to use a running Nexus server instead of mocks
+
 ## 0.4.3
 - Convert to PDK project
 
