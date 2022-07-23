@@ -168,6 +168,25 @@ nexus3_anonymous_settings { 'global':
 }
 ```
 
+#### HTTP(S) Proxy configuration ####
+
+To change the HTTP(S) proxy settings the module provides the `nexus3_http_settings` resource.
+It allows to change the parameters used by nexus when doing an HTTP(S) request to an external server.
+
+```
+#!puppet
+nexus3_http_settings { 'global':
+  connection_user_agent      => 'nexus3_useragent',
+  connection_timeout         => 90,
+  connection_maximum_retries => 2,
+  http_enabled               => true,
+  http_host                  => 'local.com',
+  http_port                  => 1234,
+  http_auth_type             => 'username',
+  http_auth_username         => 'user',
+}
+```
+
 ### LDAP configuration ###
 
 The Nexus LDAP settings can be configured using the `nexus3_ldap` resource:

@@ -1,0 +1,63 @@
+<%= File.read(File.join(templates_folder, '../../groovy_utils.erb')) %>
+
+def httpManager = container.lookup(org.sonatype.nexus.httpclient.HttpClientManager.class.name);
+def config = httpManager.newConfiguration()
+def proxy = new org.sonatype.nexus.httpclient.config.ProxyConfiguration();
+config.setProxy(proxy);
+
+proxy.nonProxyHosts = <%= resource[:non_proxy_hosts] %>;
+
+def httpConfig = new org.sonatype.nexus.httpclient.config.ProxyServerConfiguration();
+httpConfig.enabled = <%= resource[:http_enabled] %>;
+<%- if resource[:http_enabled].to_s == 'true' -%>
+proxy.http = httpConfig;
+httpConfig.port = <%= resource[:http_port] %>;
+httpConfig.host = '<%= resource[:http_host] %>';
+<%- if resource[:http_auth_type] == 'username' -%>
+def httpAuthentication = new org.sonatype.nexus.httpclient.config.UsernameAuthenticationConfiguration();
+httpAuthentication.username = '<%= resource[:http_auth_username] %>';
+httpAuthentication.password = '<%= resource[:http_auth_password] %>';
+httpConfig.authentication = httpAuthentication;
+<%- elsif resource[:http_auth_type] == 'ntlm' -%>
+def httpAuthentication = new org.sonatype.nexus.httpclient.config.NtlmAuthenticationConfiguration();
+httpAuthentication.username = '<%= resource[:http_auth_username] %>';
+httpAuthentication.password = '<%= resource[:http_auth_password] %>';
+httpAuthentication.host = '<%= resource[:http_auth_ntlm_host] %>';
+httpAuthentication.domain = '<%= resource[:http_auth_ntlm_domain] %>';
+httpConfig.authentication = httpAuthentication;
+<%- end -%>
+<%- else -%>
+proxy.http = null;
+<%- end -%>
+
+def httpsConfig = new org.sonatype.nexus.httpclient.config.ProxyServerConfiguration();
+httpsConfig.enabled = <%= resource[:https_enabled] %>;
+<%- if resource[:https_enabled].to_s == 'true' -%>
+proxy.https = httpsConfig;
+httpsConfig.port = <%= resource[:https_port] %>;
+httpsConfig.host = '<%= resource[:https_host] %>';
+<%- if resource[:https_auth_type] == 'username' -%>
+def httpsAuthentication = new org.sonatype.nexus.httpclient.config.UsernameAuthenticationConfiguration();
+httpsAuthentication.username = '<%= resource[:https_auth_username] %>';
+httpsAuthentication.password = '<%= resource[:https_auth_password] %>';
+httpsConfig.authentication = httpsAuthentication;
+<%- elsif resource[:https_auth_type] == 'ntlm' -%>
+def httpsAuthentication = new org.sonatype.nexus.httpclient.config.NtlmAuthenticationConfiguration();
+httpsAuthentication.username = '<%= resource[:https_auth_username] %>';
+httpsAuthentication.password = '<%= resource[:https_auth_password] %>';
+httpsAuthentication.host = '<%= resource[:https_auth_ntlm_host] %>';
+httpsAuthentication.domain = '<%= resource[:https_auth_ntlm_domain] %>';
+httpsConfig.authentication = httpsAuthentication;
+<%- end -%>
+<%- else -%>
+proxy.https = null;
+<%- end -%>
+
+def connection = new org.sonatype.nexus.httpclient.config.ConnectionConfiguration();
+connection.setUserAgentSuffix('<%= resource[:connection_user_agent] %>');
+connection.setMaximumRetries(<%= resource[:connection_maximum_retries] %>);
+connection.setTimeout(new org.sonatype.goodies.common.Time(<%= resource[:connection_timeout] %>, java.util.concurrent.TimeUnit.SECONDS));
+config.setConnection(connection);
+
+httpManager.setConfiguration(config);
+

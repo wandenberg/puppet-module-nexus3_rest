@@ -1,0 +1,32 @@
+<%= File.read(File.join(templates_folder, '../../groovy_utils.erb')) %>
+
+def httpManager = container.lookup(org.sonatype.nexus.httpclient.HttpClientManager.class.name);
+def config = httpManager.getConfiguration()
+def proxy = config.getProxy()
+def connection = config.getConnection()
+def httpConfig = proxy?.http
+def httpsConfig = proxy?.https
+
+printAllMethods(proxy)
+return groovy.json.JsonOutput.toJson([
+  http_enabled: httpConfig ? httpConfig.enabled : false,
+  http_port: httpConfig?.port ? httpConfig.port : '',
+  http_host: ensureDefault(httpConfig?.host),
+  http_auth_type: ensureDefault(httpConfig?.authentication?.type),
+  http_auth_username: ensureDefault(httpConfig?.authentication?.username),
+  http_auth_password: ensureDefault(httpConfig?.authentication?.password),
+  http_auth_ntlm_host: httpConfig?.authentication?.type == 'ntlm' ? ensureDefault(httpConfig?.authentication?.host) : '',
+  http_auth_ntlm_domain: httpConfig?.authentication?.type == 'ntlm' ? ensureDefault(httpConfig?.authentication?.domain) : '',
+  https_enabled: httpsConfig ? httpsConfig.enabled : false,
+  https_port: httpsConfig?.port ? httpsConfig.port : '',
+  https_host: ensureDefault(httpsConfig?.host),
+  https_auth_type: ensureDefault(httpsConfig?.authentication?.type),
+  https_auth_username: ensureDefault(httpsConfig?.authentication?.username),
+  https_auth_password: ensureDefault(httpsConfig?.authentication?.password),
+  https_auth_ntlm_host: httpsConfig?.authentication?.type == 'ntlm' ? ensureDefault(httpsConfig?.authentication?.host) : '',
+  https_auth_ntlm_domain: httpsConfig?.authentication?.type == 'ntlm' ? ensureDefault(httpsConfig?.authentication?.domain) : '',
+  non_proxy_hosts: proxy?.nonProxyHosts ? proxy.nonProxyHosts : [],
+  connection_user_agent: ensureDefault(connection?.userAgentSuffix),
+  connection_timeout: connection?.timeout?.value ? connection.timeout.value : 20,
+  connection_maximum_retries: connection?.maximumRetries ? connection.maximumRetries : 2,
+]);
