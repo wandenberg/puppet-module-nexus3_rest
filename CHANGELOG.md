@@ -1,3 +1,6 @@
+## 1.0.1
+- Adjust upper version restriction of puppetlabs-stdlib
+
 ## 1.0.0
 - Complete refactor to use the resource_api base class
 - Refactor tests to use a running Nexus server instead of mocks
