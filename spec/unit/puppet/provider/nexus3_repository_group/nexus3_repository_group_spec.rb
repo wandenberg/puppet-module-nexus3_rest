@@ -50,6 +50,16 @@ RSpec.describe Puppet::Provider::Nexus3RepositoryGroup::Nexus3RepositoryGroup do
       expect { provider.set(context, changes) }.to raise_error(ArgumentError, %r{provider_type cannot be changed})
     end
 
+    it 'prevent changing the version_policy of the repository' do
+      changes = {
+        foo:  {
+          is: { name: 'temporary', provider_type: 'maven2', blobstore_name: 'default', version_policy: 'release', ensure: 'present' },
+          should: { name: 'temporary', provider_type: 'maven2', blobstore_name: 'default', version_policy: 'mixed', ensure: 'present' }
+        }
+      }
+      expect { provider.set(context, changes) }.to raise_error(ArgumentError, %r{version_policy cannot be changed})
+    end
+
     it 'prevent changing the blobstore_name of the repository' do
       changes = {
         foo:  {

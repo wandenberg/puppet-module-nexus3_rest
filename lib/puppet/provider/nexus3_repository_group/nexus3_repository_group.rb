@@ -46,6 +46,7 @@ class Puppet::Provider::Nexus3RepositoryGroup::Nexus3RepositoryGroup < Puppet::R
       next unless is[:ensure] == 'present' && should[:ensure] == 'present'
 
       raise ArgumentError, 'provider_type cannot be changed' unless is[:provider_type] == should[:provider_type]
+      raise ArgumentError, 'version_policy cannot be changed' unless is[:version_policy] == should[:version_policy]
       raise ArgumentError, 'blobstore_name cannot be changed' unless is[:blobstore_name] == should[:blobstore_name]
     end
 

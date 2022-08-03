@@ -6,8 +6,8 @@ storage.set('strictContentTypeValidation', <%= resource[:strict_content_type_val
 
 <%- if resource[:provider_type] == 'docker' -%>
 def docker = config.attributes('docker')
-docker.set('v1Enabled', '<%= resource[:v1_enabled] %>')
-docker.set('forceBasicAuth','<%= resource[:force_basic_auth] %>')
+docker.set('v1Enabled', <%= to_boolean.call(resource[:v1_enabled]) %>)
+docker.set('forceBasicAuth', <%= to_boolean.call(resource[:force_basic_auth]) %>)
 <%- if defined? resource[:http_port] -%>
 docker.set('httpPort', '<%= resource[:http_port] %>')
 <%- end -%>

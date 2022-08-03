@@ -33,7 +33,7 @@ def infos = repositories.findResults { repository ->
     https_port: docker.get('httpsPort') ? docker.get('httpsPort').toInteger() : '',
     v1_enabled: docker.get('v1Enabled') != null ? docker.get('v1Enabled').toBoolean() : '',
     force_basic_auth: docker.get('forceBasicAuth') != null ? docker.get('forceBasicAuth').toBoolean() : '',
-    version_policy: ensureDefault(maven.get('versionPolicy')?.toLowerCase()),
+    version_policy: ensureDefault(maven.get('versionPolicy')?.toLowerCase(), providerType == 'maven2' ? 'release' : ''),
     layout_policy: ensureDefault(maven.get('layoutPolicy')?.toLowerCase(), providerType == 'maven2' ? 'strict' : ''),
     content_disposition: ensureDefault(maven.get('contentDisposition')?.toLowerCase(), ensureDefault(raw.get('contentDisposition')?.toLowerCase(), contentDispositionDefault)),
     pgp_keypair: ensureDefault(yumSigning.get('keypair')),
