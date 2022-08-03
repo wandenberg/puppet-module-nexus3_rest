@@ -20,8 +20,8 @@ apt.set('distribution', '<%= resource[:distribution] %>')
 
 <%- if resource[:provider_type] == 'docker' -%>
 def docker = config.attributes('docker')
-docker.set('v1Enabled', '<%= resource[:v1_enabled] %>')
-docker.set('forceBasicAuth','<%= resource[:force_basic_auth] %>')
+docker.set('v1Enabled', <%= to_boolean.call(resource[:v1_enabled]) %>)
+docker.set('forceBasicAuth', <%= to_boolean.call(resource[:force_basic_auth]) %>)
 <%- if defined? resource[:http_port] -%>
 docker.set('httpPort', '<%= resource[:http_port] %>')
 <%- end -%>
@@ -72,11 +72,11 @@ proxy.set('remoteUrl', '<%= resource[:remote_url] %>')
 proxy.set('contentMaxAge', '<%= resource[:content_max_age] %>')
 proxy.set('metadataMaxAge', '<%= resource[:metadata_max_age] %>')
 def negativeCache = config.attributes('negativeCache')
-negativeCache.set('enabled', '<%= resource[:negative_cache_enabled] %>')
+negativeCache.set('enabled', <%= to_boolean.call(resource[:negative_cache_enabled]) %>)
 negativeCache.set('timeToLive', '<%= resource[:negative_cache_ttl] %>')
 def httpclient = config.attributes('httpclient');
-httpclient.set('blocked', '<%= resource[:blocked] %>');
-httpclient.set('autoBlock', '<%= resource[:auto_block] %>');
+httpclient.set('blocked', <%= to_boolean.call(resource[:blocked]) %>);
+httpclient.set('autoBlock', <%= to_boolean.call(resource[:auto_block]) %>);
 <%- if resource[:remote_auth_type] == 'none' -%>
 httpclient.remove('authentication')
 <%- else -%>
@@ -96,8 +96,8 @@ httpclientConnection.remove('timeout')
 <%- else -%>
 httpclientConnection.set('timeout', '<%= resource[:remote_connection_timeout] %>');
 <%- end -%>
-httpclientConnection.set('enableCircularRedirects', '<%= resource[:remote_enable_circular_redirects] %>');
-httpclientConnection.set('enableCookies', '<%= resource[:remote_enable_cookies] %>');
+httpclientConnection.set('enableCircularRedirects', <%= to_boolean.call(resource[:remote_enable_circular_redirects]) %>);
+httpclientConnection.set('enableCookies', <%= to_boolean.call(resource[:remote_enable_cookies]) %>);
 
 <%- if resource[:provider_type] == 'apt' -%>
 apt.set('flat', <%= resource[:is_flat] %>)
@@ -105,12 +105,12 @@ apt.set('flat', <%= resource[:is_flat] %>)
 
 <%- if resource[:provider_type] == 'bower' -%>
 def bower = config.attributes('bower');
-bower.set('rewritePackageUrls', '<%= resource[:rewrite_package_urls] %>');
+bower.set('rewritePackageUrls', <%= to_boolean.call(resource[:rewrite_package_urls]) %>);
 <%- end -%>
 
 <%- if resource[:provider_type] == 'docker' -%>
 def dockerProxy = config.attributes('dockerProxy')
-dockerProxy.set('cacheForeignLayers', '<%= resource[:cache_foreign_layers] %>')
+dockerProxy.set('cacheForeignLayers', <%= to_boolean.call(resource[:cache_foreign_layers]) %>)
 dockerProxy.set('foreignLayerUrlWhitelist', <%= resource[:foreign_layers_url_whitelist] %>)
 dockerProxy.set('indexType', '<%= Puppet::Provider::Nexus3Utils::DOCKER_PROXY_INDEX_TYPE[resource[:index_type]] %>')
 <%- if resource[:index_type] == 'custom' -%>
@@ -120,8 +120,8 @@ dockerProxy.set('indexUrl', '<%= resource[:index_url] %>')
 
 <%- if resource[:provider_type] == 'npm' -%>
 def npm = config.attributes('npm');
-npm.set('removeNonCataloged', '<%= resource[:remove_non_cataloged] %>');
-npm.set('removeQuarantinedVersions', '<%= resource[:remove_quarantined_versions] %>');
+npm.set('removeNonCataloged', <%= to_boolean.call(resource[:remove_non_cataloged]) %>);
+npm.set('removeQuarantinedVersions', <%= to_boolean.call(resource[:remove_quarantined_versions]) %>);
 <%- end -%>
 
 <%- if resource[:provider_type] == 'nuget' -%>
