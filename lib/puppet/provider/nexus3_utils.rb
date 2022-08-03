@@ -172,7 +172,11 @@ module Puppet::Provider::Nexus3Utils
     return unless File.exist?(template_file)
 
     template = ERB.new(File.read(template_file), nil, '-')
-    template.result_with_hash(resource: resource, templates_folder: templates_folder)
+    template.result_with_hash(resource: resource, templates_folder: templates_folder, to_boolean: Puppet::Provider::Nexus3Utils.method(:to_boolean))
+  end
+
+  def self.to_boolean(value)
+    value.to_s.empty? ? false : value
   end
 
   def self.to_groovy_properties(prefix, resource, skip_keys: %i[name ensure loglevel])
