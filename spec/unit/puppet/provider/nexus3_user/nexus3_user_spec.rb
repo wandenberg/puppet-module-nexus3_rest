@@ -17,6 +17,7 @@ RSpec.describe Puppet::Provider::Nexus3User::Nexus3User do
       email: 'foo@server.com',
       roles: ['userId1'],
       status: 'disabled',
+      password: 'foo1',
     }
   end
 
@@ -47,6 +48,7 @@ RSpec.describe Puppet::Provider::Nexus3User::Nexus3User do
         email: 'foo@server.com',
         roles: ['nx-anonymous'],
         status: 'active',
+        password: 'foo1',
       }
     end
 
@@ -60,6 +62,7 @@ RSpec.describe Puppet::Provider::Nexus3User::Nexus3User do
       expect(resources.size).to eq(2)
 
       resource = resources.find { |r| r[:name] == values[:name] }
+      values.delete(:password)
       expect(resource).to eq(values.merge(ensure: 'present'))
     end
   end
@@ -75,6 +78,7 @@ RSpec.describe Puppet::Provider::Nexus3User::Nexus3User do
         email: 'foo@server.com',
         roles: ['nx-anonymous'],
         status: 'disabled',
+        password: 'foo1',
       }
     end
 

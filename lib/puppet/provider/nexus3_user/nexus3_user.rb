@@ -24,6 +24,11 @@ class Puppet::Provider::Nexus3User::Nexus3User < Puppet::ResourceApi::SimpleProv
     end
   end
 
+  def create(_context, _name, should)
+    assert_present(should[:password], 'password is required')
+    super
+  end
+
   def delete_config_script(resource)
     "security.securitySystem.deleteUser('#{resource[:name]}')"
   end

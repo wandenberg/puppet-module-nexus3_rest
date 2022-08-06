@@ -40,8 +40,9 @@ This type provides Puppet with the capabilities to manage Nexus 3 User.
       desc: 'The last name of the user.',
     },
     password: {
-      type: 'String',
+      type: 'Optional[String]',
       desc: 'The password of the user.',
+      behaviour: :parameter,
     },
     email: {
       type: 'Pattern[/\A.+@.+\..+\z/]',
