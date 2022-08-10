@@ -1,3 +1,9 @@
+## 1.0.2
+- Fix support for http settings on Nexus 3.41+
+- Fix how boolean values are set for repositories
+- Adjust how user passwords are handled to be required and checked only on user creation
+- Prevent changes on version_policy for repository groups
+
 ## 1.0.1
 - Adjust upper version restriction of puppetlabs-stdlib
 
