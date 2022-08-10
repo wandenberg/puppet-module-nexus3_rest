@@ -27,5 +27,9 @@ return groovy.json.JsonOutput.toJson([
   non_proxy_hosts: proxy?.nonProxyHosts ? proxy.nonProxyHosts : [],
   connection_user_agent: ensureDefault(connection?.userAgentSuffix),
   connection_timeout: connection?.timeout?.value ? connection.timeout.value : 20,
+<%- if Nexus3::API.until_version(3.41) -%>
   connection_maximum_retries: connection?.maximumRetries ? connection.maximumRetries : 2,
+<%- else -%>
+  connection_maximum_retries: connection?.retries ? connection.retries : 2,
+<%- end -%>
 ]);

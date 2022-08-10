@@ -55,7 +55,11 @@ proxy.https = null;
 
 def connection = new org.sonatype.nexus.httpclient.config.ConnectionConfiguration();
 connection.setUserAgentSuffix('<%= resource[:connection_user_agent] %>');
+<%- if Nexus3::API.until_version(3.41) -%>
 connection.setMaximumRetries(<%= resource[:connection_maximum_retries] %>);
+<%- else -%>
+connection.setRetries(<%= resource[:connection_maximum_retries] %>);
+<%- end -%>
 connection.setTimeout(new org.sonatype.goodies.common.Time(<%= resource[:connection_timeout] %>, java.util.concurrent.TimeUnit.SECONDS));
 config.setConnection(connection);
 
