@@ -1,5 +1,5 @@
 def policyStorage = container.lookup(org.sonatype.nexus.cleanup.storage.CleanupPolicyStorage.class.name)
-<%- if Nexus3::API.until_version('3.20') -%>
+<%- if Nexus3::API.until_version(3.20) -%>
 def policy = new org.sonatype.nexus.cleanup.storage.CleanupPolicy()
 <%- else -%>
 def policy = policyStorage.newCleanupPolicy()

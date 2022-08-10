@@ -83,7 +83,7 @@ RSpec.describe Puppet::Provider::Nexus3Blobstore::Nexus3Blobstore do
       before(:each) do
         WebMock.disable_net_connect!
         stub_request(:get, 'http://localhost:8081/service/rest/v1/script/').to_return(status: 403)
-        allow(Nexus3::API).to receive(:nexus3_server_version).and_return('>= 3.21')
+        allow(Nexus3::API).to receive(:nexus3_server_version).and_return(3.21)
         stub_request(:post, %r{http://localhost:8081/service/rest/v1/script/}).to_return(status: 204)
         stub_request(:post, %r{http://localhost:8081/service/rest/v1/script/.*/run}).to_return(status: 200, body: '{}')
         stub_request(:delete, %r{http://localhost:8081/service/rest/v1/script/.*}).to_return(status: 204)
@@ -192,7 +192,7 @@ blobStoreManager.create(config)
       before(:each) do
         WebMock.disable_net_connect!
         stub_request(:get, 'http://localhost:8081/service/rest/v1/script/').to_return(status: 403)
-        allow(Nexus3::API).to receive(:nexus3_server_version).and_return('>= 3.21')
+        allow(Nexus3::API).to receive(:nexus3_server_version).and_return(3.21)
         stub_request(:post, %r{http://localhost:8081/service/rest/v1/script/}).to_return(status: 204)
         stub_request(:post, %r{http://localhost:8081/service/rest/v1/script/.*/run}).to_return(status: 200, body: '{}')
         stub_request(:delete, %r{http://localhost:8081/service/rest/v1/script/.*}).to_return(status: 204)

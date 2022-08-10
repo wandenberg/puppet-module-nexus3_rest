@@ -1,6 +1,6 @@
 def blobStoreManager = container.lookup(org.sonatype.nexus.blobstore.api.BlobStoreManager.class.name)
 
-<%- if Nexus3::API.until_version('3.20') -%>
+<%- if Nexus3::API.until_version(3.20) -%>
 def config = new org.sonatype.nexus.blobstore.api.BlobStoreConfiguration()
 <%- else -%>
 def config = blobStoreManager.newConfiguration()

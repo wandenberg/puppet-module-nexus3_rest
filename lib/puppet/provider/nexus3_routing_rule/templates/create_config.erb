@@ -1,5 +1,5 @@
 def routingRuleStore = container.lookup(org.sonatype.nexus.repository.routing.RoutingRuleStore.class.name)
-<%- if Nexus3::API.until_version('3.21') -%>
+<%- if Nexus3::API.until_version(3.21) -%>
 def rule = new org.sonatype.nexus.repository.routing.RoutingRule()
 <%- else -%>
 def rule = routingRuleStore.newRoutingRule()

@@ -58,14 +58,7 @@ class Nexus3::API
   end
 
   def self.until_version(ver)
-    case ver
-    when '3.20'
-      version == '< 3.20'
-    when '3.21'
-      version == '< 3.21' || version == '< 3.20'
-    else
-      true
-    end
+    version < ver
   end
 
   def self.service
@@ -85,14 +78,9 @@ class Nexus3::API
   end
 
   def self.nexus3_server_version
-    result = execute_script("!!container.lookup(org.sonatype.nexus.blobstore.api.BlobStoreManager.class.name).metaClass.getMetaMethod('newConfiguration')")
-    return '< 3.20' unless result == 'true'
-
-    result = execute_script("!!repository.repositoryManager.metaClass.getMetaMethod('newConfiguration')")
-    return '< 3.21' unless result == 'true'
-
-    '>= 3.21'
+    result = execute_script('return container.lookup(com.sonatype.nexus.edition.oss.ApplicationVersionImpl.class.name).getVersion()')
+    result.split('.')[0..1].join('.').to_f
   rescue
-    '< 3.20'
+    3.19
   end
 end

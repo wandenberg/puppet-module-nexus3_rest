@@ -87,7 +87,7 @@ def stub_default_config
     can_delete_repositories: true,
   }
   allow(Nexus3::Config).to receive(:read_config).and_return(default_config)
-  allow(Nexus3::API).to receive(:nexus3_server_version).and_return('< 3.20')
+  allow(Nexus3::API).to receive(:nexus3_server_version).and_return(3.19)
 end
 
 def stub_default_config_and_healthcheck
