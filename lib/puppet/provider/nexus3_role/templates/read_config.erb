@@ -1,7 +1,6 @@
 def authorizationManager = container.lookup(org.sonatype.nexus.security.authz.AuthorizationManager.class.name)
 def roles = authorizationManager.listRoles()
 def infos = roles.collect { role ->
-log.info(groovy.json.JsonOutput.toJson(role))
   [
     name: role.name,
     description: role.description,

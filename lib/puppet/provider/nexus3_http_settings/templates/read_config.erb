@@ -7,7 +7,6 @@ def connection = config.getConnection()
 def httpConfig = proxy?.http
 def httpsConfig = proxy?.https
 
-printAllMethods(proxy)
 return groovy.json.JsonOutput.toJson([
   http_enabled: httpConfig ? httpConfig.enabled : false,
   http_port: httpConfig?.port ? httpConfig.port : '',
