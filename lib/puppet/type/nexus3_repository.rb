@@ -55,7 +55,7 @@ This type provides Puppet with the capabilities to manage Nexus 3 Repository.
     cleanup_policies: {
       type: 'Array[String]',
       desc: 'A list of cleanup policies to apply to this repository',
-      default: [],
+      default: [''],
     },
     version_policy: {
       type: 'Pattern[/\A(snapshot|release|mixed)?\z/]',
