@@ -95,7 +95,7 @@ class Puppet::Provider::Nexus3Repository::Nexus3Repository < Puppet::ResourceApi
       munge_booleans(context, r)
 
       r[:depth] = r[:depth].to_i unless r[:depth].to_s.empty?
-      r[:cleanup_policies].sort!
+      r[:cleanup_policies].sort
       r[:foreign_layers_url_whitelist].sort!
     end
   end
