@@ -55,7 +55,7 @@ def infos = repositories.findResults { repository ->
     type: type,
     provider_type: providerType,
     online: config.isOnline(),
-    cleanup_policies: cleanup.get('policyName') ? cleanup.get('policyName') : [],
+    cleanup_policies: (cleanup != null) && (cleanup.get('policyName') != null) ? cleanup.get('policyName').sort() : [],
     write_policy: convertWritePolicy(storage.get('writePolicy')),
     blobstore_name: storage.get('blobStoreName'),
     strict_content_type_validation: storage.get('strictContentTypeValidation') != null ? storage.get('strictContentTypeValidation').toBoolean() : providerType == 'raw' ? false : true,
