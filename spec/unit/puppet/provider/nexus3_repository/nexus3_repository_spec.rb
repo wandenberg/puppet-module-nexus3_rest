@@ -4,6 +4,8 @@ require 'spec_helper'
 
 ensure_module_defined('Puppet::Provider::Nexus3Repository')
 require 'puppet/provider/nexus3_repository/nexus3_repository'
+ensure_module_defined('Puppet::Provider::Nexus3CleanupPolicy')
+require 'puppet/provider/nexus3_cleanup_policy/nexus3_cleanup_policy'
 
 RSpec.describe Puppet::Provider::Nexus3Repository::Nexus3Repository do
   subject(:provider) { described_class.new }
@@ -425,7 +427,13 @@ RSpec.describe Puppet::Provider::Nexus3Repository::Nexus3Repository do
       end
     end
 
-    before(:each) { provider.create(context, values[:name], **create_values) }
+    before(:each) do
+      cleanup_policy_provider = Puppet::Provider::Nexus3CleanupPolicy::Nexus3CleanupPolicy.new
+      %w[all-last-downloaded-long-term maven-snapshot-last-downloaded-short-term].each { |name| cleanup_policy_provider.delete(context, name) }
+      cleanup_policy_provider.create(context, 'all-last-downloaded-long-term', name: 'all-last-downloaded-long-term', format: 'all', last_downloaded: 365)
+      cleanup_policy_provider.create(context, 'maven-snapshot-last-downloaded-short-term', name: 'maven-snapshot-last-downloaded-short-term', format: 'all', is_prerelease: true, last_downloaded: 15, regex: 'foo/bar/.*')
+      provider.create(context, values[:name], **create_values)
+    end
 
     let(:create_values) { common_values.merge(default_values).merge(specific_values) }
 
@@ -433,6 +441,8 @@ RSpec.describe Puppet::Provider::Nexus3Repository::Nexus3Repository do
 
     context 'hosted repository' do
       let(:provider_type) { 'rubygems' }
+
+      let(:cleanup_policies) { [] }
 
       let(:common_values) do
         {
@@ -443,7 +453,7 @@ RSpec.describe Puppet::Provider::Nexus3Repository::Nexus3Repository do
           strict_content_type_validation: true,
           write_policy: 'allow_write_once',
           proprietary_components: true,
-          cleanup_policies: [],
+          cleanup_policies: cleanup_policies,
         }
       end
 
@@ -590,6 +600,34 @@ RSpec.describe Puppet::Provider::Nexus3Repository::Nexus3Repository do
           {
             depth: 4,
             layout_policy: 'strict',
+          }
+        end
+
+        it_behaves_like 'simple repository'
+      end
+
+      context 'with cleanup policies' do
+        let(:specific_values) do
+          {
+            cleanup_policies: %w[maven-snapshot-last-downloaded-short-term all-last-downloaded-long-term]
+          }
+        end
+
+        let(:specific_update_values) do
+          {
+            cleanup_policies: %w[all-last-downloaded-long-term maven-snapshot-last-downloaded-short-term]
+          }
+        end
+
+        it_behaves_like 'simple repository'
+      end
+
+      context 'removing cleanup policies' do
+        let(:cleanup_policies) { %w[maven-snapshot-last-downloaded-short-term all-last-downloaded-long-term] }
+
+        let(:specific_update_values) do
+          {
+            cleanup_policies: []
           }
         end
 

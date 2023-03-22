@@ -8,10 +8,8 @@ def rule = routingRuleStore.getByName('<%= resource[:routing_rule] %>')
 config.routingRuleId = org.sonatype.nexus.common.entity.EntityHelper.id(rule)
 <%- end -%>
 
-<%- unless resource[:cleanup_policies] && resource[:cleanup_policies].empty? -%>
 def cleanup = config.attributes('cleanup')
-cleanup.set('policyName', new HashSet(<%= resource[:cleanup_policies] %>))
-<%- end -%>
+cleanup.set('policyName', new HashSet(<%= resource[:cleanup_policies] ? resource[:cleanup_policies] : [] %>))
 
 <%- if resource[:provider_type] == 'apt' -%>
 def apt = config.attributes('apt')
