@@ -1,3 +1,6 @@
+## 1.0.3
+- Fix idempotence on configuring cleanup policies on repositories
+
 ## 1.0.2
 - Fix support for http settings on Nexus 3.41+
 - Fix how boolean values are set for repositories
