@@ -86,7 +86,7 @@ This type provides Puppet with the capabilities to manage Nexus 3 LDAP connectio
       default: '',
     },
     password: {
-      type: 'String',
+      type: 'Sensitive[String]',
       desc: 'The expected value of the password.',
       default: '',
     },

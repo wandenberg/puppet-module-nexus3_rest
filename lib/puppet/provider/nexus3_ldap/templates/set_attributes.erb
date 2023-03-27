@@ -9,7 +9,7 @@ connection.setConnectionTimeout(<%= resource[:connection_timeout] %>)
 connection.setSaslRealm('<%= resource[:sasl_realm] %>')
 connection.setAuthScheme('<%= resource[:authentication_scheme] %>')
 connection.setSystemUsername('<%= resource[:username] %>')
-connection.setSystemPassword('<%= resource[:password] %>')
+connection.setSystemPassword('<%= resource[:password].unwrap %>')
 
 ldapConfiguration.setConnection(connection)
 
