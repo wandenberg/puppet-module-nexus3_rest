@@ -171,7 +171,7 @@ module Puppet::Provider::Nexus3Utils
     template_file = File.join(templates_folder, template_name)
     return unless File.exist?(template_file)
 
-    template = ERB.new(File.read(template_file), nil, '-')
+    template = ERB.new(File.read(template_file), trim_mode: '-')
     template.result_with_hash(resource: resource, templates_folder: templates_folder, to_boolean: Puppet::Provider::Nexus3Utils.method(:to_boolean))
   end
 
