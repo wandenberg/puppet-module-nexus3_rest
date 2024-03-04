@@ -171,7 +171,8 @@ module Puppet::Provider::Nexus3Utils
     template_file = File.join(templates_folder, template_name)
     return unless File.exist?(template_file)
 
-    template = ERB.new(File.read(template_file), nil, '-')
+    template_content = File.read(template_file)
+    template = Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.7') ? ERB.new(template_content, nil, '-') : ERB.new(template_content, trim_mode: '-')
     template.result_with_hash(resource: resource, templates_folder: templates_folder, to_boolean: Puppet::Provider::Nexus3Utils.method(:to_boolean))
   end
 
