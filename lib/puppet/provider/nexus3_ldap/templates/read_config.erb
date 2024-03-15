@@ -40,11 +40,11 @@ def infos = ldapConfigurations.collect { ldapConfiguration ->
     user_subtree: mapping.isUserSubtree(),
     user_member_of_attribute: ensureDefault(mapping.getUserMemberOfAttribute()),
 
-    group_base_dn: mapping.getGroupBaseDn(),
-    group_id_attribute: mapping.getGroupIdAttribute(),
-    group_member_attribute: mapping.getGroupMemberAttribute(),
-    group_member_format: mapping.getGroupMemberFormat(),
-    group_object_class: mapping.getGroupObjectClass(),
+    group_base_dn: mapping.getGroupBaseDn() ?: '',
+    group_id_attribute: mapping.getGroupIdAttribute() ?: '',
+    group_member_attribute: mapping.getGroupMemberAttribute() ?: '',
+    group_member_format: mapping.getGroupMemberFormat() ?: '',
+    group_object_class: mapping.getGroupObjectClass() ?: '',
     group_subtree: mapping.isGroupSubtree(),
 
     ldap_filter: mapping.getLdapFilter(),
