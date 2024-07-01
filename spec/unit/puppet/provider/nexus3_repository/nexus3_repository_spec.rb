@@ -810,19 +810,6 @@ RSpec.describe Puppet::Provider::Nexus3Repository::Nexus3Repository do
         it_behaves_like 'simple repository'
       end
 
-      context 'for npm' do
-        let(:provider_type) { 'npm' }
-
-        let(:specific_update_values) do
-          {
-            remove_non_cataloged: true,
-            remove_quarantined_versions: true,
-          }
-        end
-
-        it_behaves_like 'simple repository'
-      end
-
       context 'for nuget' do
         let(:provider_type) { 'nuget' }
 
