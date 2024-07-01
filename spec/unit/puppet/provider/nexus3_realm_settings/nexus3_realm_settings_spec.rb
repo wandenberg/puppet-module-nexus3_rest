@@ -31,7 +31,7 @@ RSpec.describe Puppet::Provider::Nexus3RealmSettings::Nexus3RealmSettings do
   describe 'update(context, name, should)' do
     let(:values) do
       {
-        names: %w[NexusAuthenticatingRealm NexusAuthorizingRealm LdapRealm DockerToken],
+        names: %w[NexusAuthenticatingRealm LdapRealm DockerToken],
       }
     end
 

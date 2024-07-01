@@ -1,4 +1,9 @@
 def realmManager = container.lookup(org.sonatype.nexus.security.realm.RealmManager.class.name)
-def config = realmManager.getConfiguration()
-config.setRealmNames(<%= resource[:names] %>)
-realmManager.setConfiguration(config);
+
+<%- if Nexus3::API.until_version(3.60) -%>
+  def config = realmManager.getConfiguration()
+  config.setRealmNames(<%= resource[:names] %>)
+  realmManager.setConfiguration(config);
+<%- else -%>
+  realmManager.setConfiguredRealmIds(<%= resource[:names] %>);
+<%- end -%>
