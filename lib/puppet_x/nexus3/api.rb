@@ -78,7 +78,18 @@ class Nexus3::API
   end
 
   def self.nexus3_server_version
-    result = execute_script('return container.lookup(com.sonatype.nexus.edition.oss.ApplicationVersionImpl.class.name).getVersion()')
+    get_version = <<-SCRIPT
+      clazz = null
+      try {
+        Class.forName("com.sonatype.nexus.edition.oss.ApplicationVersionImpl")
+        clazz = container.lookup(com.sonatype.nexus.edition.oss.ApplicationVersionImpl.class.name)
+      } catch (ClassNotFoundException e) {
+        clazz = container.lookup(com.sonatype.nexus.edition.pro.ApplicationVersionImpl.class.name)
+      }
+      return clazz.getVersion()
+    SCRIPT
+
+    result = execute_script(get_version)
     result.split('.')[0..1].join('.').to_f
   rescue
     3.19
