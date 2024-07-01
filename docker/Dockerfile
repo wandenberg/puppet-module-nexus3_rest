@@ -3,9 +3,10 @@ FROM sonatype/nexus3:${NEXUS_VERSION}
 
 USER root
 RUN echo 'nexus.scripts.allowCreation=true' >> /opt/sonatype/nexus/etc/nexus-default.properties
-RUN dnf module -y reset ruby && dnf module -y enable ruby:2.7 && dnf module -y update ruby:2.7 && \
-    dnf install -y redhat-rpm-config && yum install -y ruby-devel make gcc gcc-c++ && \
-    gem install bundler
+RUN if [ ! -f /usr/bin/dnf ]; then ln -s /usr/bin/microdnf /usr/bin/dnf; fi
+RUN dnf module -y reset ruby && dnf module -y enable ruby:2.7 && dnf install -y ruby && \
+    dnf install -y redhat-rpm-config && dnf install -y ruby-devel make gcc gcc-c++ && \
+    gem install bundler -v 2.1.4
 RUN mkdir -p /user/gems /nexus3_rest && chown nexus: /user/gems /nexus3_rest
 
 USER nexus

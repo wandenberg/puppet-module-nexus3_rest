@@ -3,8 +3,8 @@
 BASEDIR=$(dirname "$0")
 APP_DIR=$(cd ${BASEDIR}/.. ; pwd)
 CI=$1
-NAME=$2
-NEXUS_VERSION=${3:-3.40.1}
+NEXUS_VERSION=${2:-3.40.1}
+NAME=$3
 
 if [ -z "${NAME}" ]; then
     NAME_PARAM=''
