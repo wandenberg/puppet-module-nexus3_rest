@@ -17,7 +17,7 @@ node default {
   }
 
   nexus3_realm_settings { 'global':
-    names => ['NexusAuthenticatingRealm', 'NexusAuthorizingRealm'],
+    names => ['NexusAuthenticatingRealm'],
   }
 
   nexus3_repository { 'maven-central':
