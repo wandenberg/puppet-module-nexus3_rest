@@ -320,17 +320,6 @@ RSpec.describe Puppet::Provider::Nexus3Repository::Nexus3Repository do
         it_behaves_like 'simple repository'
       end
 
-      context 'for bower' do
-        let(:specific_values) do
-          {
-            provider_type: 'bower',
-            rewrite_package_urls: false,
-          }
-        end
-
-        it_behaves_like 'simple repository'
-      end
-
       context 'for docker' do
         let(:specific_values) do
           {
@@ -741,18 +730,6 @@ RSpec.describe Puppet::Provider::Nexus3Repository::Nexus3Repository do
           {
             distribution: 'dist',
             is_flat: true,
-          }
-        end
-
-        it_behaves_like 'simple repository'
-      end
-
-      context 'for bower' do
-        let(:provider_type) { 'bower' }
-
-        let(:specific_update_values) do
-          {
-            rewrite_package_urls: false,
           }
         end
 

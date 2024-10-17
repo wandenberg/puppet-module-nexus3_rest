@@ -152,10 +152,10 @@ RSpec.describe Puppet::Provider::Nexus3Task::Nexus3Task do
       it_behaves_like 'simple task'
     end
 
-    context 'for db.backup' do
+    context 'for h2.backup.task' do
       let(:specific_values) do
         {
-          type: 'db.backup',
+          type: 'h2.backup.task',
           location: '/tmp/foo',
         }
       end
@@ -545,8 +545,8 @@ RSpec.describe Puppet::Provider::Nexus3Task::Nexus3Task do
       it_behaves_like 'simple task'
     end
 
-    context 'for db.backup' do
-      let(:type) { 'db.backup' }
+    context 'for h2.backup.task' do
+      let(:type) { 'h2.backup.task' }
 
       let(:specific_values) do
         {

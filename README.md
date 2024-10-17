@@ -393,7 +393,7 @@ nexus3_task { 'Empty Trash':
                                              # `repository.maven.unpublish-dotindex`, `repository.npm.reindex`,
                                              # `repository.purge-unused`, `repository.rebuild-index`,
                                              # `repository.storage-facet-cleanup`, `repository.yum.rebuild.metadata`,
-                                             # `script`, `security.purge-api-keys`, `tasklog.cleanup`
+                                             # `script`, `security.purge-api-keys`, `tasklog.cleanup`, `h2.backup.task`
                                              #
   alert_email     => 'ops@example.com',      # optional; use `absent` (default) to disable the email notification
   frequency       => 'daily',                # one of `manual` (default), `once`, `daily`, `weekly`, `monthly` or `advanced`

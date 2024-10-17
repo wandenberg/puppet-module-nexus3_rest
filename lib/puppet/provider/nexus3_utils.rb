@@ -40,7 +40,7 @@ module Puppet::Provider::Nexus3Utils
                   repository.docker.gc repository.docker.upload-purge repository.maven.publish-dotindex repository.maven.purge-unused-snapshots repository.maven.rebuild-metadata
                   repository.maven.remove-snapshots repository.maven.unpublish-dotindex repository.npm.rebuild-metadata repository.npm.reindex repository.p2.rewrite-composite-metdata
                   repository.purge-unused repository.pypi.delete-legacy-proxy-assets repository.rebuild-index repository.storage-facet-cleanup repository.vulnerability.statistics
-                  repository.yum.rebuild.metadata script security.purge-api-keys tasklog.cleanup].freeze
+                  repository.yum.rebuild.metadata script security.purge-api-keys tasklog.cleanup h2.backup.task].freeze
 
   # Hook to return all instances of a resource type that its provider finds on the current system. Mainly used when
   # invoking `puppet resource`.
