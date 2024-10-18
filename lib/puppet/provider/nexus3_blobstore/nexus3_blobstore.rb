@@ -8,7 +8,7 @@ class Puppet::Provider::Nexus3Blobstore::Nexus3Blobstore < Puppet::ResourceApi::
   include Puppet::Provider::Nexus3Utils
 
   def canonicalize(context, resources)
-    file_type_allowed_keys = %i[name path type soft_quota_enabled quota_type quota_limit_bytes ensure]
+    file_type_allowed_keys = %i[name path type soft_quota_enabled quota_type quota_limit_bytes ensure before require notify subscribe]
     resources.each do |r|
       next if skip_resource?(r)
 
