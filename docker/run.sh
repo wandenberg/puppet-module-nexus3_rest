@@ -3,7 +3,7 @@
 BASEDIR=$(dirname "$0")
 APP_DIR=$(cd ${BASEDIR}/.. ; pwd)
 CI=$1
-NEXUS_VERSION=${2:-3.40.1}
+NEXUS_VERSION=${2:-3.72.0}
 NAME=$3
 
 if [ -z "${NAME}" ]; then

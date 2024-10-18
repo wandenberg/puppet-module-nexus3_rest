@@ -11,7 +11,7 @@ services:
     volumes:
        - ../:/data/wandenberg-nexus3_rest
   nexus:
-    image: nexus3_rest:3.40.1
+    image: nexus3_rest:3.72.0
     ports:
       - "8081:8081"
     volumes:
