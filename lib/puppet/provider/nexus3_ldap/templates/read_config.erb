@@ -29,7 +29,11 @@ def infos = ldapConfigurations.collect { ldapConfiguration ->
 
     authentication_scheme: connection.getAuthScheme(),
     username: connection.getSystemUsername(),
+    <%- if Nexus3::API.until_version(3.73) -%>
     password: connection.getSystemPassword(),
+    <%- else -%>
+    password: connection.getSystemPassword().decrypt().join(''),
+    <%- end -%>
 
     user_base_dn: mapping.getUserBaseDn(),
     user_email_attribute: mapping.getEmailAddressAttribute(),

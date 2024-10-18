@@ -180,11 +180,16 @@ module Puppet::Provider::Nexus3Utils
     value.to_s.empty? ? false : value
   end
 
-  def self.to_groovy_properties(prefix, resource, skip_keys: %i[name ensure loglevel])
+  def self.to_groovy_properties(prefix, resource, skip_keys: %i[name ensure loglevel], encrypted_keys: %i[])
     lines = []
     resource.each_pair do |key, value|
       next if skip_keys.include?(key)
-      lines.push("#{prefix}[toCamelCase('#{key}')] = #{value.is_a?(String) ? "'#{value}'" : value}")
+      if encrypted_keys.include?(key)
+        lines.push('def secretManager = container.lookup(org.sonatype.nexus.crypto.secrets.internal.SecretsServiceImpl.class.name)')
+        lines.push("#{prefix}[toCamelCase('#{key}')] = secretManager.encrypt('', '#{value}'.toCharArray(), '')")
+      else
+        lines.push("#{prefix}[toCamelCase('#{key}')] = #{value.is_a?(String) ? "'#{value}'" : value}")
+      end
     end
     lines.join("\n")
   end

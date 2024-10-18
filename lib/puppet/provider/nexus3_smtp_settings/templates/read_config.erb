@@ -5,7 +5,11 @@ def config = emailManager.getConfiguration();
 def info = [:]
 
 config.properties.findAll { it.key != 'class' && it.key != 'entityMetadata' }.each { key, value ->
+<%- if Nexus3::API.until_version(3.73) -%>
   info[toSnakeCase(key)] = value instanceof Boolean || value instanceof Integer ? value : ensureDefault(value, '')
+<%- else -%>
+  info[toSnakeCase(key)] = value instanceof Boolean || value instanceof Integer ? value : ((value instanceof org.sonatype.nexus.crypto.secrets.Secret) ? ensureDefault(value?.decrypt()?.join(''), '') : ensureDefault(value, ''))
+<%- end -%>
 }
 
 return groovy.json.JsonOutput.toJson([info]);

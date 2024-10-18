@@ -2,5 +2,10 @@
 
 def emailManager = container.lookup(org.sonatype.nexus.email.EmailManager.class.name);
 def config = emailManager.getConfiguration();
+<%- if Nexus3::API.until_version(3.73) -%>
 <%= Puppet::Provider::Nexus3Utils.to_groovy_properties('config', resource) %>
 emailManager.setConfiguration(config);
+<%- else -%>
+<%= Puppet::Provider::Nexus3Utils.to_groovy_properties('config', resource, encrypted_keys: %i[password]) %>
+emailManager.setConfiguration(config, '');
+<%- end -%>

@@ -13,7 +13,11 @@ return groovy.json.JsonOutput.toJson([
   http_host: ensureDefault(httpConfig?.host),
   http_auth_type: ensureDefault(httpConfig?.authentication?.type),
   http_auth_username: ensureDefault(httpConfig?.authentication?.username),
+<%- if Nexus3::API.until_version(3.73) -%>
   http_auth_password: ensureDefault(httpConfig?.authentication?.password),
+<%- else -%>
+  http_auth_password: ensureDefault(httpConfig?.authentication?.password?.decrypt()?.join('')),
+<%- end -%>
   http_auth_ntlm_host: httpConfig?.authentication?.type == 'ntlm' ? ensureDefault(httpConfig?.authentication?.host) : '',
   http_auth_ntlm_domain: httpConfig?.authentication?.type == 'ntlm' ? ensureDefault(httpConfig?.authentication?.domain) : '',
   https_enabled: httpsConfig ? httpsConfig.enabled : false,
@@ -21,7 +25,11 @@ return groovy.json.JsonOutput.toJson([
   https_host: ensureDefault(httpsConfig?.host),
   https_auth_type: ensureDefault(httpsConfig?.authentication?.type),
   https_auth_username: ensureDefault(httpsConfig?.authentication?.username),
+<%- if Nexus3::API.until_version(3.73) -%>
   https_auth_password: ensureDefault(httpsConfig?.authentication?.password),
+<%- else -%>
+  https_auth_password: ensureDefault(httpsConfig?.authentication?.password?.decrypt()?.join('')),
+<%- end -%>
   https_auth_ntlm_host: httpsConfig?.authentication?.type == 'ntlm' ? ensureDefault(httpsConfig?.authentication?.host) : '',
   https_auth_ntlm_domain: httpsConfig?.authentication?.type == 'ntlm' ? ensureDefault(httpsConfig?.authentication?.domain) : '',
   non_proxy_hosts: proxy?.nonProxyHosts ? proxy.nonProxyHosts : [],

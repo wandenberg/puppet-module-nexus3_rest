@@ -9,7 +9,11 @@ connection.setConnectionTimeout(<%= resource[:connection_timeout] %>)
 connection.setSaslRealm('<%= resource[:sasl_realm] %>')
 connection.setAuthScheme('<%= resource[:authentication_scheme] %>')
 connection.setSystemUsername('<%= resource[:username] %>')
+<%- if Nexus3::API.until_version(3.73) -%>
 connection.setSystemPassword('<%= resource[:password] %>')
+<%- else -%>
+connection.setRawSystemPassword('<%= resource[:password] %>')
+<%- end -%>
 
 ldapConfiguration.setConnection(connection)
 
