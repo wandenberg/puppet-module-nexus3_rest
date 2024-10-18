@@ -1,3 +1,12 @@
+## 1.0.4
+- Update gems
+- Fix default values for ldap group attributes
+- Add support to Nexus PRO
+- Remove deprecation warnings about ERB initialization on Ruby 2.7+
+- Fix realm settings for Nexus 3.60+
+- Fix support to puppet dependencies while using nexus3_blobstore
+- Update docker setup to use Nexus 3.72.0
+
 ## 1.0.3
 - Fix idempotence on configuring cleanup policies on repositories
 
